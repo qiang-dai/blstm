@@ -38,7 +38,7 @@ sentences = texts.split('\n')  # 根据换行切分
 
 def get_Xy(sentence):
     """将 sentence 处理成 [word1, w2, ..wn], [tag1, t2, ...tn]"""
-    words_tags = re.findall('(.*)/(.*)', sentence)
+    words_tags = re.findall('([\S]+)/([\S]+)', sentence)
     if words_tags:
         words_tags = np.asarray(words_tags)
         words = words_tags[:, 0]
@@ -64,19 +64,14 @@ df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=range(len(datas))
 df_data['sentence_len'] = df_data['words'].apply(lambda words: len(words))
 df_data.head(2)
 
-length_list = [len(str(e).split(' ')) for e in datas]
-c = Counter(length_list)
 # 句子长度的分布
-# import matplotlib.pyplot as plt
-# px = [i for i in range(100)]
-# py = [c.get(i, 0) for i in range(100)]
-# plt.figure(1)
-# plt.xlim(0, 100)
-# plt.xlabel('sentence_length')
-# plt.ylabel('sentence_num')
-# plt.title('Distribution of the Length of Sentence')
-# plt.plot(px, py)
-# plt.show()
+import matplotlib.pyplot as plt
+df_data['sentence_len'].hist(bins=100)
+plt.xlim(0, 100)
+plt.xlabel('sentence_length')
+plt.ylabel('sentence_num')
+plt.title('Distribution of the Length of Sentence')
+plt.show()
 
 # 1.用 chain(*lists) 函数把多个list拼接起来
 from itertools import chain
@@ -248,7 +243,7 @@ max_max_epoch = 10
 timestep_size = max_len = 32           # 句子长度
 vocab_size = 5159    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
-class_num = 5
+class_num = 27
 hidden_size = 128    # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
 max_grad_norm = 5.0  # 最大梯度（超过此值的梯度将被裁剪）

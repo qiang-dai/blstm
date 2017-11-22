@@ -155,7 +155,7 @@ for i in range(len(sentences)):
             out_list.append(text)
             
         print (out_list)
-        write_file(filename, ' '.join(out_list))
+        write_file(filename, '  '.join(out_list))
         #for pos in range(len(content_list)):
         #    print
         #print (content_list)
