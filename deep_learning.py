@@ -4,15 +4,20 @@ import pandas as pd
 import re
 from tqdm import tqdm
 import time
-import os
+import os,sys
 from collections import Counter
 import punctuation
+
+threshold_line_cnt = 1000000
+if len(sys.argv) > 1:
+    threshold_line_cnt = int(sys.argv[1])
 
 # 以字符串的形式读入所有数据
 print (os.getcwd())
 with open('raw_data/res.txt', 'rb') as inp:
     texts = inp.read().decode('utf8')
 sentences = texts.split('\n')  # 根据换行切分
+sentences = sentences[:threshold_line_cnt]
 
 def get_Xy(sentence):
     """将 sentence 处理成 [word1, w2, ..wn], [tag1, t2, ...tn]"""
@@ -371,7 +376,7 @@ def test_epoch(dataset):
 
 sess.run(tf.global_variables_initializer())
 tr_batch_size = 128 
-max_max_epoch = 1000000
+max_max_epoch = 1000
 display_num = 5  # 每个 epoch 显示是个结果
 tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
 display_batch = int(tr_batch_num / display_num)  # 每训练 display_batch 之后输出一次
