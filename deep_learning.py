@@ -456,10 +456,10 @@ print('_y_pred=',_y_pred)
 
 for i in range(2):
     x = X_tt[i]
-    y = _y_pred[i]
+    y = _y_pred[i*len(x):(i+1)*len(x)]
     x_index = [e for e in x if e > 0]
     y_index = [np.argmax(e) for e in y]
-    y_index = [e for e in y_index if e > 0]
+    #y_index = [e for e in y_index if e > 0]
     print ("x:", x)
     print ("y:", y)
     print ("x_index:", x_index)
