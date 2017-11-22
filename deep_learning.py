@@ -65,13 +65,13 @@ df_data['sentence_len'] = df_data['words'].apply(lambda words: len(words))
 df_data.head(2)
 
 # 句子长度的分布
-import matplotlib.pyplot as plt
-df_data['sentence_len'].hist(bins=100)
-plt.xlim(0, 100)
-plt.xlabel('sentence_length')
-plt.ylabel('sentence_num')
-plt.title('Distribution of the Length of Sentence')
-plt.show()
+# import matplotlib.pyplot as plt
+# df_data['sentence_len'].hist(bins=100)
+# plt.xlim(0, 100)
+# plt.xlabel('sentence_length')
+# plt.ylabel('sentence_num')
+# plt.title('Distribution of the Length of Sentence')
+# plt.show()
 
 # 1.用 chain(*lists) 函数把多个list拼接起来
 from itertools import chain
@@ -443,21 +443,35 @@ X_tt, y_tt = data_train.next_batch(2)
 print( 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print( 'X_tt = ', X_tt)
 print( 'y_tt = ', y_tt)
-
-X_tt=[[1690,378,308,735,311,28,490,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[2,368,57,283,941,1239,252,191,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
-y_tt=[[1,1,2,4,2,4,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [1,1,2,4,2,4,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0}
+
 ### y_pred 是一个 op
 fetches = [y_pred]
 _y_pred = sess.run(fetches, feed_dict)
+
 #,print(,'X_tt.shape=',,X_tt.shape,,'y_tt.shape=',,y_tt.shape)
 print('X_tt=',X_tt)
 print('y_tt=',y_tt)
 print('_y_pred=',_y_pred)
-nodes = [dict(zip(['s','b','m','e'], each[1:])) for each in _y_pred]
-print('nodes=',nodes)
+
+for i in range(2):
+    x = X_tt[i]
+    y = _y_pred[i]
+    x_index = [e for e in x if e > 0]
+    y_index = [np.argmax(e) for e in y]
+    y_index = [e for e in y_index if e > 0]
+    print ("x:", x)
+    print ("y:", y)
+    print ("x_index:", x_index)
+    print ("y_index:", y_index)
+
+    word_list = [id2word[e] for e in x_index]
+    label_list =[id2tag[e] for e in y_index]
+    print (word_list)
+    print (label_list)
+
+#nodes = [dict(zip(['s','b','m','e'], each[1:])) for each in _y_pred]
+#print('nodes=',nodes)
 
 # # 利用 labels（即状态序列）来统计转移概率
 # # 因为状态数比较少，这里用 dict={'I_tI_{t+1}'：p} 来实现
