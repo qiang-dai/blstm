@@ -371,7 +371,7 @@ def test_epoch(dataset):
 
 sess.run(tf.global_variables_initializer())
 tr_batch_size = 128 
-max_max_epoch = 10
+max_max_epoch = 1000000
 display_num = 5  # 每个 epoch 显示是个结果
 tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
 display_batch = int(tr_batch_num / display_num)  # 每训练 display_batch 之后输出一次
@@ -408,6 +408,9 @@ for epoch in range(max_max_epoch):
         print( 'the save path is ', save_path)
     print( '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
     print( 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
+    if mean_acc > 0.999:
+        print ('mean_acc > 0.999')
+        break
 # testing
 print( '**TEST RESULT:')
 test_acc, test_cost = test_epoch(data_test)
