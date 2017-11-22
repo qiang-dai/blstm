@@ -384,6 +384,7 @@ print('tr_batch_num:', tr_batch_num)
 print('display_batch:', display_batch)
 
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
+last_10_acc = []
 for epoch in range(max_max_epoch):
     _lr = 1e-4
     if epoch > max_epoch:
@@ -419,6 +420,10 @@ for epoch in range(max_max_epoch):
     if mean_acc > 0.999:
         print ('mean_acc > 0.999')
         break
+    last_10_acc.append(mean_acc)
+    if len(last_10_acc) > 10:
+        last_10_acc = last_10_acc[1:]
+    print('last_10_acc:', last_10_acc)
 # testing
 print( '**TEST RESULT:')
 test_acc, test_cost = test_epoch(data_test)
