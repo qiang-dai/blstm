@@ -453,6 +453,7 @@ _y_pred = sess.run(fetches, feed_dict)
 print('X_tt=',X_tt)
 print('y_tt=',y_tt)
 print('_y_pred=',_y_pred)
+print('_y_pred[0] size, shape:', _y_pred[0])
 print('X_tt, y_tt size:', X_tt.size(), y_tt.size())
 print('X_tt, y_tt shape:', X_tt.shape(), y_tt.shape())
 
