@@ -365,6 +365,7 @@ print( 'Finished creating the bi-lstm model.')
 def test_epoch(dataset):
     """Testing or valid."""
     _batch_size = 500
+    ### accuracy, cost 都是 op
     fetches = [accuracy, cost]
     _y = dataset.y
     data_size = _y.shape[0]
@@ -443,6 +444,7 @@ X_tt=[[1690,378,308,735,311,28,490,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 y_tt=[[1,1,2,4,2,4,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       [1,1,2,4,2,4,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0}
+### y_pred 是一个 op
 fetches = [y_pred]
 _y_pred = sess.run(fetches, feed_dict)
 #,print(,'X_tt.shape=',,X_tt.shape,,'y_tt.shape=',,y_tt.shape)
