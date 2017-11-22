@@ -224,7 +224,7 @@ For Chinese word segmentation.
 # ##################### config ######################
 decay = 0.85
 max_epoch = 5
-max_max_epoch = 10
+#max_max_epoch = 10
 timestep_size = max_len = 32           # 句子长度
 vocab_size = 5159    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
