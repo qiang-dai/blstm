@@ -118,7 +118,8 @@ clear_file(filename)
 
 cnt_dict = {
     'Unknown':1,
-    'Header':1
+    'Header':1,
+    'Tail':1,
 }
 
 def add_cnt_dict(cnt_dict, word):
@@ -144,6 +145,9 @@ for i in range(len(sentences)):
             else:
                 content_list.append(w)
                 labels_list.append(punctuation.punctuation_unkown)
+        ###添加结束标记
+        content_list.append('Tail')
+        labels_list.append(punctuation.punctuation_unkown)
 
         out_list = []
         for pos in range(len(content_list)):
