@@ -132,7 +132,8 @@ for i in range(len(sentences)):
     res_list = clean_sentence(sentence)
     for res in res_list:
         add_cnt_dict(cnt_dict, res)
-    if i < 10000:
+    #if i < 10000:
+    if True:
         #print(i, res_list)
         content_list = ['Header',]
         labels_list = [punctuation.punctuation_unkown,]
