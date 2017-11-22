@@ -113,7 +113,7 @@ def write_file(filename, res):
     f.write(res + '\n')
     f.close()
 
-filename = 'res.txt'
+filename = 'raw_data/res.txt'
 clear_file(filename)
 
 cnt_dict = {

@@ -23,6 +23,8 @@ punctuation_dict = {
     "*": 'V',
     "%": 'W',
     ".": 'X',
+    '$': 'Y',
+    ',': 'Z',
 }
 
-punctuation_unkown = 'Z'
+punctuation_unkown = 'UNKOWN'
