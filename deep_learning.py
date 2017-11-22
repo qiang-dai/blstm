@@ -375,6 +375,9 @@ def test_epoch(dataset):
     _y = dataset.y
     data_size = _y.shape[0]
     batch_num = int(data_size / _batch_size)
+    if batch_num == 0:
+        return 0,0
+
     start_time = time.time()
     _costs = 0.0
     _accs = 0.0
