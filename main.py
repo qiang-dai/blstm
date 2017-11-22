@@ -150,7 +150,8 @@ for i in range(len(sentences)):
             if punc == punctuation.punctuation_unkown:
                 pass
             else:
-                punc = punctuation.punctuation_dict[punc]
+                #punc = punctuation.punctuation_dict[punc]
+                pass
             text = content_list[pos] + '/' + punc
             out_list.append(text)
             
