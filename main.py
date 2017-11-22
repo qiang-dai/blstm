@@ -100,6 +100,7 @@ def clean_sentence(sentence):
         tmp_list = clean_word(word)
         res_list.extend(tmp_list)
 
+    ###这里判断一下,单词后面是
     return res_list
 
 def clear_file(filename):
@@ -114,7 +115,11 @@ def write_file(filename, res):
 filename = 'res.txt'
 clear_file(filename)
 
-cnt_dict = {}
+cnt_dict = {
+    'Unknown':1,
+    'Header':1
+}
+
 def add_cnt_dict(cnt_dict, word):
     if word in cnt_dict:
         cnt_dict[word] += 1
@@ -126,13 +131,39 @@ for i in range(len(sentences)):
     res_list = clean_sentence(sentence)
     for res in res_list:
         add_cnt_dict(cnt_dict, res)
-    if i < 1000:
-        print(i, res_list)
+    if i < 100000:
+        #print(i, res_list)
+        content_list = ['Header',]
+        labels_list = ['S',]
+        for w in res_list:
+            ###如果是符号,就往前加
+            if is_punc(w[0]):
+                labels_list[-1] = w
+            else:
+                content_list.append(w)
+                labels_list.append('S')
+
+        out_list = []
+        for pos in range(len(content_list)):
+            punc = labels_list[pos]
+            if punc == 'S':
+                pass
+            else:
+                punc = punctuation_dict[punc]
+            text = content_list[pos] + '/' + punc
+            out_list.append(text)
+            
+        print (out_list)
+        #for pos in range(len(content_list)):
+        #    print
+        #print (content_list)
+        #print (labels_list)
     else:
         break
 
 c = Counter(cnt_dict)
-print ('add_cnt_dict:', c.most_common(1000))
+print ('add_cnt_dict:', len(cnt_dict), c.most_common(100))
 print ('punc_dict:', punc_dict)
     ###写文件
     #write_file(filename, ' '.join([e for e in res_list]))
+
