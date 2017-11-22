@@ -14,28 +14,6 @@ with open('raw_data/res.txt', 'rb') as inp:
     texts = inp.read().decode('utf8')
 sentences = texts.split('\n')  # 根据换行切分
 
-# # 将不规范的内容（如每行的开头）去掉
-# def clean(s):
-#     if u'“/s' not in s:  # 句子中间的引号不应去掉
-#         return s.replace(u' ”/s', '')
-#     elif u'”/s' not in s:
-#         return s.replace(u'“/s ', '')
-#     elif u'‘/s' not in s:
-#         return s.replace(u' ’/s', '')
-#     elif u'’/s' not in s:
-#         return s.replace(u'‘/s ', '')
-#     else:
-#         return s
-    
-# texts = u' '.join(map(clean, sentences)) # 把所有的词拼接起来
-# print( 'Length of texts is %d' % len(texts))
-# print( 'Example of texts: \n', texts[:300])
-
-# 重新以标点来划分
-#sentences = re.split(u'[，。！？、‘’“”]/[bems]', texts)
-# print( 'Sentences number:', len(sentences))
-# print( 'Sentence Example:\n', sentences[1])
-
 def get_Xy(sentence):
     """将 sentence 处理成 [word1, w2, ..wn], [tag1, t2, ...tn]"""
     words_tags = re.findall('([\S]+)/([\S]+)', sentence)
