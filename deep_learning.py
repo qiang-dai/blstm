@@ -459,7 +459,12 @@ print('X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
 for i in range(2):
     x = X_tt[i]
-    y = _y_pred[i*len(x):(i+1)*len(x)]
+
+    length = len(x)
+    beg = i*length
+    end = (i+1)*length
+    y = _y_pred[0][beg:end]
+
     x_index = [e for e in x if e > 0]
     y_index = [np.argmax(e) for e in y]
     print ("x:", x)
