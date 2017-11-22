@@ -380,6 +380,9 @@ max_max_epoch = 1000
 display_num = 5  # 每个 epoch 显示是个结果
 tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
 display_batch = int(tr_batch_num / display_num)  # 每训练 display_batch 之后输出一次
+print('tr_batch_num:', tr_batch_num)
+print('display_batch:', display_batch)
+
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 for epoch in range(max_max_epoch):
     _lr = 1e-4
