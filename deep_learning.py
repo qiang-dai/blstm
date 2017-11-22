@@ -468,7 +468,7 @@ for i in range(2):
     x_index = [e for e in x if e > 0]
     y_index = [np.argmax(e) for e in y]
     print ("x:", x)
-    print ("y:", y)
+    #print ("y:", y)
     print ("x_index:", x_index)
     print ("y_index:", y_index)
 
