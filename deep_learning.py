@@ -82,7 +82,7 @@ sr_allwords = sr_allwords.value_counts()
 set_words = sr_allwords.index
 set_ids = range(1, len(set_words)+1) # 注意从1开始，因为我们准备把0作为填充值
 #tags = [ 'x', 's', 'b', 'm', 'e']
-tags = list(punctuation.punctuation_dict.values())
+tags = list(punctuation.punctuation_dict.keys())
 tags.sort()
 tags.append(punctuation.punctuation_unkown)
 tag_ids = range(len(tags))
