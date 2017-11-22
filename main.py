@@ -12,7 +12,7 @@ import codecs
 
 # 以字符串的形式读入所有数据
 print (os.getcwd())
-with open('~/en_punctuation_recommend_train_100W', 'rb') as inp:
+with open('raw_data/en_punctuation_recommend_train_100W', 'rb') as inp:
     texts = inp.read().decode('utf8')
 sentences = texts.split('\n')  # 根据换行切分
 print (sentences[:300])
