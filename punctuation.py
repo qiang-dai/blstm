@@ -24,3 +24,5 @@ punctuation_dict = {
     "%": 'W',
     ".": 'X',
 }
+
+punctuation_unkown = 'Z'

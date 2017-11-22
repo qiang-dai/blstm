@@ -6,7 +6,8 @@ from tqdm import tqdm
 import time
 import os
 from collections import Counter
-from punctuation import punctuation_dict
+#from punctuation import punctuation_dict
+import punctuation
 import codecs
 
 # 以字符串的形式读入所有数据
@@ -37,7 +38,7 @@ def is_alphabet(uchar):
     else:
         return False
 def is_punc(uchar):
-    if uchar in punctuation_dict:
+    if uchar in punctuation.punctuation_dict:
         return True
     return False
 
@@ -108,8 +109,8 @@ def clear_file(filename):
     f.close()
 
 def write_file(filename, res):
-    f = codecs.open(filename, 'w', 'utf8')
-    f.write(res)
+    f = codecs.open(filename, 'a+', 'utf8')
+    f.write(res + '\n')
     f.close()
 
 filename = 'res.txt'
@@ -131,29 +132,30 @@ for i in range(len(sentences)):
     res_list = clean_sentence(sentence)
     for res in res_list:
         add_cnt_dict(cnt_dict, res)
-    if i < 100000:
+    if i < 10000:
         #print(i, res_list)
         content_list = ['Header',]
-        labels_list = ['S',]
+        labels_list = [punctuation.punctuation_unkown,]
         for w in res_list:
             ###如果是符号,就往前加
             if is_punc(w[0]):
                 labels_list[-1] = w
             else:
                 content_list.append(w)
-                labels_list.append('S')
+                labels_list.append(punctuation.punctuation_unkown)
 
         out_list = []
         for pos in range(len(content_list)):
             punc = labels_list[pos]
-            if punc == 'S':
+            if punc == punctuation.punctuation_unkown:
                 pass
             else:
-                punc = punctuation_dict[punc]
+                punc = punctuation.punctuation_dict[punc]
             text = content_list[pos] + '/' + punc
             out_list.append(text)
             
         print (out_list)
+        write_file(filename, ' '.join(out_list))
         #for pos in range(len(content_list)):
         #    print
         #print (content_list)
