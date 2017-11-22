@@ -7,6 +7,7 @@ import time
 import os
 from collections import Counter
 from punctuation import punctuation_dict
+import codecs
 
 # 以字符串的形式读入所有数据
 print (os.getcwd())
@@ -101,17 +102,17 @@ def clean_sentence(sentence):
 
     return res_list
 
-# def clear_file(filename):
-#     f = open(filename, 'w')
-#     f.close()
-#
-# def write_file(filename, res):
-#     f = open(filename, 'w+')
-#     f.write(res)
-#     f.close()
-#
-# filename = 'res.txt'
-# clear_file(filename)
+def clear_file(filename):
+    f = codecs.open(filename, 'w', 'utf8')
+    f.close()
+
+def write_file(filename, res):
+    f = codecs.open(filename, 'w', 'utf8')
+    f.write(res)
+    f.close()
+
+filename = 'res.txt'
+clear_file(filename)
 
 cnt_dict = {}
 def add_cnt_dict(cnt_dict, word):
@@ -125,7 +126,7 @@ for i in range(len(sentences)):
     res_list = clean_sentence(sentence)
     for res in res_list:
         add_cnt_dict(cnt_dict, res)
-    if i < 10000:
+    if i < 1000:
         print(i, res_list)
     else:
         break
