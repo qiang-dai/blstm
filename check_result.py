@@ -9,8 +9,9 @@ from collections import Counter
 import punctuation
 
 threshold_line_cnt = 1000000
+check_batch_size = 2
 if len(sys.argv) > 1:
-    threshold_line_cnt = int(sys.argv[1])
+    check_batch_size = int(sys.argv[1])
 # max_max_epoch = 1000
 # if len(sys.argv) > 2:
 #     max_max_epoch = int(sys.argv[2])
@@ -441,7 +442,7 @@ best_model_path = 'ckpt/bi-lstm.ckpt-%d'%(mode_num)
 saver.restore(sess, best_model_path)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-X_tt, y_tt = data_train.next_batch(2)
+X_tt, y_tt = data_train.next_batch(check_batch_size)
 print( 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print( 'X_tt = ', X_tt)
 print( 'y_tt = ', y_tt)
@@ -459,7 +460,7 @@ print('_y_pred[0] size, shape:', _y_pred[0].size, _y_pred[0].shape)
 print('X_tt, y_tt size:', X_tt.size, y_tt.size)
 print('X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
-for i in range(2):
+for i in range(check_batch_size):
     x = X_tt[i]
 
     length = len(x)
