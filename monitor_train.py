@@ -57,6 +57,15 @@ for sentence in sentences:
         result_dict[sessionId] = item_dict
 
 
+cnt1_dict = {}
+cnt2_dict = {}
+
+def add_dict(some_dict, k, v):
+    if k in some_dict:
+        some_dict[k] += v
+    else:
+        some_dict[k] = v
+
 for k in result_dict.keys():
     #print(k, result_dict[k])
     ###判断时间差
@@ -65,4 +74,26 @@ for k in result_dict.keys():
     diff2 = int(item_dict['reportTime']) - int(item_dict['event_ts'])
     #print (k, 'diff1:', diff1/1000, 'diff2:', diff2/1000, result_dict)
     print (k, 'diff1:', diff1/1000, 'diff2:', diff2/1000)
+
+    k1 = int(diff1/1000)
+    k1 = str(k1)
+    k1 = len(k1)
+    k1 = 10**k1
+    add_dict(cnt1_dict, k1, 1)
+
+    k2 = int(diff2/1000)
+    k2 = str(k2)
+    k2 = len(k2)
+    k2 = 10**k2
+    add_dict(cnt2_dict, k2, 1)
+
+print ('cnt1_dict')
+for k in cnt1_dict.keys():
+    print (k, ':',cnt1_dict[k])
+
+print ('cnt2_dict')
+for k in cnt2_dict.keys():
+    print (k,':', cnt2_dict[k])
+
+
 
