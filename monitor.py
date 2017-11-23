@@ -27,8 +27,8 @@ for sentence in sentences:
     if sentence.find('reportTime') != -1:
         i = 0
 
-    print('sentence:', sentence)
-    print('text:', text)
+    #print('sentence:', sentence)
+    #print('text:', text)
     try:
         tmp_dict = json.loads(text)
     except:
