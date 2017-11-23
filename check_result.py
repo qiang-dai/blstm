@@ -486,6 +486,9 @@ for i in range(check_batch_size):
         if label_list[pos] != 'UNKOWN':
             res += label_list[pos]
         res += ' '
+
+    res = res.replace('Header', '')
+    res = res.replace(' Tail', '')
     print (res)
 
 
