@@ -40,7 +40,7 @@ for sentence in sentences:
         sessionId = extra_dict['trainItem']['sessionId']
         extra_dict = extra_dict['trainItem']['extra']
     else:
-        print(extra_dict)
+        #print(extra_dict)
         sessionId = extra_dict['sessionId']
 
     ###特殊情况
