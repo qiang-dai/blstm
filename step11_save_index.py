@@ -65,8 +65,7 @@ sr_allwords = sr_allwords.value_counts()
 set_words = sr_allwords.index
 set_ids = range(1, len(set_words)+1) # 注意从1开始，因为我们准备把0作为填充值
 #tags = [ 'x', 's', 'b', 'm', 'e']
-tags = list(punctuation.punctuation_dict.keys())
-tags.insert(0, punctuation.punctuation_unkown)
+tags = punctuation.punctuation_list
 tag_ids = range(len(tags))
 
 # 3. 构建 words 和 tags 都转为数值 id 的映射（使用 Series 比 dict 更加方便）

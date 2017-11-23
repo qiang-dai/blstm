@@ -6,7 +6,6 @@ from tqdm import tqdm
 import time
 import os
 from collections import Counter
-#from punctuation import punctuation_dict
 import punctuation
 import codecs
 
@@ -37,8 +36,10 @@ def is_alphabet(uchar):
         return True
     else:
         return False
+
+punc_set = set(punctuation.punctuation_list)
 def is_punc(uchar):
-    if uchar in punctuation.punctuation_dict:
+    if uchar in punc_set:
         return True
     return False
 
@@ -133,45 +134,34 @@ for i in range(len(sentences)):
     res_list = clean_sentence(sentence)
     for res in res_list:
         add_cnt_dict(cnt_dict, res)
-    #if i < 10000:
-    if True:
-        #print(i, res_list)
-        content_list = ['Header',]
-        labels_list = [punctuation.punctuation_unkown,]
-        for w in res_list:
-            ###如果是符号,就往前加
-            if is_punc(w[0]):
-                labels_list[-1] = w
-            else:
-                content_list.append(w)
-                labels_list.append(punctuation.punctuation_unkown)
-        ###添加结束标记
-        content_list.append('Tail')
-        labels_list.append(punctuation.punctuation_unkown)
+    #print(i, res_list)
+    content_list = ['Header',]
+    labels_list = [punctuation.punctuation_list[0],]
+    for w in res_list:
+        ###如果是符号,就往前加
+        if is_punc(w[0]):
+            labels_list[-1] = w
+        else:
+            content_list.append(w)
+            labels_list.append(punctuation.punctuation_list[0])
+    ###添加结束标记
+    content_list.append('Tail')
+    labels_list.append(punctuation.punctuation_list[0])
 
-        out_list = []
-        for pos in range(len(content_list)):
-            punc = labels_list[pos]
-            if punc == punctuation.punctuation_unkown:
-                pass
-            else:
-                #punc = punctuation.punctuation_dict[punc]
-                pass
-            text = content_list[pos] + '/' + punc
-            out_list.append(text)
-            
-        print (out_list)
-        write_file(filename, '  '.join(out_list))
-        #for pos in range(len(content_list)):
-        #    print
-        #print (content_list)
-        #print (labels_list)
-    else:
-        break
+    out_list = []
+    for pos in range(len(content_list)):
+        punc = labels_list[pos]
+        if punc == punctuation.punctuation_list[0]:
+            pass
+        else:
+            pass
+        text = content_list[pos] + '/' + punc
+        out_list.append(text)
+
+    print (out_list)
+    write_file(filename, '  '.join(out_list))
 
 c = Counter(cnt_dict)
 print ('add_cnt_dict:', len(cnt_dict), c.most_common(100))
 print ('punc_dict:', punc_dict)
-    ###写文件
-    #write_file(filename, ' '.join([e for e in res_list]))
 
