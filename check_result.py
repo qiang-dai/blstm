@@ -479,4 +479,12 @@ for i in range(2):
     print (word_list)
     print (label_list)
 
+    res = ''
+    for pos in range(len(word_list)):
+        res += word_list[pos]
+        if label_list[pos] != 'UNKOWN':
+            res += label_list[pos]
+        res += ' '
+    print (res)
+
 
