@@ -29,7 +29,11 @@ for sentence in sentences:
 
     print('sentence:', sentence)
     print('text:', text)
-    tmp_dict = json.loads(text)
+    try:
+        tmp_dict = json.loads(text)
+    except:
+        pass
+        continue
     
     extra_dict = tmp_dict['extra']
     if 'trainItem' in extra_dict:
@@ -38,6 +42,10 @@ for sentence in sentences:
     else:
         print(extra_dict)
         sessionId = extra_dict['sessionId']
+
+    ###特殊情况
+    if not extra_dict:
+        continue
 
     item_dict = {}
     if sessionId in result_dict:
