@@ -1,14 +1,18 @@
 # import numpy as np
 # import re
 # import time
-import os
+import os,sys
 # import punctuation
 # import codecs
 import json
 
+filename = 'm.txt'
+if len(sys.argv) > 1:
+    filename = sys.argv[1]
+
 # 以字符串的形式读入所有数据
 print (os.getcwd())
-with open('m.txt', 'rb') as inp:
+with open(filename, 'rb') as inp:
     texts = inp.read().decode('utf8')
 sentences = texts.split('\n')  # 根据换行切分
 print (sentences[:10])
