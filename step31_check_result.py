@@ -479,8 +479,11 @@ for i in range(check_batch_size):
 
     res = ''
     for pos in range(len(word_list)):
+
         res += word_list[pos]
-        if label_list[pos] != 'UNKNOWN' and label_list[pos] != 'UNKOWN':
+        if label_list[pos] == 'LEFT':
+            res += '/'
+        elif label_list[pos] != 'UNKNOWN' and label_list[pos] != 'UNKOWN':
             res += label_list[pos]
         res += ' '
 
