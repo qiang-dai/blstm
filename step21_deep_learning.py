@@ -140,7 +140,7 @@ max_epoch = 5
 timestep_size = max_len = 32           # 句子长度
 vocab_size = 5159    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
-class_num = 27
+class_num = len(punctuation.punctuation_list)
 hidden_size = 128    # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
 max_grad_norm = 5.0  # 最大梯度（超过此值的梯度将被裁剪）
