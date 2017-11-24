@@ -89,6 +89,14 @@ def X_padding(words):
 def y_padding(tags):
     """把 tags 转为 id 形式， 并自动补全位 max_len 长度。"""
     ids = list(tag2id[tags])
+
+    ###判断数值范围------------------------------------------
+    for i in range(len(ids)):
+        v = ids[i]
+        if v < 0 or v >= len(punctuation.punctuation_list):
+            print('error for tag values:', tags[i], v)
+            sys.exit(0)
+
     if len(ids) >= max_len:  # 长则弃掉
         return ids[:max_len]
     ids.extend([0]*(max_len-len(ids))) # 短则补全
