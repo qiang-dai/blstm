@@ -7,6 +7,7 @@ import time
 import os,sys
 from collections import Counter
 import punctuation
+import datetime
 
 max_max_epoch = 6
 if len(sys.argv) > 1:
@@ -300,6 +301,8 @@ for epoch in range(max_max_epoch):
     _lr = 1e-4
     if epoch > max_epoch:
         _lr = _lr * ((decay) ** (epoch - max_epoch))
+
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print( 'EPOCH %d， lr=%g' % (epoch+1, _lr))
     start_time = time.time()
     _costs = 0.0
@@ -326,6 +329,8 @@ for epoch in range(max_max_epoch):
     if (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
         save_path = saver.save(sess, model_save_path, global_step=(epoch+1))
         print( 'the save path is ', save_path)
+
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print( '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
     print( 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
     if mean_acc > 0.999:
