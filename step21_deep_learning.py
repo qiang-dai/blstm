@@ -105,10 +105,17 @@ class BatchGenerator(object):
         end = self._index_in_epoch
 
         offset = 0
-        for x in self._X[start:end]:
+        index_list = []
+        pos = 0
+        for i in range(len(self._X[start:end])):
+            x = self._X[start:end][i]
             offset += sum([1 for e in x if e == 0])
 
-        return self._X[start:end], self._y[start:end], offset
+            tmp_list = [pos + e for e in range(x.size) if x[e] != 0]
+            index_list.extend(tmp_list)
+            pos += len(x)
+
+        return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1)
 
 print( 'Creating the data generator ...')
 data_train = BatchGenerator(X_train, y_train, shuffle=True)
@@ -141,6 +148,7 @@ max_grad_norm = 5.0  # 最大梯度（超过此值的梯度将被裁剪）
 lr = tf.placeholder(tf.float32, [])
 keep_prob = tf.placeholder(tf.float32, [])
 avg_offset = tf.placeholder(tf.float32, [])
+avg_index_list = tf.placeholder(tf.int32, [None, 1])
 total_size = tf.placeholder(tf.float32, [])
 batch_size = tf.placeholder(tf.int32, [])  # 注意类型必须为 tf.int32
 model_save_path = 'ckpt/bi-lstm.ckpt'  # 模型保存位置
@@ -245,9 +253,15 @@ with tf.variable_scope('outputs'):
 
 # adding extra statistics to monitor
 # y_inputs.shape = [batch_size, timestep_size]
-correct_prediction = tf.equal(tf.cast(tf.argmax(y_pred, 1), tf.int32), tf.reshape(y_inputs, [-1]))
-accuracy2 = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-accuracy = (tf.cast(accuracy2, tf.float32)*total_size - avg_offset) / (total_size - avg_offset)
+first_item = tf.gather(tf.cast(tf.argmax(y_pred, 1), tf.int32), avg_index_list)
+second_item = tf.gather(tf.reshape(y_inputs, [-1]), avg_index_list)
+correct_prediction = tf.equal(first_item, second_item)
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+#correct_prediction = tf.equal(tf.cast(tf.argmax(y_pred, 1), tf.int32), tf.reshape(y_inputs, [-1]))
+# accuracy2 = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+# accuracy = (tf.cast(accuracy2, tf.float32)*total_size - avg_offset) / (total_size - avg_offset)
+
 #tf.div(tf.matmul(accuracy2, total_size) - avg_offset, total_size - avg_offset)
 cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
 
@@ -276,9 +290,13 @@ def test_epoch(dataset):
     _costs = 0.0
     _accs = 0.0
     for i in range(batch_num):
-        X_batch, y_batch, offset = dataset.next_batch(_batch_size)
-        feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0, avg_offset:offset, total_size:_batch_size*32}
+        X_batch, y_batch, offset, index_list = dataset.next_batch(_batch_size)
+        feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0,
+                     avg_offset:offset,
+                     total_size:_batch_size*32,
+                     avg_index_list: index_list}
         _acc, _cost = sess.run(fetches, feed_dict)
+        print('test _acc, _cost:', _acc, _cost)
         _accs += _acc
         _costs += _cost    
     mean_acc= _accs / batch_num     
@@ -311,9 +329,14 @@ for epoch in range(max_max_epoch):
     show_costs = 0.0
     for batch in range(tr_batch_num): 
         fetches = [accuracy, cost, train_op]
-        X_batch, y_batch, offset = data_train.next_batch(tr_batch_size)
-        feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5, avg_offset:offset, total_size:tr_batch_size*32}
+        X_batch, y_batch, offset, index_list = data_train.next_batch(tr_batch_size)
+        feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
+                     avg_offset:offset,
+                     total_size:tr_batch_size*32,
+                     avg_index_list: index_list}
         _acc, _cost, _ = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
+        print('train _acc, _cost:', _acc, _cost)
+
         _accs += _acc
         _costs += _cost
         show_accs += _acc
