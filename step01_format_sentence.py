@@ -140,6 +140,8 @@ for i in range(len(sentences)):
     for w in res_list:
         ###如果是符号,就往前加
         if is_punc(w[0]):
+            if w == '/':
+                w = 'LEFT'
             labels_list[-1] = w
         else:
             content_list.append(w)
