@@ -1,3 +1,5 @@
+import pyIO
+
 punctuation_list = [
     'UNKNOWN',
     "...",
@@ -56,3 +58,11 @@ def is_punc(uchar):
         return True
     else:
         return False
+
+def save_punc_list(punc_list):
+    pyIO.save_to_file('\t'.join(punc_list), 'raw_data/punc.txt')
+
+def get_punc_list():
+    with open('raw_data/punc.txt', 'rb') as inp:
+        puncs = inp.read().decode('utf8').split('\t')
+        return puncs

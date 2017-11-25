@@ -3,21 +3,21 @@ import pandas as pd
 #import matplotlib.pyplot as plt
 import re
 from tqdm import tqdm
-import time
 import os,sys
-from collections import Counter
-import punctuation
-
-threshold_line_cnt = 10000
-if len(sys.argv) > 1:
-    threshold_line_cnt = int(sys.argv[1])
+# 保存数据
+import pickle
+import os
+from itertools import chain
 
 # 以字符串的形式读入所有数据
-print (os.getcwd())
-with open('raw_data/res.txt', 'rb') as inp:
-    texts = inp.read().decode('utf8')
-sentences = texts.split('\n')  # 根据换行切分
-sentences = sentences[:threshold_line_cnt]
+def get_sentences_puncs(filename):
+    print (os.getcwd())
+    with open(filename, 'rb') as inp:
+        texts = inp.read().decode('utf8')
+    sentences = texts.split('\n')  # 根据换行切分
+    sentences = sentences[:threshold_line_cnt]
+
+    return sentences, puncs
 
 def get_Xy(sentence):
     """将 sentence 处理成 [word1, w2, ..wn], [tag1, t2, ...tn]"""
@@ -29,103 +29,107 @@ def get_Xy(sentence):
         return words, tags # 所有的字和tag分别存为 data / label
     return None
 
-datas = list()
-labels = list()
-print( 'Start creating words and tags data ...')
-for sentence in tqdm(iter(sentences)):
-    result = get_Xy(sentence)
-    if result:
-        datas.append(result[0])
-        labels.append(result[1])
+if __name__ == '__main__':
+    filename = 'm_res.txt'
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
 
-print( 'Length of datas is %d' % len(datas) )
-print( 'Example of datas: ', datas[0])
-print( 'Example of labels:', labels[0])
+    threshold_line_cnt = 10000
+    if len(sys.argv) > 2:
+        threshold_line_cnt = int(sys.argv[2])
 
-df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=range(len(datas)))
-#　句子长度
-df_data['sentence_len'] = df_data['words'].apply(lambda words: len(words))
-df_data.head(2)
+    sentences, punc_list = get_sentences_puncs(filename)
 
-# 句子长度的分布
-# import matplotlib.pyplot as plt
-# df_data['sentence_len'].hist(bins=100)
-# plt.xlim(0, 100)
-# plt.xlabel('sentence_length')
-# plt.ylabel('sentence_num')
-# plt.title('Distribution of the Length of Sentence')
-# plt.show()
+    datas = list()
+    labels = list()
+    print( 'Start creating words and tags data ...')
+    for sentence in tqdm(iter(sentences)):
+        result = get_Xy(sentence)
+        if result:
+            datas.append(result[0])
+            labels.append(result[1])
 
-# 1.用 chain(*lists) 函数把多个list拼接起来
-from itertools import chain
-all_words = list(chain(*df_data['words'].values))
-# 2.统计所有 word
-sr_allwords = pd.Series(all_words)
-sr_allwords = sr_allwords.value_counts()
-set_words = sr_allwords.index
-set_ids = range(1, len(set_words)+1) # 注意从1开始，因为我们准备把0作为填充值
-#tags = [ 'x', 's', 'b', 'm', 'e']
-tags = punctuation.punctuation_list
-tag_ids = range(len(tags))
+    print( 'Length of datas is %d' % len(datas) )
+    print( 'Example of datas: ', datas[0])
+    print( 'Example of labels:', labels[0])
 
-# 3. 构建 words 和 tags 都转为数值 id 的映射（使用 Series 比 dict 更加方便）
-word2id = pd.Series(set_ids, index=set_words)
-id2word = pd.Series(set_words, index=set_ids)
-tag2id = pd.Series(tag_ids, index=tags)
-id2tag = pd.Series(tags, index=tag_ids)
+    df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=range(len(datas)))
+    #　句子长度
+    df_data['sentence_len'] = df_data['words'].apply(lambda words: len(words))
+    df_data.head(2)
 
-vocab_size = len(set_words)
-print( 'vocab_size={}'.format(vocab_size))
+    # 句子长度的分布
+    # df_data['sentence_len'].hist(bins=100)
+    # plt.xlim(0, 100)
+    # plt.xlabel('sentence_length')
+    # plt.ylabel('sentence_num')
+    # plt.title('Distribution of the Length of Sentence')
+    # plt.show()
 
-max_len = 32
-def X_padding(words):
-    """把 words 转为 id 形式，并自动补全位 max_len 长度。"""
-    ids = list(word2id[words])
-    if len(ids) >= max_len:  # 长则弃掉
-        return ids[:max_len]
-    ids.extend([0]*(max_len-len(ids))) # 短则补全
-    return ids
+    # 1.用 chain(*lists) 函数把多个list拼接起来
+    all_words = list(chain(*df_data['words'].values))
+    # 2.统计所有 word
+    sr_allwords = pd.Series(all_words)
+    sr_allwords = sr_allwords.value_counts()
+    set_words = sr_allwords.index
+    set_ids = range(1, len(set_words)+1) # 注意从1开始，因为我们准备把0作为填充值
+    tags = punc_list
+    tag_ids = range(len(tags))
 
-def y_padding(tags):
-    """把 tags 转为 id 形式， 并自动补全位 max_len 长度。"""
-    ids = list(tag2id[tags])
+    # 3. 构建 words 和 tags 都转为数值 id 的映射（使用 Series 比 dict 更加方便）
+    word2id = pd.Series(set_ids, index=set_words)
+    id2word = pd.Series(set_words, index=set_ids)
+    tag2id = pd.Series(tag_ids, index=tags)
+    id2tag = pd.Series(tags, index=tag_ids)
 
-    ###判断数值范围------------------------------------------
-    for i in range(len(ids)):
-        v = ids[i]
-        if v < 0 or v >= len(punctuation.punctuation_list):
-            print('error for tag values:', tags[i], v)
-            sys.exit(0)
+    vocab_size = len(set_words)
+    print( 'vocab_size={}'.format(vocab_size))
 
-    if len(ids) >= max_len:  # 长则弃掉
-        return ids[:max_len]
-    ids.extend([0]*(max_len-len(ids))) # 短则补全
-    return ids
+    max_len = 32
+    def X_padding(words):
+        """把 words 转为 id 形式，并自动补全位 max_len 长度。"""
+        ids = list(word2id[words])
+        if len(ids) >= max_len:  # 长则弃掉
+            return ids[:max_len]
+        ids.extend([0]*(max_len-len(ids))) # 短则补全
+        return ids
 
-df_data['X'] = df_data['words'].apply(X_padding)
-df_data['y'] = df_data['tags'].apply(y_padding)
+    def y_padding(tags):
+        """把 tags 转为 id 形式， 并自动补全位 max_len 长度。"""
+        ids = list(tag2id[tags])
 
-# 最后得到了所有的数据
-X = np.asarray(list(df_data['X'].values))
-y = np.asarray(list(df_data['y'].values))
-print( 'X.shape={}, y.shape={}'.format(X.shape, y.shape))
-print( 'Example of words: ', df_data['words'].values[0])
-print( 'Example of X: ', X[0])
-print( 'Example of tags: ', df_data['tags'].values[0])
-print( 'Example of y: ', y[0])
+        ###判断数值范围------------------------------------------
+        for i in range(len(ids)):
+            v = ids[i]
+            if v < 0 or v >= len(punc_list):
+                print('error for tag values:', tags[i], v)
+                sys.exit(0)
 
-# 保存数据
-import pickle
-import os
+        if len(ids) >= max_len:  # 长则弃掉
+            return ids[:max_len]
+        ids.extend([0]*(max_len-len(ids))) # 短则补全
+        return ids
 
-if not os.path.exists('data/'):
-    os.makedirs('data/')
+    df_data['X'] = df_data['words'].apply(X_padding)
+    df_data['y'] = df_data['tags'].apply(y_padding)
 
-with open('data/data.pkl', 'wb') as outp:
-    pickle.dump(X, outp)
-    pickle.dump(y, outp)
-    pickle.dump(word2id, outp)
-    pickle.dump(id2word, outp)
-    pickle.dump(tag2id, outp)
-    pickle.dump(id2tag, outp)
+    # 最后得到了所有的数据
+    X = np.asarray(list(df_data['X'].values))
+    y = np.asarray(list(df_data['y'].values))
+    print( 'X.shape={}, y.shape={}'.format(X.shape, y.shape))
+    print( 'Example of words: ', df_data['words'].values[0])
+    print( 'Example of X: ', X[0])
+    print( 'Example of tags: ', df_data['tags'].values[0])
+    print( 'Example of y: ', y[0])
+
+    if not os.path.exists('data/'):
+        os.makedirs('data/')
+
+    with open('data/data.pkl', 'wb') as outp:
+        pickle.dump(X, outp)
+        pickle.dump(y, outp)
+        pickle.dump(word2id, outp)
+        pickle.dump(id2word, outp)
+        pickle.dump(tag2id, outp)
+        pickle.dump(id2tag, outp)
 
