@@ -111,8 +111,8 @@ class BatchGenerator(object):
             x = self._X[start:end][i]
             offset += sum([1 for e in x if e == 0])
 
-            tmp_list = [pos + e for e in range(x.size) if x[e] != 0]
-            index_list.extend(tmp_list)
+            tmy_result_list = [pos + e for e in range(x.size) if x[e] != 0]
+            index_list.extend(tmy_result_list)
             pos += len(x)
 
         return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1)
@@ -253,9 +253,12 @@ with tf.variable_scope('outputs'):
 
 # adding extra statistics to monitor
 # y_inputs.shape = [batch_size, timestep_size]
-first_item = tf.gather(tf.cast(tf.argmax(y_pred, 1), tf.int32), avg_index_list)
-second_item = tf.gather(tf.reshape(y_inputs, [-1]), avg_index_list)
-correct_prediction = tf.equal(first_item, second_item)
+
+###预测的结果
+y_result_item = tf.gather(tf.cast(tf.argmax(y_pred, 1), tf.int32), avg_index_list)
+###输入的结果
+y_input_item = tf.gather(tf.reshape(y_inputs, [-1]), avg_index_list)
+correct_prediction = tf.equal(y_result_item, y_input_item)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 #correct_prediction = tf.equal(tf.cast(tf.argmax(y_pred, 1), tf.int32), tf.reshape(y_inputs, [-1]))
@@ -314,8 +317,21 @@ print('tr_batch_num:', tr_batch_num)
 print('display_batch:', display_batch)
 
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
-last_10_acc = []
+# last_10_acc = []
+
+y_result_list = []
+y_input_list = []
+cnt_punc_category_dict = {}
+
 for epoch in range(max_max_epoch):
+
+    ###每一轮都重置
+    for i in range(len(punctuation.punctuation_list)):
+        key = '%d'%i
+        cnt_punc_category_dict[key] = {}
+        cnt_punc_category_dict[key]['good'] = 0
+        cnt_punc_category_dict[key]['bad'] = 0
+
     _lr = 1e-4
     if epoch > max_epoch:
         _lr = _lr * ((decay) ** (epoch - max_epoch))
@@ -328,14 +344,16 @@ for epoch in range(max_max_epoch):
     show_accs = 0.0
     show_costs = 0.0
     for batch in range(tr_batch_num): 
-        fetches = [accuracy, cost, train_op]
+        fetches = [accuracy, cost, train_op, y_result_item, y_input_item]
         X_batch, y_batch, offset, index_list = data_train.next_batch(tr_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
                      avg_offset:offset,
                      total_size:tr_batch_size*32,
                      avg_index_list: index_list}
-        _acc, _cost, _ = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
+        _acc, _cost, _, predict_res, input_res = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
         print('train _acc, _cost:', _acc, _cost)
+        y_result_list.append(predict_res)
+        y_input_list.append(input_res)
 
         _accs += _acc
         _costs += _cost
@@ -359,10 +377,29 @@ for epoch in range(max_max_epoch):
     if mean_acc > 0.999:
         print ('mean_acc > 0.999')
         break
-    last_10_acc.append(mean_acc)
-    if len(last_10_acc) > 10:
-        last_10_acc = last_10_acc[1:]
-    print('last_10_acc:', last_10_acc)
+    # last_10_acc.append(mean_acc)
+    # if len(last_10_acc) > 10:
+    #     last_10_acc = last_10_acc[1:]
+    # print('last_10_acc:', last_10_acc)
+    ### 统计各个标点符号分类的结果
+    for i in range(len(y_input_list)):
+        tmp_input = y_input_list[i]
+        tmp_result= y_result_list[i]
+        for j in range(tmp_input.size):
+            category = tmp_input[j][0]
+            key = '%d'%category
+            if tmp_input[j][0] == tmp_result[j][0]:
+                cnt_punc_category_dict[key]['good'] += 1
+            else:
+                cnt_punc_category_dict[key]['bad'] += 1
+    for i in range(len(punctuation.punctuation_list)):
+        key = '%d'%i
+        if (cnt_punc_category_dict[key]['good'] != 0 \
+            or cnt_punc_category_dict[key]['bad'] != 0):
+            print (i, id2tag[i],
+                   cnt_punc_category_dict[key]['good']/(cnt_punc_category_dict[key]['good'] + cnt_punc_category_dict[key]['bad']))
+
+
 # testing
 print( '**TEST RESULT:')
 test_acc, test_cost = test_epoch(data_test)
@@ -374,7 +411,7 @@ best_model_path = 'ckpt/bi-lstm.ckpt-6'
 saver.restore(sess, best_model_path)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-X_tt, y_tt, offset = data_train.next_batch(2)
+X_tt, y_tt, offset, _ = data_train.next_batch(2)
 print( 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print( 'X_tt = ', X_tt)
 print( 'y_tt = ', y_tt)
