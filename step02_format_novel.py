@@ -12,13 +12,17 @@ import codecs
 cleaned_punc_dict = {}
 punc_set = set(punctuation.punctuation_list)
 
-threshold_line_cnt = 1000000
+filename = 'raw_data/novels.txt'
 if len(sys.argv) > 1:
-    threshold_line_cnt = int(sys.argv[1])
+    filename = sys.argv[1]
+
+threshold_line_cnt = 1000000
+if len(sys.argv) > 2:
+    threshold_line_cnt = int(sys.argv[2])
 
 # 以字符串的形式读入所有数据
 print (os.getcwd())
-with open('raw_data/novels.txt', 'rb') as inp:
+with open(filename, 'rb') as inp:
     texts = inp.read().decode('utf8')
 sentences = texts.split('\n')  # 根据换行切分
 sentences = sentences[:threshold_line_cnt]
@@ -91,7 +95,7 @@ def write_file(filename, res):
     f.write(res + '\n')
     f.close()
 
-filename = 'raw_data/novel_res.txt'
+filename = filename.replace('.txt', '_res.txt')
 clear_file(filename)
 
 cnt_dict = {
