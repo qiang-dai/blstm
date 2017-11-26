@@ -281,26 +281,26 @@ if __name__ == '__main__':
     for i, punc in enumerate(punc_list):
         print(i+1, punc)
 
-    ###图形显示长度
-    plt_val_cnt_dict = {}
-    for cnt in cnt_dict.keys():
-        num = '%d'%(cnt_dict[cnt])
-        add_cnt_dict(plt_val_cnt_dict, num)
-
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    plt.figure(1) # 创建图表1
-    for i in range(10000):
-        key = '%d'%i
-        val_cnt = 0
-        #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
-        if key in plt_val_cnt_dict:
-            val_cnt = plt_val_cnt_dict[key]
-            if (1 < val_cnt < 20 ):
-                plt.plot(i, val_cnt, 'or')
-    plt.show()
+    # ###图形显示长度
+    # plt_val_cnt_dict = {}
+    # for cnt in cnt_dict.keys():
+    #     num = '%d'%(cnt_dict[cnt])
+    #     add_cnt_dict(plt_val_cnt_dict, num)
+    #
+    #
+    # import numpy as np
+    # import matplotlib.pyplot as plt
+    #
+    # plt.figure(1) # 创建图表1
+    # for i in range(10000):
+    #     key = '%d'%i
+    #     val_cnt = 0
+    #     #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
+    #     if key in plt_val_cnt_dict:
+    #         val_cnt = plt_val_cnt_dict[key]
+    #         if (1 < val_cnt < 20 ):
+    #             plt.plot(i, val_cnt, 'or')
+    # plt.show()
 
 
 
