@@ -9,21 +9,7 @@ from collections import Counter
 import punctuation
 import codecs
 import pyIO
-
-
-def args():
-    filename = 'raw_data/total_english.txt'
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-
-    threshold_line_cnt = 10000
-    if len(sys.argv) > 2:
-        threshold_line_cnt = int(sys.argv[2])
-
-    res_file = 'raw_data/total_english.txt'
-    if len(sys.argv) > 3:
-        res_file = sys.argv[3]
-    return filename, threshold_line_cnt, res_file
+import tools
 
 def getCharType(c):
     if punctuation.is_alphabet(c):
@@ -167,8 +153,8 @@ if __name__ == '__main__':
     ###初始化:标点符号写文件
     punctuation.save_punc_list(punctuation.punctuation_list)
 
-    ###<programe> [filename] [threshold_line_cnt]
-    filename, threshold_line_cnt, result_name = args()
+    ###<programe> raw_data/en_punctuation_recommend_train_100W  1000000 raw_data/res.txt
+    filename, threshold_line_cnt, result_name = tools.args()
 
     ###词频统计
     cnt_dict = {

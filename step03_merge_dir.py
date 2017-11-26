@@ -9,10 +9,11 @@ from collections import Counter
 import punctuation
 import codecs
 import pyIO
+import tools
 
 
 ###遍历目录并写成大文件
-def merge_dir_files(file_dir):
+def merge_dir_files(file_dir, threshold_line_cnt, result_name):
     file_list,_ = pyIO.traversalDir(file_dir, False, False)
     print ('file_list:', file_list)
 
@@ -28,12 +29,14 @@ def merge_dir_files(file_dir):
         print("total_list size:", len(total_list))
         #if len(total_list) > 100*1000:
         #   break
-    pyIO.save_to_file('\n'.join(total_list), 'raw_data/total_english.txt')
+    pyIO.save_to_file('\n'.join(total_list), result_name)
     print (total_list[:300])
 
 if __name__ == '__main__':
     file_dir = 'WorldEnglish/'
     if len(sys.argv) > 1:
         file_dir = sys.argv[1]
+    file_dir, threshold_line_cnt, result_name = tools.args()
 
-    merge_dir_files(file_dir)
+    ###<program> WorldEnglish 1000000 raw_data/total_english.txt
+    merge_dir_files(file_dir, threshold_line_cnt, result_name)
