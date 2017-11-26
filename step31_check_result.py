@@ -119,7 +119,7 @@ decay = 0.85
 max_epoch = 5
 #max_max_epoch = 10
 timestep_size = max_len = 32           # 句子长度
-vocab_size = 5159    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
+vocab_size = punctuation.get_word_cnt()    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = 128    # 隐含层节点数
@@ -229,47 +229,6 @@ with tf.variable_scope('outputs'):
     softmax_b = bias_variable([class_num]) 
     y_pred = tf.matmul(bilstm_output, softmax_w) + softmax_b
 
-# adding extra statistics to monitor
-# y_inputs.shape = [batch_size, timestep_size]
-# correct_prediction = tf.equal(tf.cast(tf.argmax(y_pred, 1), tf.int32), tf.reshape(y_inputs, [-1]))
-# accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-# cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
-
-# ***** 优化求解 *******
-# tvars = tf.trainable_variables()  # 获取模型的所有参数
-# grads, _ = tf.clip_by_global_norm(tf.gradients(cost, tvars), max_grad_norm)  # 获取损失函数对于每个参数的梯度
-# optimizer = tf.train.AdamOptimizer(learning_rate=lr)   # 优化器
-
-# # 梯度下降计算
-# train_op = optimizer.apply_gradients( zip(grads, tvars),
-#     global_step=tf.contrib.framework.get_or_create_global_step())
-# print( 'Finished creating the bi-lstm model.')
-#
-# def test_epoch(dataset):
-#     """Testing or valid."""
-#     _batch_size = 500
-#     ### accuracy, cost 都是 op
-#     fetches = [accuracy, cost]
-#     _y = dataset.y
-#     data_size = _y.shape[0]
-#     batch_num = int(data_size / _batch_size)
-#     if batch_num == 0:
-#         return 0,0
-#
-#     start_time = time.time()
-#     _costs = 0.0
-#     _accs = 0.0
-#     for i in range(batch_num):
-#         X_batch, y_batch = dataset.next_batch(_batch_size)
-#         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0}
-#         _acc, _cost = sess.run(fetches, feed_dict)
-#         _accs += _acc
-#         _costs += _cost
-#     mean_acc= _accs / batch_num
-#     mean_cost = _costs / batch_num
-#     return mean_acc, mean_cost
-
-
 sess.run(tf.global_variables_initializer())
 tr_batch_size = 128 
 #max_max_epoch = 1000
@@ -281,49 +240,6 @@ print('display_batch:', display_batch)
 
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 last_10_acc = []
-# for epoch in range(max_max_epoch):
-#     _lr = 1e-4
-#     if epoch > max_epoch:
-#         _lr = _lr * ((decay) ** (epoch - max_epoch))
-#     print( 'EPOCH %d， lr=%g' % (epoch+1, _lr))
-#     start_time = time.time()
-#     _costs = 0.0
-#     _accs = 0.0
-#     show_accs = 0.0
-#     show_costs = 0.0
-#     for batch in range(tr_batch_num):
-#         fetches = [accuracy, cost, train_op]
-#         X_batch, y_batch = data_train.next_batch(tr_batch_size)
-#         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5}
-#         _acc, _cost, _ = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
-#         _accs += _acc
-#         _costs += _cost
-#         show_accs += _acc
-#         show_costs += _cost
-#         if (batch + 1) % display_batch == 0:
-#             valid_acc, valid_cost = test_epoch(data_valid)  # valid
-#             print( '\ttraining acc=%g, cost=%g;  valid acc= %g, cost=%g ' % (show_accs / display_batch,
-#                                                 show_costs / display_batch, valid_acc, valid_cost))
-#             show_accs = 0.0
-#             show_costs = 0.0
-#     mean_acc = _accs / tr_batch_num
-#     mean_cost = _costs / tr_batch_num
-#     if (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
-#         save_path = saver.save(sess, model_save_path, global_step=(epoch+1))
-#         print( 'the save path is ', save_path)
-#     print( '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
-#     print( 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
-#     if mean_acc > 0.999:
-#         print ('mean_acc > 0.999')
-#         break
-#     last_10_acc.append(mean_acc)
-#     if len(last_10_acc) > 10:
-#         last_10_acc = last_10_acc[1:]
-#     print('last_10_acc:', last_10_acc)
-# # testing
-# print( '**TEST RESULT:')
-# test_acc, test_cost = test_epoch(data_test)
-# print( '**Test %d, acc=%g, cost=%g' % (data_test.y.shape[0], test_acc, test_cost) )
 
 # ** 导入模型
 saver = tf.train.Saver()
