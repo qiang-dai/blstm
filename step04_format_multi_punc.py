@@ -228,7 +228,8 @@ if __name__ == '__main__':
     pyIO.save_to_file('\n'.join(res_list), result_name)
     c = Counter(cnt_dict)
     print('add_cnt_dict:', len(cnt_dict), c.most_common(100))
-
+    print ('cnt_dict size:', len(cnt_dict))
+    
     for i, punc in enumerate(punc_list):
         print(i+1, punc)
 
