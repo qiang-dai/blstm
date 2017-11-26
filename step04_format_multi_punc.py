@@ -132,6 +132,9 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                 w = w.replace('/', 'LEFT')
                 labels_list[-1] = w
             else:
+                if punctuation.is_emoji(w[0]):
+                    w = 'EMOJI'
+
                 content_list.append(w)
                 labels_list.append(punc_list[0])
         ###添加结束标记
@@ -145,10 +148,33 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                 pass
             else:
                 pass
-            text = content_list[pos] + '/' + punc
+            #text = content_list[pos] + '/' + punc
+            text = [content_list[pos], punc]
             out_list.append(text)
-        total_res_list.append(' '.join(out_list))
+        total_res_list.append(out_list)
     return total_res_list
+
+def get_min_punc_cnt(cleaned_punc_dict):
+    min_cnt = 0
+    for k in punctuation.punctuation_list:
+        if k in cleaned_punc_dict and cleaned_punc_dict[k] < min_cnt:
+            print('get_min:', k, cleaned_punc_dict[k])
+            min_cnt = cleaned_punc_dict[k]
+
+    print('min_cnt:', min_cnt)
+    return min_cnt
+
+def get_total_cnt(some_cnt_dict, limit):
+    total_cnt_dict = {}
+    for k in some_cnt_dict:
+        v = some_cnt_dict[k]
+        if v >= limit:
+            total_cnt_dict[k] = True
+
+    for k in some_cnt_dict:
+        if k not in total_cnt_dict:
+            print('lost word limit:', limit, k)
+    return len(total_cnt_dict)
 
 if __name__ == '__main__':
 
@@ -187,7 +213,9 @@ if __name__ == '__main__':
         print(cleaned_punc_dict[k], '    ', k)
         total_cnt += cleaned_punc_dict[k]
 
-    avg_cnt = total_cnt/len(cleaned_punc_dict) *2/3
+    #avg_cnt = total_cnt/len(cleaned_punc_dict) *2/3
+    ### 根据最低的标点符号来做阈值
+    avg_cnt = get_min_punc_cnt(cleaned_punc_dict)
 
     print('filtered...less than ', avg_cnt)
     for k in cleaned_punc_dict.keys():
@@ -224,12 +252,55 @@ if __name__ == '__main__':
     punctuation.save_punc_list(punc_list)
 
     ###保存最终处理结果,格式是:
+    content_line_list = []
+    for tmp_list in res_list:
+
+        line_list = []
+        for word,punc in tmp_list:
+            if word in cnt_dict and cnt_dict[word] == 1:
+                word = 'NONE'
+
+            line_list.append('%s/%s'%(word, punc))
+        content_line_list.append(' '.join(line_list))
+
     ### Header/UNKNOWN by/UNKNOWN robert/UNKNOWN browning/. Tail/UNKNOWN
-    pyIO.save_to_file('\n'.join(res_list), result_name)
+    pyIO.save_to_file('\n'.join(content_line_list), result_name)
+
     c = Counter(cnt_dict)
     print('add_cnt_dict:', len(cnt_dict), c.most_common(100))
+    for k in cnt_dict.keys():
+        print ('word', cnt_dict[k], k)
+
     print ('cnt_dict size:', len(cnt_dict))
-    
+    print ('total word cnt:', get_total_cnt(cnt_dict, 0))
+    print ('total cnt >= 2 word cnt:', get_total_cnt(cnt_dict, 2))
+    print ('total cnt >= 5 word cnt:', get_total_cnt(cnt_dict, 5))
+    print ('total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, 10))
+    print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
+
     for i, punc in enumerate(punc_list):
         print(i+1, punc)
+
+    ###图形显示长度
+    plt_val_cnt_dict = {}
+    for cnt in cnt_dict.keys():
+        num = '%d'%(cnt_dict[cnt])
+        add_cnt_dict(plt_val_cnt_dict, num)
+
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    plt.figure(1) # 创建图表1
+    for i in range(10000):
+        key = '%d'%i
+        val_cnt = 0
+        #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
+        if key in plt_val_cnt_dict:
+            val_cnt = plt_val_cnt_dict[key]
+            if (1 < val_cnt < 20 ):
+                plt.plot(i, val_cnt, 'or')
+    plt.show()
+
+
 

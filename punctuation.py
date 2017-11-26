@@ -74,3 +74,9 @@ def get_punc_list():
     with open('raw_data/punc.txt', 'rb') as inp:
         puncs = inp.read().decode('utf8').split('\t')
         return puncs
+
+
+from emoji import UNICODE_EMOJI
+
+def is_emoji(s):
+    return s in UNICODE_EMOJI
