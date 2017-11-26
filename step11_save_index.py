@@ -85,6 +85,8 @@ if __name__ == '__main__':
 
     vocab_size = len(set_words)
     print( 'vocab_size={}'.format(vocab_size))
+    ###保存单词个数
+    punctuation.save_word_cnt(vocab_size)
 
     max_len = 32
     def X_padding(words):

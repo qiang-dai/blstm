@@ -26,6 +26,16 @@ import pickle
 import os
 
 # 导入数据
+### 说明: X 和 y, 一个是内容,一个是标注
+###     有这么2个,才能进行训练
+### 存储格式:
+# X = np.asarray(list(df_data['X'].values))
+# y = np.asarray(list(df_data['y'].values))
+# word2id = pd.Series(set_ids, index=set_words)
+# id2word = pd.Series(set_words, index=set_ids)
+# tag2id = pd.Series(tag_ids, index=tags)
+# id2tag = pd.Series(tags, index=tag_ids)
+
 import pickle
 with open('data/data.pkl', 'rb') as inp:
     X = pickle.load(inp)
@@ -123,6 +133,7 @@ data_valid = BatchGenerator(X_valid, y_valid, shuffle=False)
 data_test = BatchGenerator(X_test, y_test, shuffle=False)
 print( 'Finished creating the data generator.')
 
+### 设置显存根据需求增长
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -138,7 +149,7 @@ decay = 0.85
 max_epoch = 5
 #max_max_epoch = 10
 timestep_size = max_len = 32           # 句子长度
-vocab_size = 5159    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
+vocab_size = punctuation.get_word_cnt()    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = 128    # 隐含层节点数
@@ -324,7 +335,6 @@ y_input_list = []
 cnt_punc_category_dict = {}
 
 for epoch in range(max_max_epoch):
-
     ###每一轮都重置
     for i in range(len(punctuation.get_punc_list())):
         key = '%d'%i

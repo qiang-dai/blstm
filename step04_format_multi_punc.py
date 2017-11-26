@@ -127,8 +127,10 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                         w = punc_list[0]
                         print('error: tail not punc:', w, sentence)
                 labels_list[-1] = w
-                if w == '/':
-                    w = 'LEFT'
+                #if w == '/':
+                #    w = 'LEFT'
+                ###可能多个符号在一起
+                w = w.replace('/', 'LEFT')
             else:
                 content_list.append(w)
                 labels_list.append(punc_list[0])
@@ -202,6 +204,12 @@ if __name__ == '__main__':
                 punc_list.append(k)
 
     ###再次计算
+    ###词频统计
+    cnt_dict = {
+        'Unknown':1,
+        'Header':1,
+        'Tail':1,
+    }
     punc_set = set(punc_list)
     print('punc_set size:', len(punc_set))
     ###存储punc列表
@@ -210,6 +218,12 @@ if __name__ == '__main__':
     print('res_list[:3]:', res_list[:3])
     print('res_list size:', len(res_list))
     #print(' '.join(res_list))
+
+    ###保存标点符号
+    punctuation.save_punc_list(punc_list)
+
+    ###保存最终处理结果,格式是:
+    ### Header/UNKNOWN by/UNKNOWN robert/UNKNOWN browning/. Tail/UNKNOWN
     pyIO.save_to_file('\n'.join(res_list), result_name)
     c = Counter(cnt_dict)
     print('add_cnt_dict:', len(cnt_dict), c.most_common(100))

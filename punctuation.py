@@ -59,6 +59,14 @@ def is_punc(uchar):
     else:
         return False
 
+def save_word_cnt(cnt):
+    pyIO.save_to_file('%d'%cnt, 'raw_data/word_cnt.txt')
+
+def get_word_cnt():
+    with open('raw_data/word_cnt.txt', 'rb') as inp:
+        cnt = inp.read().decode('utf8').strip()
+        return int(cnt)
+
 def save_punc_list(punc_list):
     pyIO.save_to_file('\t'.join(punc_list), 'raw_data/punc.txt')
 
