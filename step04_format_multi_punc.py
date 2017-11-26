@@ -235,9 +235,9 @@ if __name__ == '__main__':
     print ('cnt_dict size:', len(cnt_dict))
     ###词频统计
     cnt_dict = {
-        'Unknown':1,
-        'Header':1,
-        'Tail':1,
+        'None' : 2,
+        'Header' : 2,
+        'Tail' : 2,
     }
     punc_set = set(punc_list)
     print('punc_set size:', len(punc_set))
