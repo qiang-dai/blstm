@@ -126,11 +126,11 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                         ###实在奇怪的符号,就认为是空格
                         w = punc_list[0]
                         print('error: tail not punc:', w, sentence)
-                labels_list[-1] = w
                 #if w == '/':
                 #    w = 'LEFT'
                 ###可能多个符号在一起
                 w = w.replace('/', 'LEFT')
+                labels_list[-1] = w
             else:
                 content_list.append(w)
                 labels_list.append(punc_list[0])
