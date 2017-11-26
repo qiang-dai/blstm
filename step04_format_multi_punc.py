@@ -204,6 +204,7 @@ if __name__ == '__main__':
                 punc_list.append(k)
 
     ###再次计算
+    print ('cnt_dict size:', len(cnt_dict))
     ###词频统计
     cnt_dict = {
         'Unknown':1,
