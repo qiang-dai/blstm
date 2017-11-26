@@ -8,6 +8,7 @@ import os,sys
 import pickle
 import os
 from itertools import chain
+import punctuation
 
 # 以字符串的形式读入所有数据
 def get_sentences_puncs(filename):
@@ -17,7 +18,7 @@ def get_sentences_puncs(filename):
     sentences = texts.split('\n')  # 根据换行切分
     sentences = sentences[:threshold_line_cnt]
 
-    return sentences, puncs
+    return sentences, punctuation.get_punc_list()
 
 def get_Xy(sentence):
     """将 sentence 处理成 [word1, w2, ..wn], [tag1, t2, ...tn]"""
