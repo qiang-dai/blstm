@@ -199,7 +199,7 @@ if __name__ == '__main__':
     for k in cleaned_punc_dict.keys():
         if cleaned_punc_dict[k] > avg_cnt or len(k) == 1:
             cnt += 1
-            print(cnt, 'ignore', cleaned_punc_dict[k], '    ', k)
+            print(cnt, 'valid', cleaned_punc_dict[k], '    ', k)
             if k not in punc_set:
                 punc_list.append(k)
 
