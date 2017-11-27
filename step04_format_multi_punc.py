@@ -11,6 +11,8 @@ import codecs
 import pyIO
 import tools
 
+threshold_word_cnt = 10
+
 def getCharType(c):
     if punctuation.is_alphabet(c):
         return 1
@@ -186,9 +188,9 @@ if __name__ == '__main__':
 
     ###词频统计
     cnt_dict = {
-        'Unknown':1,
-        'Header':1,
-        'Tail':1,
+        'Unknown':threshold_word_cnt,
+        'Header':threshold_word_cnt,
+        'Tail':threshold_word_cnt,
     }
 
     ###标点符号频率统计
@@ -235,9 +237,9 @@ if __name__ == '__main__':
     print ('cnt_dict size:', len(cnt_dict))
     ###词频统计
     cnt_dict = {
-        'None' : 2,
-        'Header' : 2,
-        'Tail' : 2,
+        'None' : threshold_word_cnt,
+        'Header' : threshold_word_cnt,
+        'Tail' : threshold_word_cnt,
     }
     punc_set = set(punc_list)
     print('punc_set size:', len(punc_set))
@@ -257,7 +259,7 @@ if __name__ == '__main__':
 
         line_list = []
         for word,punc in tmp_list:
-            if word in cnt_dict and cnt_dict[word] < 10:
+            if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
                 word = 'NONE'
 
             line_list.append('%s/%s'%(word, punc))
@@ -275,7 +277,7 @@ if __name__ == '__main__':
     print ('total word cnt:', get_total_cnt(cnt_dict, 0))
     # print ('total cnt >= 2 word cnt:', get_total_cnt(cnt_dict, 2))
     # print ('total cnt >= 5 word cnt:', get_total_cnt(cnt_dict, 5))
-    print ('total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, 10))
+    print ('total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
     # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
     for i, punc in enumerate(punc_list):
