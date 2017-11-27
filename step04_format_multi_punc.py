@@ -257,7 +257,7 @@ if __name__ == '__main__':
 
         line_list = []
         for word,punc in tmp_list:
-            if word in cnt_dict and cnt_dict[word] == 1:
+            if word in cnt_dict and cnt_dict[word] < 10:
                 word = 'NONE'
 
             line_list.append('%s/%s'%(word, punc))
