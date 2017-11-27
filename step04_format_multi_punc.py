@@ -11,7 +11,7 @@ import codecs
 import pyIO
 import tools
 
-threshold_word_cnt = 10
+threshold_word_cnt = 2
 
 def getCharType(c):
     if punctuation.is_alphabet(c):
