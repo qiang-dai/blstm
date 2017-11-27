@@ -217,15 +217,15 @@ if __name__ == '__main__':
     ### 根据最低的标点符号来做阈值
     avg_cnt = get_min_punc_cnt(cleaned_punc_dict)
 
-    print('filtered...less than ', avg_cnt)
-    for k in cleaned_punc_dict.keys():
-        if cleaned_punc_dict[k] < avg_cnt and len(k) > 1:
-            print('ignore', cleaned_punc_dict[k], '    ', k)
+    # print('filtered...less than ', avg_cnt)
+    # for k in cleaned_punc_dict.keys():
+    #     if cleaned_punc_dict[k] < avg_cnt and len(k) > 1:
+    #         print('ignore', cleaned_punc_dict[k], '    ', k)
 
     print('valid...large than ', avg_cnt)
     cnt = 0
     for k in cleaned_punc_dict.keys():
-        if cleaned_punc_dict[k] > avg_cnt or len(k) == 1:
+        if (cleaned_punc_dict[k] > avg_cnt and len(k) == 2) or len(k) == 1:
             cnt += 1
             print(cnt, 'valid', cleaned_punc_dict[k], '    ', k)
             if k not in punc_set:
@@ -271,12 +271,12 @@ if __name__ == '__main__':
     for k in cnt_dict.keys():
         print ('word', cnt_dict[k], k)
 
-    print ('cnt_dict size:', len(cnt_dict))
+    # print ('cnt_dict size:', len(cnt_dict))
     print ('total word cnt:', get_total_cnt(cnt_dict, 0))
-    print ('total cnt >= 2 word cnt:', get_total_cnt(cnt_dict, 2))
-    print ('total cnt >= 5 word cnt:', get_total_cnt(cnt_dict, 5))
+    # print ('total cnt >= 2 word cnt:', get_total_cnt(cnt_dict, 2))
+    # print ('total cnt >= 5 word cnt:', get_total_cnt(cnt_dict, 5))
     print ('total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, 10))
-    print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
+    # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
     for i, punc in enumerate(punc_list):
         print(i+1, punc)
