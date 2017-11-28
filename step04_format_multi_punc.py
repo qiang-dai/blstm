@@ -132,6 +132,8 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                 #    w = 'LEFT'
                 ###可能多个符号在一起
                 w = w.replace('/', 'LEFT')
+                if w not in punc_set:
+                    w = punc_list[0]
                 labels_list[-1] = w
             else:
                 if punctuation.is_emoji(w[0]):

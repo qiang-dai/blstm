@@ -32,6 +32,7 @@ punctuation_list = [
     ',',
     '/',
     '\\',
+    'LEFT'
 ]
 
 def is_chinese(uchar):
