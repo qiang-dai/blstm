@@ -119,7 +119,7 @@ decay = 0.85
 max_epoch = 5
 #max_max_epoch = 10
 timestep_size = max_len = 32           # 句子长度
-vocab_size = punctuation.get_word_cnt()    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
+vocab_size = punctuation.get_word_cnt()+1    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = 128    # 隐含层节点数
