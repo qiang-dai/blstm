@@ -19,6 +19,8 @@ for line in t_list:
         continue
     tmp_dict = json.loads(text)
 
+    if 'operation' not in tmp_dict:
+        continue
     ###过滤train
     if tmp_dict['operation'] != 'train':
         continue
