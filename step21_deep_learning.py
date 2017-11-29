@@ -332,7 +332,12 @@ saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 
 y_result_list = []
 y_input_list = []
-cnt_punc_category_dict = {}
+cnt_punc_category_dict = {
+    "total": {
+        "good":0,
+        "bad":0
+    }
+}
 
 for epoch in range(max_max_epoch):
     ###每一轮都重置
@@ -400,14 +405,17 @@ for epoch in range(max_max_epoch):
             key = '%d'%category
             if tmp_input[j][0] == tmp_result[j][0]:
                 cnt_punc_category_dict[key]['good'] += 1
+                cnt_punc_category_dict['total']['good'] += 1
             else:
                 cnt_punc_category_dict[key]['bad'] += 1
+                cnt_punc_category_dict['total']['bad'] += 1
     for i in range(len(punctuation.get_punc_list())):
         key = '%d'%i
         if (cnt_punc_category_dict[key]['good'] != 0 \
             or cnt_punc_category_dict[key]['bad'] != 0):
             print (i, id2tag[i],
                    cnt_punc_category_dict[key]['good']/(cnt_punc_category_dict[key]['good'] + cnt_punc_category_dict[key]['bad']))
+    print('total', cnt_punc_category_dict['total']['good']/(cnt_punc_category_dict['total']['good'] + cnt_punc_category_dict['total']['bad']))
 
 
 # testing
