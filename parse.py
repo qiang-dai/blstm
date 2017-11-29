@@ -57,8 +57,12 @@ for i,r in enumerate(res_list):
         ###统计
         for key in duid_pos_mean_dict[last_duid]:
             val = duid_pos_mean_dict[last_duid][key]
-            if val > 2:
+            if val == 1:
                 print ('warning', last_duid, key)
+            elif val > 2:
+                print ('error', last_duid, key)
+            else:
+                print ('info_ok', last_duid, key)
 
         print('\n\n')
     print (r)
