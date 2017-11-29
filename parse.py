@@ -42,7 +42,7 @@ for i,r in enumerate(res_list):
     ###parse duid,pos
     duid = r[0]
     pos = pyString.reExtractData('\[(\d+)\] vecotor', r[2][0], 1)
-    mean = pyString.reExtractData('mean:(0.\d+)', r[2][0], 1)
+    mean = pyString.reExtractData('mean:([-]?\d+.\d+)', r[2][0], 1)
 
     ###统计行数
     if duid not in duid_pos_mean_dict:
