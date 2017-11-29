@@ -414,6 +414,8 @@ for epoch in range(max_max_epoch):
         if (cnt_punc_category_dict[key]['good'] != 0 \
             or cnt_punc_category_dict[key]['bad'] != 0):
             print (i, id2tag[i],
+                   cnt_punc_category_dict[key]['good'],
+                   cnt_punc_category_dict[key]['bad'],
                    cnt_punc_category_dict[key]['good']/(cnt_punc_category_dict[key]['good'] + cnt_punc_category_dict[key]['bad']))
     print('total', cnt_punc_category_dict['total']['good']/(cnt_punc_category_dict['total']['good'] + cnt_punc_category_dict['total']['bad']))
 
