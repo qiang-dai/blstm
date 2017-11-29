@@ -48,27 +48,28 @@ for i,r in enumerate(res_list):
     if duid not in duid_pos_mean_dict:
         duid_pos_mean_dict[duid] = {}
     key = pos + "_" + mean
-    if key not in duid_pos_mean_dict:
+    if key not in duid_pos_mean_dict[duid]:
         duid_pos_mean_dict[duid][key] = 1
     else:
         duid_pos_mean_dict[duid][key] += 1
 
     ###打印
     if last_duid != duid:
-        ###统计
-        for key in duid_pos_mean_dict[last_duid]:
-            val = duid_pos_mean_dict[last_duid][key]
-            if val == 1:
-                print ('warning', last_duid, key, val)
-            elif val > 2:
-                print ('error', last_duid, key, val)
-            else:
-                print ('info_ok', last_duid, key, val)
         ###change
         last_duid = duid
 
         print('\n\n')
     print (r)
 
-    
+
+###统计
+for duid in duid_pos_mean_dict:
+    for key in duid_pos_mean_dict[duid]:
+        val = duid_pos_mean_dict[duid][key]
+        if val == 1:
+            print ('warning', duid, key, val)
+        elif val > 2:
+            print ('error', duid, key, val)
+        else:
+            print ('info_ok', duid, key, val)
 
