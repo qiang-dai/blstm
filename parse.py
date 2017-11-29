@@ -34,7 +34,9 @@ for line in t_list:
 res_list.sort()
 
 last_duid = ''
-duid_pos_mean_dict = {}
+duid_pos_mean_dict = {
+    last_duid:{}
+}
 for i,r in enumerate(res_list):
     r = res_list[i]
     ###parse duid,pos
@@ -47,22 +49,23 @@ for i,r in enumerate(res_list):
         duid_pos_mean_dict[duid] = {}
     key = pos + "_" + mean
     if key not in duid_pos_mean_dict:
-        duid_pos_mean_dict[key] = 1
+        duid_pos_mean_dict[duid][key] = 1
     else:
-        duid_pos_mean_dict[key] += 1
+        duid_pos_mean_dict[duid][key] += 1
 
     ###打印
     if last_duid != duid:
-        last_duid = duid
         ###统计
         for key in duid_pos_mean_dict[last_duid]:
             val = duid_pos_mean_dict[last_duid][key]
             if val == 1:
-                print ('warning', last_duid, key)
+                print ('warning', last_duid, key, val)
             elif val > 2:
-                print ('error', last_duid, key)
+                print ('error', last_duid, key, val)
             else:
-                print ('info_ok', last_duid, key)
+                print ('info_ok', last_duid, key, val)
+        ###change
+        last_duid = duid
 
         print('\n\n')
     print (r)
