@@ -98,9 +98,6 @@ if __name__ == '__main__':
                 else:
                     diff_dict[diff] += 1
 
-
-
-
             # score = e[6]
             # sessionId = e[2]
             ###如果score相同，那么就是重复发送
