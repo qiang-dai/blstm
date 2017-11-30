@@ -55,8 +55,8 @@ def check_predict_error(res_list):
             and r0[3] == r1[3]:
             ###判断时间
             if r0[1][:18] != r1[1][:18]:
-                print ('error', r0)
-                print ('error', r1)
+                print ('r0: error', r0)
+                print ('r1: error', r1)
 
                 key = r0[0] + '_' + r0[-1]
                 predict_error_dict[key] = ''
