@@ -53,7 +53,7 @@ for i,r in enumerate(res_list):
             print ('error', r0)
             print ('error', r1)
             print ('\n')
-    print (r)
+    #print (r)
 
 # for i,r in enumerate(res_list):
 #     r = res_list[i]
