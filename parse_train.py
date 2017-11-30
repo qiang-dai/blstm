@@ -14,6 +14,7 @@ def get_train_result(t_list):
         text = line[pos:]
         if len(line.strip()) == 0:
             continue
+        print('text:', text)
         tmp_dict = json.loads(text)
 
         if 'operation' not in tmp_dict:
