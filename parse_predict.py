@@ -38,15 +38,13 @@ def get_predict_result(t_list):
 
 def check_predict_error(res_list):
     predict_error_dict = {}
+    error_cnt = 0
 
     last_duid = ''
     for i,r in enumerate(res_list):
         if i >= len(res_list) - 1:
             break
         duid = r[0]
-        if last_duid != duid:
-            print ('\n')
-            last_duid = duid
 
         r0 = res_list[i]
         r1 = res_list[i+1]
@@ -58,17 +56,24 @@ def check_predict_error(res_list):
                 print ('r0: error', r0)
                 print ('r1: error', r1)
 
-                key = r0[0] + '_' + r0[-1]
+                key = r0[0]
                 predict_error_dict[key] = ''
-    return predict_error_dict
+                error_cnt += 1
+
+                ###美观
+                if last_duid != duid:
+                    print ('\n')
+                    last_duid = duid
+    return predict_error_dict, error_cnt
     #print (r)
 
 if __name__ == '__main__':
     filename = sys.argv[1]
     t_list = pyIO.get_content(filename)
     res_list = get_predict_result(t_list)
-    predict_error_dict = check_predict_error(res_list)
-    #print (predict_error_dict)
+    predict_error_dict, error_cnt = check_predict_error(res_list)
+    print ('len(predict_error_dict):', len(predict_error_dict))
+    print ('error_cnt', error_cnt)
 
     ###训练数据
     train_item_dict = parse_train.get_train_key_by_file(filename)
