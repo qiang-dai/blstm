@@ -67,24 +67,9 @@ if __name__ == '__main__':
         v.sort(key = sort_predict)
         total_predict_dict[k] = v
 
-    ###判断丢失的情况
-    for k,v in total_predict_dict.items():
-        flag_detect_lost = False
-        for i, e in enumerate(v):
-            ###忽略最后一个predict
-            if i+1 == len(v):
-                continue
-
-            ###判断是否存在
-            sessionId = e[2]
-            if sessionId not in total_train_dict:
-                print ('lost train:', sessionId)
-                flag_detect_lost = True
-        if flag_detect_lost:
-            print('\n')
-
     ###判断延迟的情况
     predict_check_cnt = 0
+    train_lost_cnt = 0
     train_delay_cnt = 0
     train_between_cnt = 0
 
@@ -94,6 +79,11 @@ if __name__ == '__main__':
                 continue
             ###判断前一个
             predict_check_cnt += 1
+
+            ###lost train
+            if v[i-1][2] not in total_train_dict:
+                train_lost_cnt += 1
+                print('i-1, lost train:', v[i-1])
 
             # score = e[6]
             # sessionId = e[2]
@@ -115,6 +105,7 @@ if __name__ == '__main__':
         print ('-'*15)
 
     print ('predict_check_cnt',predict_check_cnt)
+    print ('train_lost_cnt',train_lost_cnt)
     print ('train_delay_cnt',train_delay_cnt)
     print ('train_between_cnt',train_between_cnt)
 
