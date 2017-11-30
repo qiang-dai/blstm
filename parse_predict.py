@@ -37,8 +37,8 @@ def get_predict_result(t_list):
     return res_list
 
 def check_predict_error(res_list):
-    predict_error_dict = {}
-    error_cnt = 0
+    predict_error_duid_dict = {}
+    predict_error_session_dict = {}
 
     last_duid = ''
     for i,r in enumerate(res_list):
@@ -57,23 +57,28 @@ def check_predict_error(res_list):
                 print ('r1: error', r1)
 
                 key = r0[0]
-                predict_error_dict[key] = ''
-                error_cnt += 1
+                predict_error_duid_dict[key] = ''
+                predict_error_session_dict[r[0] + '_' + r[-1]] = ''
 
                 ###美观
                 if last_duid != duid:
                     print ('\n')
                     last_duid = duid
-    return predict_error_dict, error_cnt
+    return predict_error_duid_dict, predict_error_session_dict
     #print (r)
 
 if __name__ == '__main__':
     filename = sys.argv[1]
     t_list = pyIO.get_content(filename)
     res_list = get_predict_result(t_list)
-    predict_error_dict, error_cnt = check_predict_error(res_list)
-    print ('len(predict_error_dict):', len(predict_error_dict))
-    print ('error_cnt', error_cnt)
+
+    ###预测错误的情况有几种
+    ###1，丢失了train
+    ###2，train延迟了
+    ###3，train的不对（redis写入失败等情况）
+    predict_error_duid_dict, predict_error_session_dict = check_predict_error(res_list)
+    print ('len(predict_error_duid_dict):', len(predict_error_duid_dict))
+    print ('len(predict_error_session_dict)', len(predict_error_session_dict))
 
     ###训练数据
     train_item_dict = parse_train.get_train_key_by_file(filename)
@@ -82,10 +87,14 @@ if __name__ == '__main__':
     duid_list = [r[0] for r in res_list]
     duid_list = list(set(duid_list))
 
-    for k in predict_error_dict:
+    ###丢失的train
+    for k in predict_error_session_dict:
         if k not in train_item_dict:
             print ('lost train:', k)
             cnt += 1
+        else:
+            ###没有丢失/非延迟的train?不好区分
+            print ('train error:', k)
     print("all predict cnt:", len(res_list) - len(duid_list))
     print('total lost train cnt:', cnt)
     #print (train_item_dict)
