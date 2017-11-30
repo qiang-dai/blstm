@@ -30,7 +30,7 @@ for line in t_list:
     #if 'beforeMeanVarianceList' not in tmp_dict['paramExtra']:
     #    continue
     ###添加结果
-    res = (tmp_dict['duid'], timestamp, tmp_dict['paramExtra']['itemId'], tmp_dict['paramExtra']['score'], tmp_dict['sessionId'], tmp_dict['extra']['taghit'])
+    res = (tmp_dict['duid'], timestamp, tmp_dict['paramExtra']['itemId'], tmp_dict['category'], tmp_dict['paramExtra']['score'], tmp_dict['sessionId'], tmp_dict['extra']['taghit'])
     res_list.append(res)
 
 res_list.sort()
