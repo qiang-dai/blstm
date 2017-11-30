@@ -69,6 +69,7 @@ if __name__ == '__main__':
         total_predict_dict[k] = v
 
     ###判断延迟的情况
+    predict_total_cnt = 0
     predict_check_cnt = 0
     train_lost_cnt = 0
     train_delay_cnt = 0
@@ -76,6 +77,8 @@ if __name__ == '__main__':
 
     diff_dict = {}
     for k,v in total_predict_dict.items():
+        predict_total_cnt += len(v)
+
         for i, e in enumerate(v):
             if i == 0:
                 continue
@@ -117,10 +120,11 @@ if __name__ == '__main__':
                     print('\n')
         print ('-'*15)
 
+    print ('predict_total_cnt',predict_total_cnt)
     print ('predict_check_cnt',predict_check_cnt)
-    print ('train_lost_cnt',train_lost_cnt, '%.2f%%'%(train_lost_cnt/predict_check_cnt*100))
-    print ('train_delay_cnt',train_delay_cnt, '%.2f%%'%(train_delay_cnt/predict_check_cnt*100))
-    print ('train_between_cnt',train_between_cnt, '%.2f%%'%(train_between_cnt/predict_check_cnt*100))
+    print ('train_lost_cnt',train_lost_cnt, '%.2f%%'%(train_lost_cnt/predict_total_cnt*100))
+    print ('train_delay_cnt',train_delay_cnt, '%.2f%%'%(train_delay_cnt/predict_total_cnt*100))
+    print ('train_between_cnt',train_between_cnt, '%.2f%%'%(train_between_cnt/predict_total_cnt*100))
     print ('diff_dict:', diff_dict)
 
 
