@@ -3,6 +3,7 @@
 import sys,os
 import json,pyString
 import pyIO
+import time
 
 
 ###解析 monitor.log
@@ -20,7 +21,7 @@ def get_total_result(t_list):
 
         ###添加结果
         if tmp_dict['operation'] == 'predict':
-            res = (tmp_dict['duid'], timestamp, tmp_dict['sessionId'], tmp_dict['operation'], tmp_dict['paramExtra']['itemId'], tmp_dict['category'], tmp_dict['paramExtra']['score'])
+            res = (tmp_dict['duid'], timestamp, tmp_dict['sessionId'], tmp_dict['operation'], tmp_dict['paramExtra']['itemId'], tmp_dict['category'], tmp_dict['paramExtra']['score'], tmp_dict['timestamp'])
         else:
             res = (tmp_dict['duid'], timestamp, tmp_dict['sessionId'], tmp_dict['operation'])
 
@@ -73,6 +74,7 @@ if __name__ == '__main__':
     train_delay_cnt = 0
     train_between_cnt = 0
 
+    diff_dict = {}
     for k,v in total_predict_dict.items():
         for i, e in enumerate(v):
             if i == 0:
@@ -84,6 +86,17 @@ if __name__ == '__main__':
             if v[i-1][2] not in total_train_dict:
                 train_lost_cnt += 1
                 print('i-1, lost train:', v[i-1])
+                print('i  , lost train:', v[i])
+                timestamp = v[i-1][7]
+                current_time = int(round(time.time() * 1000))
+                diff = '%s'%( int((current_time - timestamp)/1800000) )
+                if diff not in diff_dict:
+                    diff_dict[diff] = 1
+                else:
+                    diff_dict[diff] += 1
+
+
+
 
             # score = e[6]
             # sessionId = e[2]
@@ -108,7 +121,7 @@ if __name__ == '__main__':
     print ('train_lost_cnt',train_lost_cnt, '%.2f%%'%(train_lost_cnt/predict_check_cnt*100))
     print ('train_delay_cnt',train_delay_cnt, '%.2f%%'%(train_delay_cnt/predict_check_cnt*100))
     print ('train_between_cnt',train_between_cnt, '%.2f%%'%(train_between_cnt/predict_check_cnt*100))
-
+    print ('diff_dict:', diff_dict)
 
 
 
