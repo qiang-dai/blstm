@@ -40,7 +40,19 @@ res_list.sort()
 #     last_duid:{}
 # }
 for i,r in enumerate(res_list):
-    r = res_list[i]
+    if i >= len(res_list) - 1:
+        break
+
+    r0 = res_list[i]
+    r1 = res_list[i+1]
+    if r0[0] == r1[0] \
+        and r0[2] == r1[2] \
+        and r0[3] == r1[3]:
+        ###判断时间
+        if r0[1][:18] != r1[1][:18]:
+            print ('error', r0)
+            print ('error', r1)
+            print ('\n')
     print (r)
 
 # for i,r in enumerate(res_list):
