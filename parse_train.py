@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys,os
 import json,pyString
-
-
+import pyIO
 
 ###解析 monitor.log
 def get_train_result(t_list):
@@ -78,9 +77,7 @@ def parse_error(duid_pos_mean_dict):
                 print ('info_ok', duid, key, val)
 
 def get_train_key_by_file(filename):
-    f = open(filename, 'r')
-    s = f.read()
-    t_list = s.split('\n')
+    t_list = pyIO.get_content(filename)
     res_list = get_train_result(t_list)
     train_item_dict = get_train_key(res_list)
     #print(train_item_dict)

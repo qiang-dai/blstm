@@ -3,6 +3,7 @@
 import sys,os
 import json,pyString
 import parse_train
+import pyIO
 
 ###解析 monitor.log
 def get_predict_result(t_list):
@@ -58,9 +59,7 @@ def check_predict_error(res_list):
 
 if __name__ == '__main__':
     filename = sys.argv[1]
-    f = open(filename, 'r')
-    s = f.read()
-    t_list = s.split('\n')
+    t_list = pyIO.get_content(filename)
     res_list = get_predict_result(t_list)
     predict_error_dict = check_predict_error(res_list)
     #print (predict_error_dict)
