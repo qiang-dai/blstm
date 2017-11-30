@@ -31,15 +31,22 @@ def get_predict_result(t_list):
         res = (tmp_dict['duid'], timestamp, tmp_dict['paramExtra']['itemId'], tmp_dict['category'], tmp_dict['paramExtra']['score'], tmp_dict['extra']['taghit'], tmp_dict['sessionId'])
         res_list.append(res)
 
+    def my_key1(x):
+        return x[0]+ x[2] + x[3] + x[1]
     res_list.sort()
     return res_list
 
 def check_predict_error(res_list):
     predict_error_dict = {}
 
+    last_duid = ''
     for i,r in enumerate(res_list):
         if i >= len(res_list) - 1:
             break
+        duid = r[0]
+        if last_duid != duid:
+            print ('\n')
+            last_duid = duid
 
         r0 = res_list[i]
         r1 = res_list[i+1]
@@ -50,7 +57,6 @@ def check_predict_error(res_list):
             if r0[1][:18] != r1[1][:18]:
                 print ('error', r0)
                 print ('error', r1)
-                print ('\n')
 
                 key = r0[0] + '_' + r0[-1]
                 predict_error_dict[key] = ''
