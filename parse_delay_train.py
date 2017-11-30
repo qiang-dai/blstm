@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 t = total_train_dict[sessionId]
                 if t[1] < v[i][1]:
                     train_between_cnt += 1
-                    print('t, between train:', t)
+                    print('bad,between train:', t)
                     print('\n')
                 else:
                     train_delay_cnt += 1
@@ -105,9 +105,9 @@ if __name__ == '__main__':
         print ('-'*15)
 
     print ('predict_check_cnt',predict_check_cnt)
-    print ('train_lost_cnt',train_lost_cnt)
-    print ('train_delay_cnt',train_delay_cnt)
-    print ('train_between_cnt',train_between_cnt)
+    print ('train_lost_cnt',train_lost_cnt, '%.2f%%'%(train_lost_cnt/predict_check_cnt*100))
+    print ('train_delay_cnt',train_delay_cnt, '%.2f%%'%(train_delay_cnt/predict_check_cnt*100))
+    print ('train_between_cnt',train_between_cnt, '%.2f%%'%(train_between_cnt/predict_check_cnt*100))
 
 
 
