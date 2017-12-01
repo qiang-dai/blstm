@@ -128,7 +128,7 @@ class BatchGenerator(object):
         weight_change_list = []
         for i in range(len(self._y[start:end])):
             y = self._y[start:end][i]
-            tmp_list = [1.0 for e in y]
+            tmp_list = [1.0 if e == 0 else 15.0 for e in y]
             weight_change_list.append(tmp_list)
 
 
