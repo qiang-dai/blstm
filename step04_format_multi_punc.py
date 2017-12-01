@@ -117,7 +117,7 @@ def transform_punc(w, punc_list, punc_set):
         w = punc_list[0]
     return w
 
-def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
+def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc):
     punc_set = set(punc_list)
     print('punc_set size:', len(punc_set))
 
@@ -133,11 +133,18 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                 add_cnt_dict(cnt_dict, res)
 
             #print(i, res_list)
+            flag_combined_punc = False
+
             content_list = ['Header',]
             labels_list = [punc_list[0],]
             for w in res_list:
                 ###如果是符号,就往前加
                 if punctuation.is_punc(w[0]):
+                    ###如果标点符号有2个连在一起，那么直接放弃这句
+                    if w not in punc_set and flag_ignore_complex_punc:
+                        flag_combined_punc = True
+                        break
+
                     ###统计词频
                     add_cnt_dict(cleaned_punc_dict, w)
                     ###标点符号进行替换
@@ -149,6 +156,11 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
 
                     content_list.append(w)
                     labels_list.append(punc_list[0])
+            ###如果标点符号有2个连在一起，那么直接放弃这句
+            if flag_combined_punc and flag_ignore_complex_punc:
+                print('ignore sentence:', sub_sentence)
+                continue
+
             ###添加结束标记
             content_list.append('Tail')
             labels_list.append(punc_list[0])
@@ -193,13 +205,33 @@ def get_total_cnt(some_cnt_dict, limit):
             print('lost word limit:', limit, k)
     return len(total_cnt_dict)
 
+def get_args():
+    filename = 'raw_data/total_english.txt'
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+
+    threshold_line_cnt = 10000
+    if len(sys.argv) > 2:
+        threshold_line_cnt = int(sys.argv[2])
+
+    res_file = 'raw_data/total_english.txt'
+    if len(sys.argv) > 3:
+        res_file = sys.argv[3]
+
+    flag_ignore_complex_punc = False
+    if len(sys.argv) > 4:
+        if sys.argv[4] == 'True':
+            flag_ignore_complex_punc = True
+
+    return filename, threshold_line_cnt, res_file, flag_ignore_complex_punc
+
 if __name__ == '__main__':
 
     ###初始化:标点符号写文件
     punctuation.save_punc_list(punctuation.punctuation_list)
 
     ###<programe> raw_data/en_punctuation_recommend_train_100W  1000000 raw_data/res.txt
-    filename, threshold_line_cnt, result_name = tools.args()
+    filename, threshold_line_cnt, result_name, flag_ignore_complex_punc = get_args()
 
     ###词频统计
     cnt_dict = {
@@ -218,7 +250,7 @@ if __name__ == '__main__':
     ###1,遍历所有,判断标点符号的全集
     ###2,根据标点符号全集,生成训练数据
     sentences = pyIO.get_content(filename)
-    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict)
+    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
     print('res_list[:3]:', res_list[:3])
 
     ###统计平均值,然后过滤
@@ -260,7 +292,7 @@ if __name__ == '__main__':
     print('punc_set size:', len(punc_set))
     ###存储punc列表
 
-    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict)
+    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
     print('res_list[:3]:', res_list[:3])
     print('res_list size:', len(res_list))
     #print(' '.join(res_list))
