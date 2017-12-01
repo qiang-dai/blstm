@@ -49,7 +49,7 @@ with open('data/data.pkl', 'rb') as inp:
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train,  test_size=0.2, random_state=42)
-print( 'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
     X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape))
 
 # ** 3.build the data generator
@@ -142,11 +142,11 @@ class BatchGenerator(object):
 
         return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size), batch_cnt_punc_dict
 
-print( 'Creating the data generator ...')
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Creating the data generator ...')
 data_train = BatchGenerator(X_train, y_train, shuffle=True)
 data_valid = BatchGenerator(X_valid, y_valid, shuffle=False)
 data_test = BatchGenerator(X_test, y_test, shuffle=False)
-print( 'Finished creating the data generator.')
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the data generator.')
 
 ### 设置显存根据需求增长
 import tensorflow as tf
@@ -305,7 +305,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate=lr)   # 优化器
 # 梯度下降计算
 train_op = optimizer.apply_gradients( zip(grads, tvars),
     global_step=tf.contrib.framework.get_or_create_global_step())
-print( 'Finished creating the bi-lstm model.')
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the bi-lstm model.')
 
 def test_epoch(dataset):
     """Testing or valid."""
@@ -329,7 +329,7 @@ def test_epoch(dataset):
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print('test _acc, _cost:', _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test _acc, _cost:', _acc, _cost)
         _accs += _acc
         _costs += _cost    
     mean_acc= _accs / batch_num     
@@ -343,8 +343,8 @@ tr_batch_size = 128
 display_num = 5  # 每个 epoch 显示是个结果
 tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
 display_batch = int(tr_batch_num / display_num)  # 每训练 display_batch 之后输出一次
-print('tr_batch_num:', tr_batch_num)
-print('display_batch:', display_batch)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'tr_batch_num:', tr_batch_num)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'display_batch:', display_batch)
 
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 # last_10_acc = []
@@ -371,8 +371,7 @@ for epoch in range(max_max_epoch):
     if epoch > max_epoch:
         _lr = _lr * ((decay) ** (epoch - max_epoch))
 
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    print( 'EPOCH %d， lr=%g' % (epoch+1, _lr))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d， lr=%g' % (epoch+1, _lr))
     start_time = time.time()
     _costs = 0.0
     _accs = 0.0
@@ -387,7 +386,7 @@ for epoch in range(max_max_epoch):
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
         _acc, _cost, _, predict_res, input_res = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
-        print('train _acc, _cost:', _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch+1, _acc, _cost)
         y_result_list.append(predict_res)
         y_input_list.append(input_res)
 
@@ -397,7 +396,7 @@ for epoch in range(max_max_epoch):
         show_costs += _cost
         if (batch + 1) % display_batch == 0:
             valid_acc, valid_cost = test_epoch(data_valid)  # valid
-            print( '\ttraining acc=%g, cost=%g;  valid acc= %g, cost=%g ' % (show_accs / display_batch,
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining acc=%g, cost=%g;  valid acc= %g, cost=%g ' % (show_accs / display_batch,
                                                 show_costs / display_batch, valid_acc, valid_cost))
             show_accs = 0.0
             show_costs = 0.0
@@ -409,11 +408,11 @@ for epoch in range(max_max_epoch):
     mean_cost = _costs / tr_batch_num
     if (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
         save_path = saver.save(sess, model_save_path, global_step=(epoch+1))
-        print( 'the save path is ', save_path)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path)
 
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    print( '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
-    print( 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
     if mean_acc > 0.999:
         print ('mean_acc > 0.999')
         break
@@ -463,16 +462,16 @@ for epoch in range(max_max_epoch):
             total_input += cnt_input
             total_good += cnt_good
 
-            print(i, id2tag[i], end = ' ')
-            print('召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
-            print('准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
     ###整体准确率
-    print('整体准确率', total_good/total_input, total_good, total_input)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
 
 # testing
-print( '**TEST RESULT:')
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
 test_acc, test_cost = test_epoch(data_test)
-print( '**Test %d, acc=%g, cost=%g' % (data_test.y.shape[0], test_acc, test_cost) )
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**Test %d, acc=%g, cost=%g' % (data_test.y.shape[0], test_acc, test_cost) )
 
 # ** 导入模型
 saver = tf.train.Saver()
@@ -481,9 +480,9 @@ saver.restore(sess, best_model_path)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
 X_tt, y_tt, offset, _, _, _ = data_train.next_batch(2)
-print( 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
-print( 'X_tt = ', X_tt)
-print( 'y_tt = ', y_tt)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
 feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0, total_size:2*32}
 
 ### y_pred 是一个 op
@@ -491,12 +490,12 @@ fetches = [y_pred]
 _y_pred = sess.run(fetches, feed_dict)
 
 #,print(,'X_tt.shape=',,X_tt.shape,,'y_tt.shape=',,y_tt.shape)
-print('X_tt=',X_tt)
-print('y_tt=',y_tt)
-print('_y_pred=',_y_pred)
-print('_y_pred[0] size, shape:', _y_pred[0].size, _y_pred[0].shape)
-print('X_tt, y_tt size:', X_tt.size, y_tt.size)
-print('X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt=',X_tt)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'y_tt=',y_tt)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred=',_y_pred)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred[0] size, shape:', _y_pred[0].size, _y_pred[0].shape)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt size:', X_tt.size, y_tt.size)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
 for i in range(2):
     x = X_tt[i]
@@ -508,14 +507,14 @@ for i in range(2):
 
     x_index = [e for e in x if e > 0]
     y_index = [np.argmax(e) for e in y]
-    print ("x:", x)
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
     #print ("y:", y)
     print ("x_index:", x_index)
     print ("y_index:", y_index)
 
     word_list = [id2word[e] for e in x_index]
     label_list =[id2tag[e] for e in y_index]
-    print (word_list)
-    print (label_list)
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
 
 
