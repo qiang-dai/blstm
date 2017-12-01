@@ -277,7 +277,8 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 # accuracy = (tf.cast(accuracy2, tf.float32)*total_size - avg_offset) / (total_size - avg_offset)
 
 #tf.div(tf.matmul(accuracy2, total_size) - avg_offset, total_size - avg_offset)
-cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
+#cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
+cost = tf.reduce_mean(tf.python.ops.seq2seq(logits=y_pred, targets=y_inputs, weights=y_inputs))
 
 # ***** 优化求解 *******
 tvars = tf.trainable_variables()  # 获取模型的所有参数

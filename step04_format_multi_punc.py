@@ -61,6 +61,8 @@ def merge_chars(word):
     return res_list
 
 def clean_sentence(sentence):
+    ###新闻的处理
+    sentence = sentence.replace('\n', ' ')
     word_list = sentence.split(" ")
     res_list = []
     for word in word_list:
@@ -257,12 +259,17 @@ if __name__ == '__main__':
 
     ###保存最终处理结果,格式是:
     content_line_list = []
-    for tmp_list in res_list:
+    punc_set = set(punc_list)
 
+    for i, tmp_list in enumerate(res_list):
         line_list = []
         for word,punc in tmp_list:
             if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
                 word = 'NONE'
+            if punc not in punc_set:
+                print('[%d] error punc:'%i, punc, tmp_list)
+                punc = punc_list[0]
+
 
             line_list.append('%s/%s'%(word, punc))
         content_line_list.append(' '.join(line_list))
