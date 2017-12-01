@@ -143,7 +143,8 @@ print( 'Finished creating the data generator.')
 ### 设置显存根据需求增长
 import tensorflow as tf
 config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
+#config.gpu_options.allow_growth = True
+config.gpu_options.per_process_gpu_memory_fraction = 0.20
 sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
@@ -212,49 +213,49 @@ def bi_lstm(X_inputs):
     # *************************************************************
     # Unstack to get a list of 'n_steps' tensors of shape (batch_size, n_input)
     # inputs.shape = [batchsize, timestep_size, embedding_size]  ->  timestep_size tensor, each_tensor.shape = [batchsize, embedding_size]
-    # inputs = tf.unstack(inputs, timestep_size, 1)
+    inputs = tf.unstack(inputs, timestep_size, 1)
     # ** 3.bi-lstm 计算（tf封装）  一般采用下面 static_bidirectional_rnn 函数调用。
     #   但是为了理解计算的细节，所以把后面的这段代码进行展开自己实现了一遍。
-#     try:
-#         outputs, _, _ = rnn.static_bidirectional_rnn(cell_fw, cell_bw, inputs, 
-#                         initial_state_fw = initial_state_fw, initial_state_bw = initial_state_bw, dtype=tf.float32)
-#     except Exception: # Old TensorFlow version only returns outputs not states
-#         outputs = rnn.static_bidirectional_rnn(cell_fw, cell_bw, inputs, 
-#                         initial_state_fw = initial_state_fw, initial_state_bw = initial_state_bw, dtype=tf.float32)
-#     output = tf.reshape(tf.concat(outputs, 1), [-1, hidden_size * 2])
+    try:
+        outputs, _, _ = rnn.static_bidirectional_rnn(cell_fw, cell_bw, inputs,
+                        initial_state_fw = initial_state_fw, initial_state_bw = initial_state_bw, dtype=tf.float32)
+    except Exception: # Old TensorFlow version only returns outputs not states
+        outputs = rnn.static_bidirectional_rnn(cell_fw, cell_bw, inputs,
+                        initial_state_fw = initial_state_fw, initial_state_bw = initial_state_bw, dtype=tf.float32)
+    output = tf.reshape(tf.concat(outputs, 1), [-1, hidden_size * 2])
     # ***********************************************************
     
     # ***********************************************************
     # ** 3. bi-lstm 计算（展开）
-    with tf.variable_scope('bidirectional_rnn'):
-        # *** 下面，两个网络是分别计算 output 和 state 
-        # Forward direction
-        outputs_fw = list()
-        state_fw = initial_state_fw
-        with tf.variable_scope('fw'):
-            for timestep in range(timestep_size):
-                if timestep > 0:
-                    tf.get_variable_scope().reuse_variables()
-                (output_fw, state_fw) = cell_fw(inputs[:, timestep, :], state_fw)
-                outputs_fw.append(output_fw)
-        
-        # backward direction
-        outputs_bw = list()
-        state_bw = initial_state_bw
-        with tf.variable_scope('bw') as bw_scope:
-            inputs = tf.reverse(inputs, [1])
-            for timestep in range(timestep_size):
-                if timestep > 0:
-                    tf.get_variable_scope().reuse_variables()
-                (output_bw, state_bw) = cell_bw(inputs[:, timestep, :], state_bw)
-                outputs_bw.append(output_bw)
-        # *** 然后把 output_bw 在 timestep 维度进行翻转
-        # outputs_bw.shape = [timestep_size, batch_size, hidden_size]
-        outputs_bw = tf.reverse(outputs_bw, [0])
-        # 把两个oupputs 拼成 [timestep_size, batch_size, hidden_size*2]
-        output = tf.concat([outputs_fw, outputs_bw], 2)
-        output = tf.transpose(output, perm=[1,0,2])
-        output = tf.reshape(output, [-1, hidden_size*2])
+    # with tf.variable_scope('bidirectional_rnn'):
+    #     # *** 下面，两个网络是分别计算 output 和 state
+    #     # Forward direction
+    #     outputs_fw = list()
+    #     state_fw = initial_state_fw
+    #     with tf.variable_scope('fw'):
+    #         for timestep in range(timestep_size):
+    #             if timestep > 0:
+    #                 tf.get_variable_scope().reuse_variables()
+    #             (output_fw, state_fw) = cell_fw(inputs[:, timestep, :], state_fw)
+    #             outputs_fw.append(output_fw)
+    #
+    #     # backward direction
+    #     outputs_bw = list()
+    #     state_bw = initial_state_bw
+    #     with tf.variable_scope('bw') as bw_scope:
+    #         inputs = tf.reverse(inputs, [1])
+    #         for timestep in range(timestep_size):
+    #             if timestep > 0:
+    #                 tf.get_variable_scope().reuse_variables()
+    #             (output_bw, state_bw) = cell_bw(inputs[:, timestep, :], state_bw)
+    #             outputs_bw.append(output_bw)
+    #     # *** 然后把 output_bw 在 timestep 维度进行翻转
+    #     # outputs_bw.shape = [timestep_size, batch_size, hidden_size]
+    #     outputs_bw = tf.reverse(outputs_bw, [0])
+    #     # 把两个oupputs 拼成 [timestep_size, batch_size, hidden_size*2]
+    #     output = tf.concat([outputs_fw, outputs_bw], 2)
+    #     output = tf.transpose(output, perm=[1,0,2])
+    #     output = tf.reshape(output, [-1, hidden_size*2])
     # ***********************************************************
     return output # [-1, hidden_size*2]
 
