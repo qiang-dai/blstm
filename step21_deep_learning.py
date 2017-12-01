@@ -125,7 +125,14 @@ class BatchGenerator(object):
             index_list.extend(tmy_result_list)
             pos += len(x)
 
-        return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1)
+        weight_change_list = []
+        for i in range(len(self._y[start:end])):
+            y = self._y[start:end][i]
+            tmp_list = [1.0 for e in y]
+            weight_change_list.append(tmp_list)
+
+
+        return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size)
 
 print( 'Creating the data generator ...')
 data_train = BatchGenerator(X_train, y_train, shuffle=True)
@@ -160,6 +167,7 @@ lr = tf.placeholder(tf.float32, [])
 keep_prob = tf.placeholder(tf.float32, [])
 avg_offset = tf.placeholder(tf.float32, [])
 avg_index_list = tf.placeholder(tf.int32, [None, 1])
+avg_weight_change = tf.placeholder(tf.float32, [None, timestep_size])
 total_size = tf.placeholder(tf.float32, [])
 batch_size = tf.placeholder(tf.int32, [])  # 注意类型必须为 tf.int32
 model_save_path = 'ckpt/bi-lstm.ckpt'  # 模型保存位置
@@ -278,7 +286,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 #tf.div(tf.matmul(accuracy2, total_size) - avg_offset, total_size - avg_offset)
 #cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
-cost = tf.reduce_mean(tf.python.ops.seq2seq(logits=y_pred, targets=y_inputs, weights=y_inputs))
+cost = tf.reduce_mean(tf.contrib.seq2seq.sequence_loss(logits=tf.reshape(y_pred, [-1, timestep_size, class_num]), targets=y_inputs, weights=avg_weight_change))
 
 # ***** 优化求解 *******
 tvars = tf.trainable_variables()  # 获取模型的所有参数
@@ -305,11 +313,12 @@ def test_epoch(dataset):
     _costs = 0.0
     _accs = 0.0
     for i in range(batch_num):
-        X_batch, y_batch, offset, index_list = dataset.next_batch(_batch_size)
+        X_batch, y_batch, offset, index_list, weight_change_list = dataset.next_batch(_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0,
                      avg_offset:offset,
                      total_size:_batch_size*32,
-                     avg_index_list: index_list}
+                     avg_index_list: index_list,
+                     avg_weight_change: weight_change_list}
         _acc, _cost = sess.run(fetches, feed_dict)
         print('test _acc, _cost:', _acc, _cost)
         _accs += _acc
@@ -361,11 +370,12 @@ for epoch in range(max_max_epoch):
     show_costs = 0.0
     for batch in range(tr_batch_num): 
         fetches = [accuracy, cost, train_op, y_result_item, y_input_item]
-        X_batch, y_batch, offset, index_list = data_train.next_batch(tr_batch_size)
+        X_batch, y_batch, offset, index_list, weight_change_list = data_train.next_batch(tr_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
                      avg_offset:offset,
                      total_size:tr_batch_size*32,
-                     avg_index_list: index_list}
+                     avg_index_list: index_list,
+                     avg_weight_change: weight_change_list}
         _acc, _cost, _, predict_res, input_res = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
         print('train _acc, _cost:', _acc, _cost)
         y_result_list.append(predict_res)
@@ -432,7 +442,7 @@ best_model_path = 'ckpt/bi-lstm.ckpt-6'
 saver.restore(sess, best_model_path)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-X_tt, y_tt, offset, _ = data_train.next_batch(2)
+X_tt, y_tt, offset, _, _ = data_train.next_batch(2)
 print( 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print( 'X_tt = ', X_tt)
 print( 'y_tt = ', y_tt)
