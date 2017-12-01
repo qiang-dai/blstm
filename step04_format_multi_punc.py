@@ -153,6 +153,11 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
             content_list.append('Tail')
             labels_list.append(punc_list[0])
 
+            ###如果一个标点都没有，就忽略这句话
+            if len(labels_list) == 1 \
+                and labels_list[0] == punc_list[0]:
+                continue
+
             out_list = []
             for pos in range(len(content_list)):
                 punc = labels_list[pos]
