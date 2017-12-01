@@ -277,8 +277,8 @@ if __name__ == '__main__':
         if (cleaned_punc_dict[k] > avg_cnt and len(k) == 2) or len(k) == 1:
             cnt += 1
             print(cnt, 'valid', cleaned_punc_dict[k], '    ', k)
-            if k not in punc_set:
-                punc_list.append(k)
+            # if k not in punc_set:
+            #     punc_list.append(k)
 
     ###再次计算
     print ('cnt_dict size:', len(cnt_dict))
