@@ -291,7 +291,7 @@ for i in range(check_batch_size):
         res += word_list[pos]
         if label_list[pos] == 'LEFT':
             res += '/'
-        elif label_list[pos] != 'UNKNOWN' and label_list[pos] != 'UNKOWN':
+        elif label_list[pos] != 'SP':
             res += label_list[pos]
         res += ' '
 

@@ -99,6 +99,24 @@ def add_cnt_dict(cnt_dict, word):
     else:
         cnt_dict[word] = 1
 
+def transform_punc(w, punc_list, punc_set):
+    ###如果符号连在一起, 就选择第一个符号
+    if w not in punc_set:
+        ###取最后的符号,忽略后面的符号
+        if w.find('...') != -1:
+            w = '...'
+        else:
+            w = w[-1]
+        if w not in punc_set:
+            ###实在奇怪的符号,就认为是空格
+            w = punc_list[0]
+            print('error: not punc:', w)
+    ###可能多个符号在一起
+    w = w.replace('/', 'LEFT')
+    if w not in punc_set:
+        w = punc_list[0]
+    return w
+
 def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
     punc_set = set(punc_list)
     print('punc_set size:', len(punc_set))
@@ -106,58 +124,46 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
     total_res_list = []
     for i in range(len(sentences)):
         sentence = sentences[i]
-        res_list = clean_sentence(sentence)
-        for res in res_list:
-            add_cnt_dict(cnt_dict, res)
-        #print(i, res_list)
-        content_list = ['Header',]
-        labels_list = [punc_list[0],]
-        for w in res_list:
-            ###如果是符号,就往前加
-            if punctuation.is_punc(w[0]):
-                ###统计词频
-                add_cnt_dict(cleaned_punc_dict, w)
+        sub_sentence_list = sentence.split('\\n')
+        for sub_sentence in sub_sentence_list:
 
-                ###如果符号连在一起, 就选择第一个符号
-                if w not in punc_set:
-                    #print('error: more than 1 flag:', w, sentence)
-                    ###取最后的符号,忽略后面的符号
-                    if w.find('...') != -1:
-                        w = '...'
-                    else:
-                        w = w[-1]
-                    if w not in punc_set:
-                        ###实在奇怪的符号,就认为是空格
-                        w = punc_list[0]
-                        print('error: tail not punc:', w, sentence)
-                #if w == '/':
-                #    w = 'LEFT'
-                ###可能多个符号在一起
-                w = w.replace('/', 'LEFT')
-                if w not in punc_set:
-                    w = punc_list[0]
-                labels_list[-1] = w
-            else:
-                if punctuation.is_emoji(w[0]):
-                    w = 'EMOJI'
+            ###解析结果
+            res_list = clean_sentence(sub_sentence)
+            for res in res_list:
+                add_cnt_dict(cnt_dict, res)
 
-                content_list.append(w)
-                labels_list.append(punc_list[0])
-        ###添加结束标记
-        content_list.append('Tail')
-        labels_list.append(punc_list[0])
+            #print(i, res_list)
+            content_list = ['Header',]
+            labels_list = [punc_list[0],]
+            for w in res_list:
+                ###如果是符号,就往前加
+                if punctuation.is_punc(w[0]):
+                    ###统计词频
+                    add_cnt_dict(cleaned_punc_dict, w)
+                    ###标点符号进行替换
+                    w = transform_punc(w, punc_list, punc_set)
+                    labels_list[-1] = w
+                else:
+                    if punctuation.is_emoji(w[0]):
+                        w = 'EMOJI'
 
-        out_list = []
-        for pos in range(len(content_list)):
-            punc = labels_list[pos]
-            if punc == punc_list[0]:
-                pass
-            else:
-                pass
-            #text = content_list[pos] + '/' + punc
-            text = [content_list[pos], punc]
-            out_list.append(text)
-        total_res_list.append(out_list)
+                    content_list.append(w)
+                    labels_list.append(punc_list[0])
+            ###添加结束标记
+            content_list.append('Tail')
+            labels_list.append(punc_list[0])
+
+            out_list = []
+            for pos in range(len(content_list)):
+                punc = labels_list[pos]
+                if punc == punc_list[0]:
+                    pass
+                else:
+                    pass
+                #text = content_list[pos] + '/' + punc
+                text = [content_list[pos], punc]
+                out_list.append(text)
+            total_res_list.append(out_list)
     return total_res_list
 
 def get_min_punc_cnt(cleaned_punc_dict):
@@ -192,7 +198,7 @@ if __name__ == '__main__':
 
     ###词频统计
     cnt_dict = {
-        'Unknown':threshold_word_cnt,
+        'SP':threshold_word_cnt,
         'Header':threshold_word_cnt,
         'Tail':threshold_word_cnt,
     }
@@ -280,7 +286,7 @@ if __name__ == '__main__':
             line_list.append('%s/%s'%(word, punc))
         content_line_list.append(' '.join(line_list))
 
-    ### Header/UNKNOWN by/UNKNOWN robert/UNKNOWN browning/. Tail/UNKNOWN
+    ### Header/SP by/SP robert/SP browning/. Tail/SP
     pyIO.save_to_file('\n'.join(content_line_list), result_name)
 
     c = Counter(cnt_dict)

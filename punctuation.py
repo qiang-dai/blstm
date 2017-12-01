@@ -1,7 +1,7 @@
 import pyIO
 
 punctuation_list = [
-    'UNKNOWN',
+    'SP',
     "...",
     "{",
     "}",

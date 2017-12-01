@@ -125,14 +125,22 @@ class BatchGenerator(object):
             index_list.extend(tmy_result_list)
             pos += len(x)
 
+        ###返回字符的数量，进行核对，避免出现错误统计
+        batch_cnt_punc_dict = {}
+        for i in range(len(punctuation.get_punc_list())):
+            batch_cnt_punc_dict['%d'%i] = 0
+
+        ###修改权重
         weight_change_list = []
         for i in range(len(self._y[start:end])):
             y = self._y[start:end][i]
             tmp_list = [1.0 if e == 0 else 15.0 for e in y]
             weight_change_list.append(tmp_list)
+            ###个数
+            for v in y:
+                batch_cnt_punc_dict['%d'%v] += 1
 
-
-        return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size)
+        return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size), batch_cnt_punc_dict
 
 print( 'Creating the data generator ...')
 data_train = BatchGenerator(X_train, y_train, shuffle=True)
@@ -314,7 +322,7 @@ def test_epoch(dataset):
     _costs = 0.0
     _accs = 0.0
     for i in range(batch_num):
-        X_batch, y_batch, offset, index_list, weight_change_list = dataset.next_batch(_batch_size)
+        X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = dataset.next_batch(_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0,
                      avg_offset:offset,
                      total_size:_batch_size*32,
@@ -341,22 +349,23 @@ print('display_batch:', display_batch)
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 # last_10_acc = []
 
-y_result_list = []
-y_input_list = []
-cnt_punc_category_dict = {
-    "total": {
-        "good":0,
-        "bad":0
-    }
-}
-
 for epoch in range(max_max_epoch):
+
+    ###1统计准确率
+    y_result_list = []
+    y_input_list = []
+    cnt_punc_category_dict = {}
+    total_batch_cnt_punc_dict = {}
     ###每一轮都重置
     for i in range(len(punctuation.get_punc_list())):
         key = '%d'%i
         cnt_punc_category_dict[key] = {}
-        cnt_punc_category_dict[key]['good'] = 0
-        cnt_punc_category_dict[key]['bad'] = 0
+        cnt_punc_category_dict[key]['input'] = 0.1
+        cnt_punc_category_dict[key]['good']  = 0.1
+        cnt_punc_category_dict[key]['bad']   = 0.1
+        cnt_punc_category_dict[key]['error'] = 0.1
+
+        total_batch_cnt_punc_dict[key] = 0
 
     _lr = 1e-4
     if epoch > max_epoch:
@@ -371,7 +380,7 @@ for epoch in range(max_max_epoch):
     show_costs = 0.0
     for batch in range(tr_batch_num): 
         fetches = [accuracy, cost, train_op, y_result_item, y_input_item]
-        X_batch, y_batch, offset, index_list, weight_change_list = data_train.next_batch(tr_batch_size)
+        X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = data_train.next_batch(tr_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
                      avg_offset:offset,
                      total_size:tr_batch_size*32,
@@ -392,6 +401,10 @@ for epoch in range(max_max_epoch):
                                                 show_costs / display_batch, valid_acc, valid_cost))
             show_accs = 0.0
             show_costs = 0.0
+        ###统计标点符号出现次数
+        for k in batch_cnt_punc_dict:
+            total_batch_cnt_punc_dict[k] += batch_cnt_punc_dict[k]
+
     mean_acc = _accs / tr_batch_num 
     mean_cost = _costs / tr_batch_num
     if (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
@@ -415,22 +428,46 @@ for epoch in range(max_max_epoch):
         for j in range(tmp_input.size):
             category = tmp_input[j][0]
             key = '%d'%category
+
+            ###输入的标点符号个数
+            cnt_punc_category_dict[key]['input'] += 1
+
+            ###识别对的标点符号个数（召回）
             if tmp_input[j][0] == tmp_result[j][0]:
                 cnt_punc_category_dict[key]['good'] += 1
-                cnt_punc_category_dict['total']['good'] += 1
             else:
                 cnt_punc_category_dict[key]['bad'] += 1
-                cnt_punc_category_dict['total']['bad'] += 1
+                ###其他的标点符号受影响了
+                other_key = '%d'%( tmp_result[j][0] )
+                cnt_punc_category_dict[other_key]['error'] += 1
+
+    ###
+    total_input = 0
+    total_good = 0
     for i in range(len(punctuation.get_punc_list())):
         key = '%d'%i
+
+        total_batch = total_batch_cnt_punc_dict[key]
         if (cnt_punc_category_dict[key]['good'] != 0 \
             or cnt_punc_category_dict[key]['bad'] != 0):
-            print (i, id2tag[i],
-                   cnt_punc_category_dict[key]['good'],
-                   cnt_punc_category_dict[key]['bad'],
-                   cnt_punc_category_dict[key]['good']/(cnt_punc_category_dict[key]['good'] + cnt_punc_category_dict[key]['bad']))
-    print('total', cnt_punc_category_dict['total']['good']/(cnt_punc_category_dict['total']['good'] + cnt_punc_category_dict['total']['bad']))
+            ###待识别的结果总数
+            cnt_input = cnt_punc_category_dict[key]['input']
+            ###识别对的结果数
+            cnt_good = cnt_punc_category_dict[key]['good']
+            ###识别错的结果数
+            cnt_bad = cnt_punc_category_dict[key]['bad']
+            ###识别出错的结果
+            cnt_error = cnt_punc_category_dict[key]['error']
 
+            ###整体统计
+            total_input += cnt_input
+            total_good += cnt_good
+
+            print(i, id2tag[i], end = ' ')
+            print('召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
+            print('准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
+    ###整体准确率
+    print('整体准确率', total_good/total_input, total_good, total_input)
 
 # testing
 print( '**TEST RESULT:')
@@ -443,7 +480,7 @@ best_model_path = 'ckpt/bi-lstm.ckpt-6'
 saver.restore(sess, best_model_path)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-X_tt, y_tt, offset, _, _ = data_train.next_batch(2)
+X_tt, y_tt, offset, _, _, _ = data_train.next_batch(2)
 print( 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print( 'X_tt = ', X_tt)
 print( 'y_tt = ', y_tt)

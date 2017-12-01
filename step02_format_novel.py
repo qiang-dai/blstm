@@ -99,7 +99,7 @@ filename = filename.replace('.txt', '_res.txt')
 clear_file(filename)
 
 cnt_dict = {
-    'Unknown':1,
+    'SP':1,
     'Header':1,
     'Tail':1,
 }
