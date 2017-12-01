@@ -138,7 +138,8 @@ class BatchGenerator(object):
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:
-                batch_cnt_punc_dict['%d'%v] += 1
+                batch_cnt_punc_dict['%s'%v] += 1
+            print('batch_cnt_punc_dict:', batch_cnt_punc_dict)
 
         return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size), batch_cnt_punc_dict
 
