@@ -138,6 +138,7 @@ class BatchGenerator(object):
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:
+                print (y)
                 batch_cnt_punc_dict['%s'%v] += 1
             print('batch_cnt_punc_dict:', batch_cnt_punc_dict)
 
