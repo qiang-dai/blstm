@@ -261,6 +261,11 @@ if __name__ == '__main__':
     content_line_list = []
     punc_set = set(punc_list)
 
+    ###统计标点符号的个数
+    cnt_punc_dict = {}
+    for punc in punc_list:
+        cnt_punc_dict[punc] = 0
+
     for i, tmp_list in enumerate(res_list):
         line_list = []
         for word,punc in tmp_list:
@@ -270,6 +275,7 @@ if __name__ == '__main__':
                 print('[%d] error punc:'%i, punc, tmp_list)
                 punc = punc_list[0]
 
+            cnt_punc_dict[punc] += 1
 
             line_list.append('%s/%s'%(word, punc))
         content_line_list.append(' '.join(line_list))
@@ -290,7 +296,7 @@ if __name__ == '__main__':
     # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
     for i, punc in enumerate(punc_list):
-        print(i+1, punc)
+        print(i+1, punc, cnt_punc_dict[punc])
 
     # ###图形显示长度
     # plt_val_cnt_dict = {}
