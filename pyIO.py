@@ -10,6 +10,7 @@ import shutil
 import threading
 import fcntl
 import datetime
+import pyLog
 try:
     import commands
     import Queue
