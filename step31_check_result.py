@@ -282,8 +282,8 @@ for i in range(check_batch_size):
 
     word_list = [id2word[e] for e in x_index]
     label_list =[id2tag[e] for e in y_index]
-    print (word_list)
-    print (label_list)
+    print ('word_list:', word_list)
+    print ('label_list:', label_list)
 
     res = ''
     for pos in range(len(word_list)):
