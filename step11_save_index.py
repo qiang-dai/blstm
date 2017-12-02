@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     datas = list()
     labels = list()
-    print( 'Start creating words and tags data ...')
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Start creating words and tags data ...')
     for sentence in tqdm(iter(sentences)):
         result = get_Xy(sentence)
         if result:

@@ -115,15 +115,9 @@ class BatchGenerator(object):
         end = self._index_in_epoch
 
         offset = 0
-        index_list = []
-        pos = 0
         for i in range(len(self._X[start:end])):
             x = self._X[start:end][i]
             offset += sum([1 for e in x if e == 0])
-
-            tmy_result_list = [pos + e for e in range(x.size) if x[e] != 0]
-            index_list.extend(tmy_result_list)
-            pos += len(x)
 
         ###返回字符的数量，进行核对，避免出现错误统计
         batch_cnt_punc_dict = {}
@@ -131,10 +125,14 @@ class BatchGenerator(object):
             batch_cnt_punc_dict['%d'%i] = 0
 
         ###修改权重
+        index_list = []
         weight_change_list = []
+        pos = 0
         for i in range(len(self._y[start:end])):
             y = self._y[start:end][i]
-            tmp_list = [1.0 if e == 0 else 300.0 for e in y]
+            tmp_list = [1.0 for e in y]
+            if y[15] != 0:
+                tmp_list[15] = 300.0
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:
@@ -143,6 +141,11 @@ class BatchGenerator(object):
                     v = int(v)
                     batch_cnt_punc_dict['%s'%v] += 1
             #print('batch_cnt_punc_dict:', batch_cnt_punc_dict)
+            #有效索引
+            #tmp_result_list = [pos + e for e in range(x.size) if y[e] != 0]
+            tmp_result_list = [pos + 15]
+            pos += len(y)
+            index_list.extend(tmp_result_list)
 
         return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size), batch_cnt_punc_dict
 
