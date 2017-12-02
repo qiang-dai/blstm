@@ -60,14 +60,23 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
     return total_list
 
 ###每隔 32 个单词就处理一下
-def save_fixed_letter(total_list, result_name):
+def save_fixed_letter(total_list, result_name, punc_list):
     line_list = []
     for i in range(len(total_list)):
         end = i + 32
         ###最后32个字符
         if end == len(total_list):
             break
-        line_list.append(' '.join(total_list[i:end]) + '\n')
+        #line_list.append(' '.join(total_list[i:end]) + '\n')
+        ###这里只取第15个标点符号进行预测
+        res = []
+        for i,item in enumerate(total_list[i:end]):
+            if i == 15:
+                res.append(item)
+            else:
+                word,punc = item.split('/')
+                res.append(word + '/' + punc_list[0])
+        line_list.append(' '.join(res) + '\n')
 
     pyIO.save_to_file('\n'.join(line_list), result_name)
     print (line_list[:30])
@@ -79,4 +88,4 @@ if __name__ == '__main__':
     punc_list = punctuation.get_punc_list()
 
     item_list = combine_line(filename, threshold_line_cnt, result_name, punc_list)
-    save_fixed_letter(item_list, result_name)
+    save_fixed_letter(item_list, result_name, punc_list)
