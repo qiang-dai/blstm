@@ -254,7 +254,10 @@ if __name__ == '__main__':
     ###2,根据标点符号全集,生成训练数据
     print('pyIO.get_content:', filename)
 
+    ###换一种做法
     sentences = pyIO.get_content(filename)
+    print('sentences length:', len(sentences))
+
     res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
     print('res_list[:3]:', res_list[:3])
 
