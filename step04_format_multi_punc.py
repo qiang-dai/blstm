@@ -123,6 +123,9 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignor
 
     total_res_list = []
     for i in range(len(sentences)):
+        if i%100 == 0:
+            print('sentence total, i:',len(sentences), i)
+
         sentence = sentences[i]
         sub_sentence_list = sentence.split('\\n')
         for sub_sentence in sub_sentence_list:
@@ -249,6 +252,8 @@ if __name__ == '__main__':
     ###两遍过滤
     ###1,遍历所有,判断标点符号的全集
     ###2,根据标点符号全集,生成训练数据
+    print('pyIO.get_content:', filename)
+
     sentences = pyIO.get_content(filename)
     res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
     print('res_list[:3]:', res_list[:3])

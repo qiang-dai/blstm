@@ -32,7 +32,6 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
             if len(total_list) > 0:
                 cur_punc = tmp_list[0].split('/')[1]
 
-                print(total_list[-1])
                 last_word, last_punc = total_list[-1].split('/')
                 ###添加
                 if cur_punc != punc_list[0] and last_punc == punc_list[0]:
