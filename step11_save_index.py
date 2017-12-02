@@ -9,6 +9,7 @@ import pickle
 import os
 from itertools import chain
 import punctuation
+import datetime
 
 # 以字符串的形式读入所有数据
 def get_sentences_puncs(filename):
@@ -50,9 +51,9 @@ if __name__ == '__main__':
             datas.append(result[0])
             labels.append(result[1])
 
-    print( 'Length of datas is %d' % len(datas) )
-    print( 'Example of datas: ', datas[0])
-    print( 'Example of labels:', labels[0])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Length of datas is %d' % len(datas) )
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Example of datas: ', datas[0])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Example of labels:', labels[0])
 
     df_data = pd.DataFrame({'words': datas, 'tags': labels}, index=range(len(datas)))
     #　句子长度
@@ -119,11 +120,11 @@ if __name__ == '__main__':
     # 最后得到了所有的数据
     X = np.asarray(list(df_data['X'].values))
     y = np.asarray(list(df_data['y'].values))
-    print( 'X.shape={}, y.shape={}'.format(X.shape, y.shape))
-    print( 'Example of words: ', df_data['words'].values[0])
-    print( 'Example of X: ', X[0])
-    print( 'Example of tags: ', df_data['tags'].values[0])
-    print( 'Example of y: ', y[0])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X.shape={}, y.shape={}'.format(X.shape, y.shape))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Example of words: ', df_data['words'].values[0])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Example of X: ', X[0])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Example of tags: ', df_data['tags'].values[0])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Example of y: ', y[0])
 
     if not os.path.exists('data/'):
         os.makedirs('data/')
@@ -135,4 +136,5 @@ if __name__ == '__main__':
         pickle.dump(id2word, outp)
         pickle.dump(tag2id, outp)
         pickle.dump(id2tag, outp)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save over')
 

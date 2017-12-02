@@ -10,6 +10,7 @@ import punctuation
 import codecs
 import pyIO
 import tools
+import datetime
 
 
 ###读入所有内容,依次拼起来
@@ -56,7 +57,7 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
     cnt_fixed = int(32/2)
     for i in range(cnt_fixed):
         total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
-    print("total_list size:", len(total_list))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"total_list size:", len(total_list))
     return total_list
 
 ###每隔 32 个单词就处理一下
@@ -79,7 +80,7 @@ def save_fixed_letter(total_list, result_name, punc_list):
         line_list.append(' '.join(res) + '\n')
 
     pyIO.save_to_file('\n'.join(line_list), result_name)
-    print (line_list[:30])
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),line_list[:30])
 
 if __name__ == '__main__':
 

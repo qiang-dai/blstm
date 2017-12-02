@@ -10,6 +10,7 @@ import punctuation
 import codecs
 import pyIO
 import tools
+import datetime
 
 threshold_word_cnt = 2
 
@@ -252,22 +253,22 @@ if __name__ == '__main__':
     ###两遍过滤
     ###1,遍历所有,判断标点符号的全集
     ###2,根据标点符号全集,生成训练数据
-    print('pyIO.get_content:', filename)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'pyIO.get_content:', filename)
 
     ###换一种做法
     sentences = pyIO.get_content(filename)
-    print('sentences length:', len(sentences))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
     if len(sentences) > threshold_line_cnt:
         sentences = sentences[:threshold_line_cnt]
-    print('sentences length:', len(sentences))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
 
     res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
-    print('res_list[:3]:', res_list[:3])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list[:3]:', res_list[:3])
 
     ###统计平均值,然后过滤
     punc_set = set(punc_list)
-    print('punc_set size:', len(punc_set))
-    print('res_list size:', len(res_list))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list size:', len(res_list))
     total_cnt = 0
     for k in cleaned_punc_dict.keys():
         print(cleaned_punc_dict[k], '    ', k)
@@ -282,7 +283,7 @@ if __name__ == '__main__':
     #     if cleaned_punc_dict[k] < avg_cnt and len(k) > 1:
     #         print('ignore', cleaned_punc_dict[k], '    ', k)
 
-    print('valid...large than ', avg_cnt)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'valid...large than ', avg_cnt)
     cnt = 0
     for k in cleaned_punc_dict.keys():
         if (cleaned_punc_dict[k] > avg_cnt and len(k) == 2) or len(k) == 1:
@@ -292,7 +293,7 @@ if __name__ == '__main__':
             #     punc_list.append(k)
 
     ###再次计算
-    print ('cnt_dict size:', len(cnt_dict))
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'cnt_dict size:', len(cnt_dict))
     ###词频统计
     cnt_dict = {
         'None' : threshold_word_cnt,
@@ -300,12 +301,12 @@ if __name__ == '__main__':
         'Tail' : threshold_word_cnt,
     }
     punc_set = set(punc_list)
-    print('punc_set size:', len(punc_set))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
     ###存储punc列表
 
     res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
-    print('res_list[:3]:', res_list[:3])
-    print('res_list size:', len(res_list))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list[:3]:', res_list[:3])
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list size:', len(res_list))
     #print(' '.join(res_list))
 
     ###保存标点符号
@@ -339,19 +340,19 @@ if __name__ == '__main__':
     pyIO.save_to_file('\n'.join(content_line_list), result_name)
 
     c = Counter(cnt_dict)
-    print('add_cnt_dict:', len(cnt_dict), c.most_common(100))
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'add_cnt_dict:', len(cnt_dict), c.most_common(100))
     for k in cnt_dict.keys():
-        print ('word', cnt_dict[k], k)
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'word', cnt_dict[k], k)
 
     # print ('cnt_dict size:', len(cnt_dict))
-    print ('total word cnt:', get_total_cnt(cnt_dict, 0))
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 0))
     # print ('total cnt >= 2 word cnt:', get_total_cnt(cnt_dict, 2))
     # print ('total cnt >= 5 word cnt:', get_total_cnt(cnt_dict, 5))
-    print ('total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
+    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
     # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
     for i, punc in enumerate(punc_list):
-        print(i+1, punc, cnt_punc_dict[punc])
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i+1, punc, cnt_punc_dict[punc])
 
     # ###图形显示长度
     # plt_val_cnt_dict = {}
