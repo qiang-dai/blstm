@@ -159,7 +159,7 @@ print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating 
 import tensorflow as tf
 config = tf.ConfigProto()
 #config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.20
+config.gpu_options.per_process_gpu_memory_fraction = 0.80
 sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
