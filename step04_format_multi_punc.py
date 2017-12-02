@@ -257,6 +257,9 @@ if __name__ == '__main__':
     ###换一种做法
     sentences = pyIO.get_content(filename)
     print('sentences length:', len(sentences))
+    if len(sentences) > threshold_line_cnt:
+        sentences = sentences[:threshold_line_cnt]
+    print('sentences length:', len(sentences))
 
     res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
     print('res_list[:3]:', res_list[:3])
