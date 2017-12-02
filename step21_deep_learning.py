@@ -132,7 +132,7 @@ class BatchGenerator(object):
             y = self._y[start:end][i]
             tmp_list = [1.0 for e in y]
             if y[15] != 0:
-                tmp_list[15] = 300.0
+                tmp_list[15] = 3000.0
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:
@@ -142,8 +142,10 @@ class BatchGenerator(object):
                     batch_cnt_punc_dict['%s'%v] += 1
             #print('batch_cnt_punc_dict:', batch_cnt_punc_dict)
             #有效索引
-            #tmp_result_list = [pos + e for e in range(x.size) if y[e] != 0]
-            tmp_result_list = [pos + 15]
+            tmp_result_list = [pos + e for e in range(y.size) if y[e] != 0]
+
+            ###不能仅仅用标点符号预测，否则的话，导致空格无法召回
+            #tmp_result_list = [pos + 15]
             pos += len(y)
             index_list.extend(tmp_result_list)
 
