@@ -16,6 +16,12 @@ import tools
 def combine_line(filename, threshold_line_cnt, result_name, punc_list):
     # 以字符串的形式读入所有数据, 按行处理
     total_list = []
+
+    ###头部填充
+    cnt_fixed = int(32/2 - 1)
+    for i in range(cnt_fixed):
+        total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
+
     sentences = pyIO.get_content(filename)
     #for sentence in sentences:
     for i in range(len(sentences)):
@@ -44,6 +50,12 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
             tmp_list = tmp_list[:-1]
 
         total_list.extend(tmp_list)
+
+    ###尾部填充
+    punc_list = punctuation.get_punc_list()
+    cnt_fixed = int(32/2)
+    for i in range(cnt_fixed):
+        total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
     print("total_list size:", len(total_list))
     return total_list
 
@@ -52,6 +64,9 @@ def save_fixed_letter(total_list, result_name):
     line_list = []
     for i in range(len(total_list)):
         end = i + 32
+        ###最后32个字符
+        if end == len(total_list):
+            break
         line_list.append(' '.join(total_list[i:end]) + '\n')
 
     pyIO.save_to_file('\n'.join(line_list), result_name)

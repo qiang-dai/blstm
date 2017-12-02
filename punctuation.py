@@ -81,3 +81,6 @@ from emoji import UNICODE_EMOJI
 
 def is_emoji(s):
     return s in UNICODE_EMOJI
+
+def get_filled_word():
+    return 'NONE'

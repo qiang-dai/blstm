@@ -318,7 +318,8 @@ if __name__ == '__main__':
         line_list = []
         for word,punc in tmp_list:
             if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
-                word = 'NONE'
+                ###填充字符
+                word = punctuation.get_filled_word()
             if punc not in punc_set:
                 print('[%d] error punc:'%i, punc, tmp_list)
                 punc = punc_list[0]
