@@ -89,7 +89,7 @@ if __name__ == '__main__':
     ###保存单词个数
     punctuation.save_word_cnt(vocab_size)
 
-    max_len = 32
+    max_len = punctuation.get_timestep_size()
     def X_padding(words):
         """把 words 转为 id 形式，并自动补全位 max_len 长度。"""
         ids = list(word2id[words])

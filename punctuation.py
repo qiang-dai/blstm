@@ -84,3 +84,11 @@ def is_emoji(s):
 
 def get_filled_word():
     return 'NONE'
+
+def get_batch_size():
+    return 128
+    #return 4
+
+def get_timestep_size():
+    return 32
+    #return 6;

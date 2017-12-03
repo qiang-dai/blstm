@@ -122,7 +122,7 @@ timestep_size = max_len = 32           # 句子长度
 vocab_size = punctuation.get_word_cnt()+1    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
 class_num = len(punctuation.get_punc_list())
-hidden_size = 128    # 隐含层节点数
+hidden_size = punctuation.get_batch_size()    # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
 max_grad_norm = 5.0  # 最大梯度（超过此值的梯度将被裁剪）
 
@@ -230,7 +230,7 @@ with tf.variable_scope('outputs'):
     y_pred = tf.matmul(bilstm_output, softmax_w) + softmax_b
 
 sess.run(tf.global_variables_initializer())
-tr_batch_size = 128 
+tr_batch_size = punctuation.get_batch_size()
 #max_max_epoch = 1000
 display_num = 5  # 每个 epoch 显示是个结果
 tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数

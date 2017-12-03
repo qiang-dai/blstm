@@ -128,11 +128,12 @@ class BatchGenerator(object):
         index_list = []
         weight_change_list = []
         pos = 0
+        focus_size = int(punctuation.get_timestep_size()/2 - 1)
         for i in range(len(self._y[start:end])):
             y = self._y[start:end][i]
             tmp_list = [1.0 for e in y]
-            if y[15] != 0:
-                tmp_list[15] = 3000.0
+            if y[focus_size] != 0:
+                tmp_list[focus_size] = 3000.0
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:
@@ -144,9 +145,9 @@ class BatchGenerator(object):
             #有效索引
             #tmp_result_list = [pos + e for e in range(y.size) if y[e] != 0]
             ###这里需要所有的标点符号，y[e] != 0 导致无法召回空格
-            tmp_result_list = [pos + e for e in range(y.size)]
+            #tmp_result_list = [pos + e for e in range(y.size)]
             ###不能仅仅用标点符号预测，否则的话，导致空格无法召回
-            #tmp_result_list = [pos + 15]
+            tmp_result_list = [pos + punctuation.get_timestep_size()/2 - 1]
             pos += len(y)
             index_list.extend(tmp_result_list)
 
@@ -174,11 +175,11 @@ For Chinese word segmentation.
 decay = 0.85
 max_epoch = 5
 #max_max_epoch = 10
-timestep_size = max_len = 32           # 句子长度
+timestep_size = max_len = punctuation.get_timestep_size()           # 句子长度
 vocab_size = punctuation.get_word_cnt()+1    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
 input_size = embedding_size = 64       # 字向量长度
 class_num = len(punctuation.get_punc_list())
-hidden_size = 128    # 隐含层节点数
+hidden_size = punctuation.get_batch_size()    # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
 max_grad_norm = 5.0  # 最大梯度（超过此值的梯度将被裁剪）
 
@@ -275,37 +276,56 @@ def bi_lstm(X_inputs):
     #     output = tf.transpose(output, perm=[1,0,2])
     #     output = tf.reshape(output, [-1, hidden_size*2])
     # ***********************************************************
+    print("output.get_shape():", output.get_shape())
     return output # [-1, hidden_size*2]
 
 
 with tf.variable_scope('Inputs'):
     X_inputs = tf.placeholder(tf.int32, [None, timestep_size], name='X_input')
-    y_inputs = tf.placeholder(tf.int32, [None, timestep_size], name='y_input')   
-    
+    y_inputs = tf.placeholder(tf.int32, [None, timestep_size], name='y_input')
+    print('X_inputs shape:', X_inputs.get_shape())
+    print('y_inputs shape:', y_inputs.get_shape())
+
 bilstm_output = bi_lstm(X_inputs)
 
 with tf.variable_scope('outputs'):
     softmax_w = weight_variable([hidden_size * 2, class_num]) 
     softmax_b = bias_variable([class_num]) 
     y_pred = tf.matmul(bilstm_output, softmax_w) + softmax_b
+    print('softmax_w shape:', softmax_w.get_shape())
+    print('softmax_b shape:', softmax_b.get_shape())
+    print('y_pred shape:', y_pred.get_shape())
 
 # adding extra statistics to monitor
 # y_inputs.shape = [batch_size, timestep_size]
 
 ###预测的结果
+###--------------------------------------------------------------------------------------------------------
+###--------------------------------------------------------------------------------------------------------
+###--------------------------------------------------------------------------------------------------------
+### y_pred是一个二维数组，包含128*32个元素（列）。 每一子维度是34（32个标点符号的类别），
+### avg_index_list 很自然就是一维数组
+###按行取最大值，然后截取索引
 y_result_item = tf.gather(tf.cast(tf.argmax(y_pred, 1), tf.int32), avg_index_list)
 ###输入的结果
 y_input_item = tf.gather(tf.reshape(y_inputs, [-1]), avg_index_list)
 correct_prediction = tf.equal(y_result_item, y_input_item)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+#show_tensor= tf.Print(y_pred, [y_pred], message='y_pred')
+# show_tensor= y_pred.get_shape().as_list()
 
 #correct_prediction = tf.equal(tf.cast(tf.argmax(y_pred, 1), tf.int32), tf.reshape(y_inputs, [-1]))
 # accuracy2 = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 # accuracy = (tf.cast(accuracy2, tf.float32)*total_size - avg_offset) / (total_size - avg_offset)
 
 #tf.div(tf.matmul(accuracy2, total_size) - avg_offset, total_size - avg_offset)
+res_pred_index = tf.reshape(tf.gather(y_pred, avg_index_list), [-1, class_num])
+
+show_tensor1 = y_input_item
+show_tensor2 = res_pred_index
 #cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
-cost = tf.reduce_mean(tf.contrib.seq2seq.sequence_loss(logits=tf.reshape(y_pred, [-1, timestep_size, class_num]), targets=y_inputs, weights=avg_weight_change))
+cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_input_item, [-1]), logits = res_pred_index))
+#cost = tf.reduce_mean(tf.contrib.seq2seq.sequence_loss(logits=tf.reshape(y_pred, [-1, timestep_size, class_num]), targets=y_inputs, weights=avg_weight_change))
 
 # ***** 优化求解 *******
 tvars = tf.trainable_variables()  # 获取模型的所有参数
@@ -335,7 +355,7 @@ def test_epoch(dataset):
         X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = dataset.next_batch(_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0,
                      avg_offset:offset,
-                     total_size:_batch_size*32,
+                     total_size:_batch_size*punctuation.get_timestep_size(),
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
         _acc, _cost = sess.run(fetches, feed_dict)
@@ -348,7 +368,7 @@ def test_epoch(dataset):
 
 
 sess.run(tf.global_variables_initializer())
-tr_batch_size = 128 
+tr_batch_size = punctuation.get_batch_size() 
 #max_max_epoch = 1000
 display_num = 5  # 每个 epoch 显示是个结果
 tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
@@ -388,14 +408,16 @@ for epoch in range(max_max_epoch):
     show_accs = 0.0
     show_costs = 0.0
     for batch in range(tr_batch_num): 
-        fetches = [accuracy, cost, train_op, y_result_item, y_input_item]
+        fetches = [accuracy, cost, train_op, y_result_item, y_input_item, show_tensor1, show_tensor2]
         X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = data_train.next_batch(tr_batch_size)
         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
                      avg_offset:offset,
-                     total_size:tr_batch_size*32,
+                     total_size:tr_batch_size*punctuation.get_timestep_size(),
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
-        _acc, _cost, _, predict_res, input_res = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
+        _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
+        print('show_result1:', show_result1)
+        print('show_result2:', show_result2)
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch+1, _acc, _cost)
         y_result_list.append(predict_res)
         y_input_list.append(input_res)
@@ -493,7 +515,7 @@ X_tt, y_tt, offset, _, _, _ = data_train.next_batch(2)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
-feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0, total_size:2*32}
+feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
 
 ### y_pred 是一个 op
 fetches = [y_pred]

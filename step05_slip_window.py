@@ -19,7 +19,7 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
     total_list = []
 
     ###头部填充
-    cnt_fixed = int(32/2 - 1)
+    cnt_fixed = int(punctuation.get_timestep_size()/2 - 1)
     for i in range(cnt_fixed):
         total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
 
@@ -54,7 +54,7 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
 
     ###尾部填充
     punc_list = punctuation.get_punc_list()
-    cnt_fixed = int(32/2)
+    cnt_fixed = int(punctuation.get_timestep_size()/2)
     for i in range(cnt_fixed):
         total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"total_list size:", len(total_list))
@@ -64,15 +64,15 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
 def save_fixed_letter(total_list, result_name, punc_list):
     line_list = []
     for i in range(len(total_list)):
-        end = i + 32
+        end = i + punctuation.get_timestep_size()
         ###最后32个字符
         if end == len(total_list):
             break
         #line_list.append(' '.join(total_list[i:end]) + '\n')
-        ###这里只取第15个标点符号进行预测
+        ###这里只取第 N/2 - 1 个标点符号进行预测
         res = []
         for i,item in enumerate(total_list[i:end]):
-            if i == 15:
+            if i == punctuation.get_timestep_size()/2 - 1:
                 res.append(item)
             else:
                 word,punc = item.split('/')
