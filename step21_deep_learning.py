@@ -416,8 +416,8 @@ for epoch in range(max_max_epoch):
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
         _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
-        print('show_result1:', show_result1)
-        print('show_result2:', show_result2)
+        #print('show_result1:', show_result1)
+        #print('show_result2:', show_result2)
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch+1, _acc, _cost)
         y_result_list.append(predict_res)
         y_input_list.append(input_res)
