@@ -10,7 +10,7 @@ import punctuation
 import codecs
 import pyIO
 import tools
-
+import datetime
 
 def args():
     filename = 'raw_data/dir_step05'
@@ -41,7 +41,9 @@ if __name__ == '__main__':
         for i in range(parts+1):
             begin = i*threshold_line_cnt
             end = begin + threshold_line_cnt
-            print ('filename, i, begin, end, length:',
+            print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'filename, i, begin, end, length:',
                    filename, i, begin, end, len(sentences[begin:end]))
-            dst_filename = result_dir + '/data_%02d.txt'%i
+
+            shortname = filename.split('/')[-1]
+            dst_filename = result_dir + '/data_%02d_%s.txt'%(i, shortname)
             pyIO.save_to_file('\n'.join(sentences[begin:end]), dst_filename)
