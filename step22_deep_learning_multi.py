@@ -365,6 +365,7 @@ def run(max_max_epoch, data_file, last_mode_index):
         ###
         total_input = 0
         total_good = 0
+        total_output = 0
         for i in range(len(punctuation.get_punc_list())):
             key = '%d'%i
 
@@ -380,6 +381,9 @@ def run(max_max_epoch, data_file, last_mode_index):
                 ###识别出错的结果
                 cnt_error = cnt_punc_category_dict[key]['error']
 
+                total_output += cnt_good
+                total_output += cnt_error
+
                 ###整体统计
                 total_input += cnt_input
                 total_good += cnt_good
@@ -388,7 +392,8 @@ def run(max_max_epoch, data_file, last_mode_index):
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
         ###整体准确率
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体召回率', total_good/total_input, total_good, total_input)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_output, total_good, total_output)
 
     # testing
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
