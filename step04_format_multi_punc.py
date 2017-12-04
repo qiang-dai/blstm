@@ -21,7 +21,9 @@ def getCharType(c):
         return 2
     if punctuation.is_punc(c):
         return 3
-    return 4
+    if punctuation.is_emoji(c):
+        return 4
+    return 5
 
 ###都使用小写字母
 def transform(word):
