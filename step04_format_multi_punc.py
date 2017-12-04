@@ -188,12 +188,7 @@ def get_args():
     if len(sys.argv) > 3:
         res_file = sys.argv[3]
 
-    flag_ignore_complex_punc = False
-    if len(sys.argv) > 4:
-        if sys.argv[4] == 'True':
-            flag_ignore_complex_punc = True
-
-    return filename, threshold_line_cnt, res_file, flag_ignore_complex_punc
+    return filename, threshold_line_cnt, res_file
 
 if __name__ == '__main__':
 
@@ -201,7 +196,7 @@ if __name__ == '__main__':
     punctuation.save_punc_list(punctuation.punctuation_list)
 
     ###<programe> raw_data/en_punctuation_recommend_train_100W  1000000 raw_data/res.txt
-    filename, threshold_line_cnt, result_name, flag_ignore_complex_punc = get_args()
+    file_dir, threshold_line_cnt, result_name = get_args()
 
     ###词频统计
     cnt_dict = {
@@ -213,85 +208,100 @@ if __name__ == '__main__':
     ###标点符号频率统计
     cleaned_punc_dict = {}
 
-    ###所有标点符号
-    punc_list = punctuation.get_punc_list()
-    sentences = pyIO.get_content(filename)
+    filename_list = []
+    if os.path.isfile(file_dir):
+        filename_list.append(file_dir)
+    else:
+        filename_list,_ = pyIO.traversalDir(file_dir)
 
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'pyIO.get_content:', filename)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
+    print('filename_list:', filename_list)
+    ###重置结果文件
+    pyIO.save_to_file("", result_name)
 
-    if len(sentences) > threshold_line_cnt:
-        sentences = sentences[:threshold_line_cnt]
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
+    ###遍历写
+    for file_index, filename in enumerate(filename_list):
+        print('file_index, filename:', file_index, filename)
 
-    punc_set = set(punc_list)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
+        ###所有标点符号
+        punc_list = punctuation.get_punc_list()
+        sentences = pyIO.get_content(filename)
 
-    ###词频统计
-    cnt_dict = {
-        'None' : threshold_word_cnt,
-        'Header' : threshold_word_cnt,
-        'Tail' : threshold_word_cnt,
-    }
-    punc_set = set(punc_list)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
-    ###存储punc列表
-    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list[:3]:', res_list[:3])
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list size:', len(res_list))
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'pyIO.get_content:', filename)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
 
-    ###保存标点符号
-    punctuation.save_punc_list(punc_list)
+        if len(sentences) > threshold_line_cnt:
+            sentences = sentences[:threshold_line_cnt]
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
 
-    ###保存最终处理结果,格式是:
-    content_line_list = []
-    ###统计
+        punc_set = set(punc_list)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
 
-    for i, tmp_list in enumerate(res_list):
-        line_list = []
-        for word,punc in tmp_list:
-            if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
-                ###填充字符
-                word = punctuation.get_filled_word()
-            if punc not in punc_set:
-                print('[%d] error punc:'%i, punc, tmp_list)
-                punc = punc_list[0]
+        ###词频统计
+        cnt_dict = {
+            'None' : threshold_word_cnt,
+            'Header' : threshold_word_cnt,
+            'Tail' : threshold_word_cnt,
+        }
+        punc_set = set(punc_list)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
+        ###存储punc列表
+        res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list[:3]:', res_list[:3])
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list size:', len(res_list))
 
-            line_list.append('%s/%s'%(word, punc))
-        content_line_list.append(' '.join(line_list))
+        ###保存标点符号
+        punctuation.save_punc_list(punc_list)
 
-    ### Header/SP by/SP robert/SP browning/. Tail/SP
-    pyIO.save_to_file('\n'.join(content_line_list), result_name)
+        ###保存最终处理结果,格式是:
+        content_line_list = []
+        ###统计
 
-    c = Counter(cnt_dict)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'add_cnt_dict:', len(cnt_dict), c.most_common(100))
-    for k in cnt_dict.keys():
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'word', cnt_dict[k], k)
+        for i, tmp_list in enumerate(res_list):
+            line_list = []
+            for word,punc in tmp_list:
+                if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
+                    ###填充字符
+                    word = punctuation.get_filled_word()
+                if punc not in punc_set:
+                    print('[%d] error punc:'%i, punc, tmp_list)
+                    punc = punc_list[0]
 
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 0))
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
-    # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
+                line_list.append('%s/%s'%(word, punc))
+            content_line_list.append(' '.join(line_list))
 
-    # ###图形显示长度
-    # plt_val_cnt_dict = {}
-    # for cnt in cnt_dict.keys():
-    #     num = '%d'%(cnt_dict[cnt])
-    #     add_cnt_dict(plt_val_cnt_dict, num)
-    #
-    #
-    # import numpy as np
-    # import matplotlib.pyplot as plt
-    #
-    # plt.figure(1) # 创建图表1
-    # for i in range(10000):
-    #     key = '%d'%i
-    #     val_cnt = 0
-    #     #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
-    #     if key in plt_val_cnt_dict:
-    #         val_cnt = plt_val_cnt_dict[key]
-    #         if (1 < val_cnt < 20 ):
-    #             plt.plot(i, val_cnt, 'or')
-    # plt.show()
+        ### Header/SP by/SP robert/SP browning/. Tail/SP
+        #pyIO.save_to_file('\n'.join(content_line_list), result_name)
+        pyIO.append_to_file('\n'.join(content_line_list) + '\n', result_name)
+
+        c = Counter(cnt_dict)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'add_cnt_dict:', len(cnt_dict), c.most_common(100))
+        for k in cnt_dict.keys():
+            print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'word', cnt_dict[k], k)
+
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 0))
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
+        # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
+
+        # ###图形显示长度
+        # plt_val_cnt_dict = {}
+        # for cnt in cnt_dict.keys():
+        #     num = '%d'%(cnt_dict[cnt])
+        #     add_cnt_dict(plt_val_cnt_dict, num)
+        #
+        #
+        # import numpy as np
+        # import matplotlib.pyplot as plt
+        #
+        # plt.figure(1) # 创建图表1
+        # for i in range(10000):
+        #     key = '%d'%i
+        #     val_cnt = 0
+        #     #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
+        #     if key in plt_val_cnt_dict:
+        #         val_cnt = plt_val_cnt_dict[key]
+        #         if (1 < val_cnt < 20 ):
+        #             plt.plot(i, val_cnt, 'or')
+        # plt.show()
 
 
 
