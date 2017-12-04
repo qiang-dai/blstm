@@ -100,7 +100,7 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
 
     total_res_list = []
     for i in range(len(sentences)):
-        if i%100 == 0:
+        if i%10000 == 0:
             print('sentence total, i:',len(sentences), i)
 
         sentence = sentences[i]
