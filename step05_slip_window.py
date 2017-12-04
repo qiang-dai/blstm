@@ -64,6 +64,9 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
 def save_fixed_letter(total_list, result_name, punc_list):
     line_list = []
     for i in range(len(total_list)):
+        if i%1000 == 0:
+            print ('i:', i, len(total_list))
+
         end = i + punctuation.get_timestep_size()
         ###最后32个字符
         if end == len(total_list):
@@ -71,8 +74,8 @@ def save_fixed_letter(total_list, result_name, punc_list):
         #line_list.append(' '.join(total_list[i:end]) + '\n')
         ###这里只取第 N/2 - 1 个标点符号进行预测
         res = []
-        for i,item in enumerate(total_list[i:end]):
-            if i == punctuation.get_timestep_size()/2 - 1:
+        for index,item in enumerate(total_list[i:end]):
+            if index == punctuation.get_timestep_size()/2 - 1:
                 res.append(item)
             else:
                 word,punc = item.split('/')

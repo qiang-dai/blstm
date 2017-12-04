@@ -173,7 +173,7 @@ def get_total_cnt(some_cnt_dict, limit):
 
     for k in some_cnt_dict:
         if k not in total_cnt_dict:
-            print('lost word limit:', limit, k)
+            print('lost word limit:', limit, k, end=' ')
     return len(total_cnt_dict)
 
 def get_args():
@@ -279,7 +279,7 @@ if __name__ == '__main__':
         for k in cnt_dict.keys():
             print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'word', cnt_dict[k], k)
 
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 0))
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 10))
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
         # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
