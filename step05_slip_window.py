@@ -25,6 +25,8 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
         total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
 
     sentences = pyIO.get_content(filename)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'sentences size:', len(sentences))
+
     #for sentence in sentences:
     for i in range(len(sentences)):
         if i > threshold_line_cnt:
@@ -78,7 +80,7 @@ def save_fixed_letter(total_list, result_name, punc_list):
 
     for i in range(len(total_list)):
         if i%100000 == 0:
-            print ('i:', i, len(total_list))
+            print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'i:', i, len(total_list))
 
         end = i + punctuation.get_timestep_size()
         ###最后32个字符
@@ -136,6 +138,8 @@ if __name__ == '__main__':
 
     ###<program> WorldEnglish 1000000 raw_data/total_english.txt
     filename, threshold_line_cnt, result_name = tools.args()
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
+
     punc_list = punctuation.get_punc_list()
 
     item_list = combine_line(filename, threshold_line_cnt, result_name, punc_list)
