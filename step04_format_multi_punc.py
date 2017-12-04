@@ -66,6 +66,8 @@ def merge_chars(word):
 def clean_sentence(sentence):
     ###新闻的处理
     sentence = sentence.replace('\n', ' ')
+    ###首先根据空格\空白字符进行处理
+    sentence = re.sub('\s',' ',sentence)
     word_list = sentence.split(" ")
     res_list = []
     for word in word_list:
@@ -105,11 +107,12 @@ def add_cnt_dict(cnt_dict, word):
 def transform_punc(w, punc_list, punc_set):
     ###如果符号连在一起, 就选择第一个符号
     if w not in punc_set:
+        pass
         ###取最后的符号,忽略后面的符号
-        if w.find('...') != -1:
-            w = '...'
-        else:
-            w = w[-1]
+        # if w.find('...') != -1:
+        #     w = '...'
+        # else:
+        #     w = w[-1]
         if w not in punc_set:
             ###实在奇怪的符号,就认为是空格
             w = punc_list[0]
