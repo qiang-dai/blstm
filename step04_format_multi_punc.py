@@ -36,6 +36,8 @@ def transform(word):
         ###debug
         add_cnt_dict(cleaned_punc_dict, word)
         #cleaned_punc_dict[word] = True
+    elif punctuation.is_emoji(word[0]):
+        w = 'EMOJI'
     else:
         pass
     return word.lower()
@@ -101,8 +103,6 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
             print('sentence total, i:',len(sentences), i)
 
         sentence = sentences[i]
-        # sub_sentence_list = sentence.split('\\n')
-        # for sub_sentence in sub_sentence_list:
         if True:
             sub_sentence = sentence.replace('\\n', ' ')
             ###解析结果
@@ -116,8 +116,13 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
             content_list = ['Header',]
             labels_list = [punc_list[0],]
             for w in res_list:
+                if punctuation.is_emoji(w[0]) \
+                        or punctuation.is_alphabet(w[0]) \
+                        or punctuation.is_number(w[0]):
+                    content_list.append(w)
+                    labels_list.append(punc_list[0])
                 ###如果是符号,就往前加
-                if punctuation.is_punc(w[0]):
+                elif punctuation.is_punc(w[0]):
                     flag_punc_find = True
 
                     if w not in punc_set:
@@ -129,11 +134,10 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
                     w = transform_punc(w, punc_list, punc_set)
                     labels_list[-1] = w
                 else:
-                    if punctuation.is_emoji(w[0]):
-                        w = 'EMOJI'
+                    ###其他所有的不能识别的都认为是标点
+                    w = punctuation.get_punc_other()
+                    labels_list[-1] = w
 
-                    content_list.append(w)
-                    labels_list.append(punc_list[0])
 
             ###添加结束标记
             content_list.append('Tail')
