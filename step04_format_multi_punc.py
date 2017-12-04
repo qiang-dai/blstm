@@ -149,10 +149,12 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignor
             for w in res_list:
                 ###如果是符号,就往前加
                 if punctuation.is_punc(w[0]):
-                    ###如果标点符号有2个连在一起，那么直接放弃这句
-                    if w not in punc_set and flag_ignore_complex_punc:
-                        flag_combined_punc = True
-                        break
+                    if w not in punc_set:
+                        w = punctuation.get_punc_other()
+                    # ###如果标点符号有2个连在一起，那么直接放弃这句
+                    # if w not in punc_set and flag_ignore_complex_punc:
+                    #     flag_combined_punc = True
+                    #     break
 
                     ###统计词频
                     add_cnt_dict(cleaned_punc_dict, w)

@@ -34,6 +34,7 @@ punctuation_list = [
     '/',
     '\\',
     'LEFT',
+    'OTHER'
 ]
 
 def is_chinese(uchar):
@@ -71,6 +72,10 @@ def get_word_cnt():
 
 def save_punc_list(punc_list):
     pyIO.save_to_file('\t'.join(punc_list), 'raw_data/punc.txt')
+
+###其他所有标点符号
+def get_punc_other():
+    return 'OTHER'
 
 def get_punc_list():
     with open('raw_data/punc.txt', 'rb') as inp:
