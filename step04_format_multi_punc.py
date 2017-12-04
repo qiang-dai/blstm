@@ -12,7 +12,7 @@ import pyIO
 import tools
 import datetime
 
-threshold_word_cnt = 2
+threshold_word_cnt = 10
 
 def getCharType(c):
     if punctuation.is_alphabet(c):
@@ -79,25 +79,6 @@ def clean_sentence(sentence):
 
     return res_list
 
-def clear_file(filename):
-    f = codecs.open(filename, 'w', 'utf8')
-    f.close()
-
-def write_file(filename, res):
-    f = codecs.open(filename, 'a+', 'utf8')
-    f.write(res + '\n')
-    f.close()
-
-# 以字符串的形式读入所有数据
-# def read_content(filename):
-#     print(os.getcwd())
-#     with open(filename, 'rb') as inp:
-#         texts = inp.read().decode('utf8')
-#     sentences = texts.split('\n')  # 根据换行切分
-#     sentences = sentences[:threshold_line_cnt]
-#     print(sentences[:300])
-#     return sentences
-
 def add_cnt_dict(cnt_dict, word):
     if word in cnt_dict:
         cnt_dict[word] += 1
@@ -105,25 +86,12 @@ def add_cnt_dict(cnt_dict, word):
         cnt_dict[word] = 1
 
 def transform_punc(w, punc_list, punc_set):
-    ###如果符号连在一起, 就选择第一个符号
-    if w not in punc_set:
-        pass
-        ###取最后的符号,忽略后面的符号
-        # if w.find('...') != -1:
-        #     w = '...'
-        # else:
-        #     w = w[-1]
-        if w not in punc_set:
-            ###实在奇怪的符号,就认为是空格
-            w = punc_list[0]
-            print('error: not punc:', w)
-    ###可能多个符号在一起
     w = w.replace('/', 'LEFT')
     if w not in punc_set:
         w = punc_list[0]
     return w
 
-def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc):
+def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
     punc_set = set(punc_list)
     print('punc_set size:', len(punc_set))
 
@@ -133,28 +101,27 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignor
             print('sentence total, i:',len(sentences), i)
 
         sentence = sentences[i]
-        sub_sentence_list = sentence.split('\\n')
-        for sub_sentence in sub_sentence_list:
-
+        # sub_sentence_list = sentence.split('\\n')
+        # for sub_sentence in sub_sentence_list:
+        if True:
+            sub_sentence = sentence.replace('\\n', ' ')
             ###解析结果
             res_list = clean_sentence(sub_sentence)
             for res in res_list:
                 add_cnt_dict(cnt_dict, res)
 
-            #print(i, res_list)
-            flag_combined_punc = False
+            ###过滤无标点句子
+            flag_punc_find = False
 
             content_list = ['Header',]
             labels_list = [punc_list[0],]
             for w in res_list:
                 ###如果是符号,就往前加
                 if punctuation.is_punc(w[0]):
+                    flag_punc_find = True
+
                     if w not in punc_set:
                         w = punctuation.get_punc_other()
-                    # ###如果标点符号有2个连在一起，那么直接放弃这句
-                    # if w not in punc_set and flag_ignore_complex_punc:
-                    #     flag_combined_punc = True
-                    #     break
 
                     ###统计词频
                     add_cnt_dict(cleaned_punc_dict, w)
@@ -167,30 +134,18 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignor
 
                     content_list.append(w)
                     labels_list.append(punc_list[0])
-            ###如果标点符号有2个连在一起，那么直接放弃这句
-            if flag_combined_punc and flag_ignore_complex_punc:
-                print('ignore sentence:', sub_sentence)
-                continue
 
             ###添加结束标记
             content_list.append('Tail')
             labels_list.append(punc_list[0])
 
             ###如果一个标点都没有，就忽略这句话
-            if len(labels_list) == 1 \
-                and labels_list[0] == punc_list[0]:
+            if not flag_punc_find:
                 continue
 
             out_list = []
-            for pos in range(len(content_list)):
-                punc = labels_list[pos]
-                if punc == punc_list[0]:
-                    pass
-                else:
-                    pass
-                #text = content_list[pos] + '/' + punc
-                text = [content_list[pos], punc]
-                out_list.append(text)
+            for pos, word in enumerate(content_list):
+                out_list.append([word, labels_list[pos]])
             total_res_list.append(out_list)
     return total_res_list
 
@@ -256,51 +211,18 @@ if __name__ == '__main__':
 
     ###所有标点符号
     punc_list = punctuation.get_punc_list()
-
-    ###两遍过滤
-    ###1,遍历所有,判断标点符号的全集
-    ###2,根据标点符号全集,生成训练数据
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'pyIO.get_content:', filename)
-
-    ###换一种做法
     sentences = pyIO.get_content(filename)
+
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'pyIO.get_content:', filename)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
+
     if len(sentences) > threshold_line_cnt:
         sentences = sentences[:threshold_line_cnt]
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'sentences length:', len(sentences))
 
-    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list[:3]:', res_list[:3])
-
-    ###统计平均值,然后过滤
     punc_set = set(punc_list)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list size:', len(res_list))
-    total_cnt = 0
-    for k in cleaned_punc_dict.keys():
-        print(cleaned_punc_dict[k], '    ', k)
-        total_cnt += cleaned_punc_dict[k]
 
-    #avg_cnt = total_cnt/len(cleaned_punc_dict) *2/3
-    ### 根据最低的标点符号来做阈值
-    avg_cnt = get_min_punc_cnt(cleaned_punc_dict)
-
-    # print('filtered...less than ', avg_cnt)
-    # for k in cleaned_punc_dict.keys():
-    #     if cleaned_punc_dict[k] < avg_cnt and len(k) > 1:
-    #         print('ignore', cleaned_punc_dict[k], '    ', k)
-
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'valid...large than ', avg_cnt)
-    cnt = 0
-    for k in cleaned_punc_dict.keys():
-        if (cleaned_punc_dict[k] > avg_cnt and len(k) == 2) or len(k) == 1:
-            cnt += 1
-            print(cnt, 'valid', cleaned_punc_dict[k], '    ', k)
-            # if k not in punc_set:
-            #     punc_list.append(k)
-
-    ###再次计算
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'cnt_dict size:', len(cnt_dict))
     ###词频统计
     cnt_dict = {
         'None' : threshold_word_cnt,
@@ -310,23 +232,16 @@ if __name__ == '__main__':
     punc_set = set(punc_list)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'punc_set size:', len(punc_set))
     ###存储punc列表
-
-    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, flag_ignore_complex_punc)
+    res_list = format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list[:3]:', res_list[:3])
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'res_list size:', len(res_list))
-    #print(' '.join(res_list))
 
     ###保存标点符号
     punctuation.save_punc_list(punc_list)
 
     ###保存最终处理结果,格式是:
     content_line_list = []
-    punc_set = set(punc_list)
-
-    ###统计标点符号的个数
-    cnt_punc_dict = {}
-    for punc in punc_list:
-        cnt_punc_dict[punc] = 0
+    ###统计
 
     for i, tmp_list in enumerate(res_list):
         line_list = []
@@ -337,8 +252,6 @@ if __name__ == '__main__':
             if punc not in punc_set:
                 print('[%d] error punc:'%i, punc, tmp_list)
                 punc = punc_list[0]
-
-            cnt_punc_dict[punc] += 1
 
             line_list.append('%s/%s'%(word, punc))
         content_line_list.append(' '.join(line_list))
@@ -351,15 +264,9 @@ if __name__ == '__main__':
     for k in cnt_dict.keys():
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'word', cnt_dict[k], k)
 
-    # print ('cnt_dict size:', len(cnt_dict))
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 0))
-    # print ('total cnt >= 2 word cnt:', get_total_cnt(cnt_dict, 2))
-    # print ('total cnt >= 5 word cnt:', get_total_cnt(cnt_dict, 5))
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
     # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
-
-    for i, punc in enumerate(punc_list):
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i+1, punc, cnt_punc_dict[punc])
 
     # ###图形显示长度
     # plt_val_cnt_dict = {}
