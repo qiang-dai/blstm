@@ -37,7 +37,8 @@ def transform(word):
         add_cnt_dict(cleaned_punc_dict, word)
         #cleaned_punc_dict[word] = True
     elif punctuation.is_emoji(word[0]):
-        w = 'EMOJI'
+        word = 'EMOJI'
+        return word
     else:
         pass
     return word.lower()
