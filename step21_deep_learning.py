@@ -37,7 +37,7 @@ import os
 # id2tag = pd.Series(tags, index=tag_ids)
 
 import pickle
-with open('data/data.pkl', 'rb') as inp:
+with open('data/data_patch_00.pkl', 'rb') as inp:
     X = pickle.load(inp)
     y = pickle.load(inp)
     word2id = pickle.load(inp)

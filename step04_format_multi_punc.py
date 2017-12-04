@@ -11,6 +11,7 @@ import codecs
 import pyIO
 import tools
 import datetime
+import pickle
 
 threshold_word_cnt = 10
 
@@ -197,7 +198,7 @@ if __name__ == '__main__':
     punctuation.save_punc_list(punctuation.punctuation_list)
 
     ###<programe> raw_data/en_punctuation_recommend_train_100W  1000000 raw_data/res.txt
-    file_dir, threshold_line_cnt, result_name = get_args()
+    file_dir, threshold_line_cnt, result_dir = get_args()
 
     ###词频统计
     cnt_dict = {
@@ -216,11 +217,17 @@ if __name__ == '__main__':
         filename_list,_ = pyIO.traversalDir(file_dir)
 
     print('filename_list:', filename_list)
-    ###重置结果文件
-    pyIO.save_to_file("", result_name)
+
+    word2id = {}
+    tag2id = {}
+    id2word = {}
+    id2tag = {}
 
     ###遍历写
     for file_index, filename in enumerate(filename_list):
+        ###重置结果文件
+        result_filename = result_dir + '/step04_%d_'%file_index + filename.split('/')[-1]
+        pyIO.save_to_file("", result_filename)
         print('file_index, filename:', file_index, filename)
 
         ###所有标点符号
@@ -257,9 +264,11 @@ if __name__ == '__main__':
         content_line_list = []
         ###统计
 
+
         for i, tmp_list in enumerate(res_list):
             line_list = []
             for word,punc in tmp_list:
+
                 if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
                     ###填充字符
                     word = punctuation.get_filled_word()
@@ -267,12 +276,17 @@ if __name__ == '__main__':
                     print('[%d] error punc:'%i, punc, tmp_list)
                     punc = punc_list[0]
 
+                ###对word进行打id
+                if word not in word2id:
+                    cnt = len(word2id) + 1
+                    word2id[word] = cnt
+                    id2word[cnt] = word
                 line_list.append('%s/%s'%(word, punc))
             content_line_list.append(' '.join(line_list))
 
         ### Header/SP by/SP robert/SP browning/. Tail/SP
-        #pyIO.save_to_file('\n'.join(content_line_list), result_name)
-        pyIO.append_to_file('\n'.join(content_line_list) + '\n', result_name)
+        #pyIO.save_to_file('\n'.join(content_line_list), result_dir)
+        pyIO.append_to_file('\n'.join(content_line_list) + '\n', result_filename)
 
         c = Counter(cnt_dict)
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'add_cnt_dict:', len(cnt_dict), c.most_common(100))
@@ -283,6 +297,22 @@ if __name__ == '__main__':
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
         # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
+
+    ###映射表
+    for i, punc in enumerate(punc_list):
+        tag2id[punc] = i
+        id2tag[i] = punc
+    ###存储word2id
+    with open('data/word_tag_id.pkl', 'wb') as outp:
+        pickle.dump(word2id, outp)
+        pickle.dump(id2word, outp)
+        pickle.dump(tag2id, outp)
+        pickle.dump(id2tag, outp)
+
+    vocab_size = len(word2id)
+    print( 'vocab_size={}'.format(vocab_size))
+    ###保存单词个数
+    punctuation.save_word_cnt(vocab_size)
         # ###图形显示长度
         # plt_val_cnt_dict = {}
         # for cnt in cnt_dict.keys():

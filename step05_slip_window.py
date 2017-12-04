@@ -15,7 +15,7 @@ import pickle
 
 
 ###读入所有内容,依次拼起来
-def combine_line(filename, threshold_line_cnt, result_name, punc_list):
+def combine_line(filename, threshold_line_cnt, punc_list):
     # 以字符串的形式读入所有数据, 按行处理
     total_list = []
 
@@ -64,19 +64,16 @@ def combine_line(filename, threshold_line_cnt, result_name, punc_list):
     return total_list
 
 ###每隔 32 个单词就处理一下
-def save_fixed_letter(total_list, result_name, punc_list):
+def save_fixed_letter(total_list, result_name, punc_list, file_index):
     line_list = []
     word_list = []
     label_list= []
 
-    word2id = {}
-    tag2id = {}
-    id2word = {}
-    id2tag = {}
-    ###映射表
-    for i, punc in enumerate(punc_list):
-        tag2id[punc] = i
-        id2tag[i] = punc
+    with open('data/word_tag_id.pkl', 'rb') as inp:
+        word2id = pickle.load(inp)
+        id2word = pickle.load(inp)
+        tag2id = pickle.load(inp)
+        id2tag = pickle.load(inp)
 
     for i in range(len(total_list)):
         if i%100000 == 0:
@@ -110,10 +107,7 @@ def save_fixed_letter(total_list, result_name, punc_list):
                 tmp_label_list.append(tag2id[punc])
             else:
                 tmp_label_list.append(tag2id[punc_list[0]])
-            #     res.append(item)
-            # else:
-            #     word,punc = item.split('/')
-            #     res.append(word + '/' + punc_list[0])
+
         line_list.append(' '.join(res) + '\n')
         word_list.append(tmp_word_list)
         label_list.append(tmp_label_list)
@@ -124,7 +118,7 @@ def save_fixed_letter(total_list, result_name, punc_list):
     ###写数据
     X = np.asarray(word_list)
     y = np.asarray(label_list)
-    with open('data/data2.pkl', 'wb') as outp:
+    with open('data/data_patch_%02d.pkl'%file_index, 'wb') as outp:
         pickle.dump(X, outp)
         pickle.dump(y, outp)
         pickle.dump(word2id, outp)
@@ -137,10 +131,16 @@ def save_fixed_letter(total_list, result_name, punc_list):
 if __name__ == '__main__':
 
     ###<program> WorldEnglish 1000000 raw_data/total_english.txt
-    filename, threshold_line_cnt, result_name = tools.args()
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
+    file_dir, threshold_line_cnt, result_dir = tools.args()
 
-    punc_list = punctuation.get_punc_list()
 
-    item_list = combine_line(filename, threshold_line_cnt, result_name, punc_list)
-    save_fixed_letter(item_list, result_name, punc_list)
+    filename_list,_ = pyIO.traversalDir(file_dir)
+    for file_index, filename in enumerate(filename_list):
+        result_name = result_dir + '/step05_%d_'%file_index + filename.split('_')[-1]
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
+
+        punc_list = punctuation.get_punc_list()
+
+        item_list = combine_line(filename, threshold_line_cnt, punc_list)
+
+        save_fixed_letter(item_list, result_name, punc_list, file_index)
