@@ -141,7 +141,7 @@ with tf.variable_scope('embedding'):
         print('softmax_b shape:', softmax_b.get_shape())
         print('y_pred shape:', y_pred.get_shape())
 
-def run(max_max_epoch, data_file, last_mode_index):
+def run(max_max_epoch, data_file, begin, end):
     import pickle
     with open(data_file, 'rb') as inp:
         X = pickle.load(inp)
@@ -284,7 +284,7 @@ def run(max_max_epoch, data_file, last_mode_index):
     saver = tf.train.Saver()  # 最多保存的模型数量
     # last_10_acc = []
 
-    for epoch in range(last_mode_index, last_mode_index + max_max_epoch):
+    for epoch in range(begin, end):
 
         ###1统计准确率
         y_result_list = []
@@ -468,4 +468,6 @@ if __name__ == '__main__':
     #filename_list = filename_list[1:]
 
     for i, data_file in enumerate(filename_list):
-        run(2, data_file, i)
+        begin = i*2
+        end = begin + 2
+        run(2, data_file, begin, end)
