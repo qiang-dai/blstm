@@ -148,16 +148,16 @@ def run(max_max_epoch, data_file, begin, end):
         print('y_pred shape:', y_pred.get_shape())
 
     ##这里找最新的ckpt模型
-    filename_list,_ = pyIO.traversalDir('ckpt/')
-    filename_list = [e for e in filename_list if e.find('.data-00000-of-00001') != -1]
-    print('filename_list:', filename_list)
+    model_name,_ = pyIO.traversalDir('ckpt/')
+    model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
+    print('model_name:', model_name)
 
     sess.run(tf.global_variables_initializer())
-    if len(filename_list) > 0:
+    if len(model_name) > 0:
         def mysort(f):
             return time.ctime(os.path.getmtime(f))
-        filename_list.sort(key = mysort)
-        value = filename_list[-1]
+        model_name.sort(key = mysort)
+        value = model_name[-1]
         value = value.replace('.data-00000-of-00001','')
         value = value.split('-')[-1]
 
@@ -473,9 +473,9 @@ if __name__ == '__main__':
         file_dir = sys.argv[1]
 
     data_patch_filename_list,_ = pyIO.traversalDir(file_dir)
-    filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
+    model_name = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
     #data_patch_filename_list = data_patch_filename_list[1:]
-    print('data_patch_filename_list:', filename_list)
+    print('data_patch_filename_list:', model_name)
 
     for i, data_file in enumerate(data_patch_filename_list):
         begin = i*1

@@ -9,32 +9,14 @@ from collections import Counter
 import punctuation
 import datetime
 import BatchGenerator
+import pyIO
+from sklearn.model_selection import train_test_split
+import pickle
 
-max_max_epoch = 6
+max_max_epoch = 1
 if len(sys.argv) > 2:
     max_max_epoch = int(sys.argv[2])
 
-import pickle
-with open('raw_data/dir_step07/data_patch_00.pkl', 'rb') as inp:
-    X = pickle.load(inp)
-    y = pickle.load(inp)
-    word2id = pickle.load(inp)
-    id2word = pickle.load(inp)
-    tag2id = pickle.load(inp)
-    id2tag = pickle.load(inp)
-
-# 划分测试集/训练集/验证集
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train,  test_size=0.2, random_state=42)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
-    X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape))
-
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Creating the data generator ...')
-data_train = BatchGenerator.BatchGenerator(X_train, y_train, shuffle=True)
-data_valid = BatchGenerator.BatchGenerator(X_valid, y_valid, shuffle=False)
-data_test = BatchGenerator.BatchGenerator(X_test, y_test, shuffle=False)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the data generator.')
 
 ### 设置显存根据需求增长
 import tensorflow as tf
@@ -211,137 +193,177 @@ def test_epoch(dataset):
 
 
 sess.run(tf.global_variables_initializer())
-tr_batch_size = punctuation.get_batch_size()
-#max_max_epoch = 1000
-display_num = 5  # 每个 epoch 显示是个结果
-tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
-display_batch = int(tr_batch_num / display_num)  # 每训练 display_batch 之后输出一次
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'tr_batch_num:', tr_batch_num)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'display_batch:', display_batch)
 
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 # last_10_acc = []
 
-for epoch in range(max_max_epoch):
+data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step07")
+filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
+print('data_patch_filename_list:', filename_list)
 
-    ###1统计准确率
-    y_result_list = []
-    y_input_list = []
-    cnt_punc_category_dict = {}
-    total_batch_cnt_punc_dict = {}
-    ###每一轮都重置
-    for i in range(len(punctuation.get_punc_list())):
-        key = '%d'%i
-        cnt_punc_category_dict[key] = {}
-        cnt_punc_category_dict[key]['input'] = 0.1
-        cnt_punc_category_dict[key]['good']  = 0.1
-        cnt_punc_category_dict[key]['bad']   = 0.1
-        cnt_punc_category_dict[key]['error'] = 0.1
+for i,data_file in enumerate(data_patch_filename_list):
+    with open(data_file, 'rb') as inp:
+        X = pickle.load(inp)
+        y = pickle.load(inp)
+        word2id = pickle.load(inp)
+        id2word = pickle.load(inp)
+        tag2id = pickle.load(inp)
+        id2tag = pickle.load(inp)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train,  test_size=0.2, random_state=42)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
+        X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape))
 
-        total_batch_cnt_punc_dict[key] = 0
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Creating the data generator ...')
+    data_train = BatchGenerator.BatchGenerator(X_train, y_train, shuffle=True)
+    data_valid = BatchGenerator.BatchGenerator(X_valid, y_valid, shuffle=False)
+    data_test = BatchGenerator.BatchGenerator(X_test, y_test, shuffle=False)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the data generator.')
 
-    _lr = 1e-4
-    if epoch > max_epoch:
-        _lr = _lr * ((decay) ** (epoch - max_epoch))
+    tr_batch_size = punctuation.get_batch_size()
+    tr_batch_num = int(data_train.y.shape[0] / tr_batch_size)  # 每个 epoch 中包含的 batch 数
+    #max_max_epoch = 1000
+    display_num = 5  # 每个 epoch 显示是个结果
+    display_batch = int(tr_batch_num / display_num)  # 每训练 display_batch 之后输出一次
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'tr_batch_num:', tr_batch_num)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'display_batch:', display_batch)
 
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d， lr=%g' % (epoch+1, _lr))
-    start_time = time.time()
-    _costs = 0.0
-    _accs = 0.0
-    show_accs = 0.0
-    show_costs = 0.0
-    for batch in range(tr_batch_num):
-        fetches = [accuracy, cost, train_op, y_result_item, y_input_item, show_tensor1, show_tensor2]
-        X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = data_train.next_batch(tr_batch_size)
-        feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
-                     avg_offset:offset,
-                     total_size:tr_batch_size*punctuation.get_timestep_size(),
-                     avg_index_list: index_list,
-                     avg_weight_change: weight_change_list}
-        _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
-        #print('show_result1:', show_result1)
-        #print('show_result2:', show_result2)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch+1, _acc, _cost)
-        y_result_list.append(predict_res)
-        y_input_list.append(input_res)
+    for epoch in range(i, i+max_max_epoch):
+        ###1统计准确率
+        y_result_list = []
+        y_input_list = []
+        cnt_punc_category_dict = {}
+        total_batch_cnt_punc_dict = {}
+        ###每一轮都重置
+        for i in range(len(punctuation.get_punc_list())):
+            key = '%d'%i
+            cnt_punc_category_dict[key] = {}
+            cnt_punc_category_dict[key]['input'] = 0.1
+            cnt_punc_category_dict[key]['good']  = 0.1
+            cnt_punc_category_dict[key]['bad']   = 0.1
+            cnt_punc_category_dict[key]['error'] = 0.1
 
-        _accs += _acc
-        _costs += _cost
-        show_accs += _acc
-        show_costs += _cost
-        if (batch + 1) % display_batch == 0:
-            valid_acc, valid_cost = test_epoch(data_valid)  # valid
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining acc=%g, cost=%g;  valid acc= %g, cost=%g ' % (show_accs / display_batch,
-                                                                                                                                   show_costs / display_batch, valid_acc, valid_cost))
-            show_accs = 0.0
-            show_costs = 0.0
-        ###统计标点符号出现次数
-        for k in batch_cnt_punc_dict:
-            total_batch_cnt_punc_dict[k] += batch_cnt_punc_dict[k]
+            total_batch_cnt_punc_dict[key] = 0
 
-    mean_acc = _accs / tr_batch_num
-    mean_cost = _costs / tr_batch_num
-    if (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
-        save_path = saver.save(sess, model_save_path, global_step=(epoch+1))
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path)
+        _lr = 1e-4
+        if epoch > max_epoch:
+            _lr = _lr * ((decay) ** (epoch - max_epoch))
 
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
-    if mean_acc > 0.999:
-        print ('mean_acc > 0.999')
-        break
-    # last_10_acc.append(mean_acc)
-    # if len(last_10_acc) > 10:
-    #     last_10_acc = last_10_acc[1:]
-    # print('last_10_acc:', last_10_acc)
-    ### 统计各个标点符号分类的结果
-    for i in range(len(y_input_list)):
-        tmp_input = y_input_list[i]
-        tmp_result= y_result_list[i]
-        for j in range(tmp_input.size):
-            category = tmp_input[j][0]
-            key = '%d'%category
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d， lr=%g' % (epoch+1, _lr))
+        start_time = time.time()
+        _costs = 0.0
+        _accs = 0.0
+        show_accs = 0.0
+        show_costs = 0.0
+        for batch in range(tr_batch_num):
+            fetches = [accuracy, cost, train_op, y_result_item, y_input_item, show_tensor1, show_tensor2]
+            X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = data_train.next_batch(tr_batch_size)
+            feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:_lr, batch_size:tr_batch_size, keep_prob:0.5,
+                         avg_offset:offset,
+                         total_size:tr_batch_size*punctuation.get_timestep_size(),
+                         avg_index_list: index_list,
+                         avg_weight_change: weight_change_list}
+            _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
+            #print('show_result1:', show_result1)
+            #print('show_result2:', show_result2)
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch+1, _acc, _cost)
+            y_result_list.append(predict_res)
+            y_input_list.append(input_res)
 
-            ###输入的标点符号个数
-            cnt_punc_category_dict[key]['input'] += 1
+            _accs += _acc
+            _costs += _cost
+            show_accs += _acc
+            show_costs += _cost
+            if (batch + 1) % display_batch == 0:
+                valid_acc, valid_cost = test_epoch(data_valid)  # valid
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining acc=%g, cost=%g;  valid acc= %g, cost=%g ' % (show_accs / display_batch,
+                                                                                                                                       show_costs / display_batch, valid_acc, valid_cost))
+                show_accs = 0.0
+                show_costs = 0.0
+            ###统计标点符号出现次数
+            for k in batch_cnt_punc_dict:
+                total_batch_cnt_punc_dict[k] += batch_cnt_punc_dict[k]
 
-            ###识别对的标点符号个数（召回）
-            if tmp_input[j][0] == tmp_result[j][0]:
-                cnt_punc_category_dict[key]['good'] += 1
-            else:
-                cnt_punc_category_dict[key]['bad'] += 1
-                ###其他的标点符号受影响了
-                other_key = '%d'%( tmp_result[j][0] )
-                cnt_punc_category_dict[other_key]['error'] += 1
+        mean_acc = _accs / tr_batch_num
+        mean_cost = _costs / tr_batch_num
+        if True:# (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
+            save_path = saver.save(sess, model_save_path, global_step=(epoch+1))
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path)
 
-    ###
-    total_input = 0
-    total_good = 0
-    for i in range(len(punctuation.get_punc_list())):
-        key = '%d'%i
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Epoch training %d, acc=%g, cost=%g, speed=%g s/epoch' % (data_train.y.shape[0], mean_acc, mean_cost, time.time()-start_time)        )
+        ### 统计各个标点符号分类的结果
+        for i in range(len(y_input_list)):
+            tmp_input = y_input_list[i]
+            tmp_result= y_result_list[i]
+            for j in range(tmp_input.size):
+                category = tmp_input[j][0]
+                key = '%d'%category
 
-        total_batch = total_batch_cnt_punc_dict[key]
-        if (cnt_punc_category_dict[key]['good'] != 0 \
-                    or cnt_punc_category_dict[key]['bad'] != 0):
-            ###待识别的结果总数
-            cnt_input = cnt_punc_category_dict[key]['input']
-            ###识别对的结果数
-            cnt_good = cnt_punc_category_dict[key]['good']
-            ###识别错的结果数
-            cnt_bad = cnt_punc_category_dict[key]['bad']
-            ###识别出错的结果
-            cnt_error = cnt_punc_category_dict[key]['error']
+                ###输入的标点符号个数
+                cnt_punc_category_dict[key]['input'] += 1
 
-            ###整体统计
-            total_input += cnt_input
-            total_good += cnt_good
+                ###识别对的标点符号个数（召回）
+                if tmp_input[j][0] == tmp_result[j][0]:
+                    cnt_punc_category_dict[key]['good'] += 1
+                else:
+                    cnt_punc_category_dict[key]['bad'] += 1
+                    ###其他的标点符号受影响了
+                    other_key = '%d'%( tmp_result[j][0] )
+                    cnt_punc_category_dict[other_key]['error'] += 1
 
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
-    ###整体准确率
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
+        ###
+        total_input = 0
+        total_good = 0
+        for i in range(len(punctuation.get_punc_list())):
+            key = '%d'%i
+
+            total_batch = total_batch_cnt_punc_dict[key]
+            if (cnt_punc_category_dict[key]['good'] != 0 \
+                        or cnt_punc_category_dict[key]['bad'] != 0):
+                ###待识别的结果总数
+                cnt_input = cnt_punc_category_dict[key]['input']
+                ###识别对的结果数
+                cnt_good = cnt_punc_category_dict[key]['good']
+                ###识别错的结果数
+                cnt_bad = cnt_punc_category_dict[key]['bad']
+                ###识别出错的结果
+                cnt_error = cnt_punc_category_dict[key]['error']
+
+                ###整体统计
+                total_input += cnt_input
+                total_good += cnt_good
+
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
+        ###整体准确率
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
+
+    ###下一轮循环使用上次的模型
+    def get_model_name():
+        ##这里找最新的ckpt模型
+        model_name,_ = pyIO.traversalDir('ckpt/')
+        model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
+        print('model_name:', model_name)
+
+        if len(model_name) > 0:
+            def mysort(f):
+                return time.ctime(os.path.getmtime(f))
+            model_name.sort(key = mysort)
+            value = model_name[-1]
+            value = value.replace('.data-00000-of-00001','')
+            value = value.split('-')[-1]
+
+            best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+            print('best_model_path:', best_model_path)
+            return best_model_path
+        return ''
+
+    # ** 导入模型
+    saver = tf.train.Saver()
+    saver.restore(sess, get_model_name())
 
 # testing
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
@@ -354,11 +376,11 @@ best_model_path = 'ckpt/bi-lstm.ckpt-6'
 saver.restore(sess, best_model_path)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-X_tt, y_tt, offset, _, _, _ = data_train.next_batch(2)
+X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
-feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:10, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
 
 ### y_pred 是一个 op
 fetches = [y_pred]
@@ -372,7 +394,7 @@ print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred[0] size, sh
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt size:', X_tt.size, y_tt.size)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
-for i in range(2):
+for i in range(10):
     x = X_tt[i]
 
     length = len(x)
