@@ -289,7 +289,11 @@ def run(max_max_epoch, data_file, begin, end, x_list, train_word_list):
 
 
 if __name__ == '__main__':
-    train_word_list = get_fix_big_list("raw_data/dir_begin/4.txt")
+    filename = "raw_data/dir_begin/4.txt"
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+
+    train_word_list = get_fix_big_list(filename)
     x_list = get_train_id_list(train_word_list)
     print('x_list:', x_list)
 
