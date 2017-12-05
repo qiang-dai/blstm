@@ -254,6 +254,9 @@ def run(max_max_epoch, data_file, begin, end, x_list, train_word_list):
         if val in id2word:
             word = id2word[val]
 
+        for pos in range(i*size,i*size + size):
+            print(i, pos, np.argmax(_y_pred[0][pos]))
+
         tag_pos = np.argmax(_y_pred[0][i*size + offset])
         tag = id2tag[tag_pos]
 
