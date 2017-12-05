@@ -148,8 +148,8 @@ res_pred_index = tf.reshape(tf.gather(y_pred, avg_index_list), [-1, class_num])
 
 show_tensor1 = y_input_item
 show_tensor2 = res_pred_index
-cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
-# cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_input_item, [-1]), logits = res_pred_index))
+#cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
+cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_input_item, [-1]), logits = res_pred_index))
 #cost = tf.reduce_mean(tf.contrib.seq2seq.sequence_loss(logits=tf.reshape(y_pred, [-1, timestep_size, class_num]), targets=y_inputs, weights=avg_weight_change))
 
 # ***** 优化求解 *******
@@ -197,7 +197,7 @@ sess.run(tf.global_variables_initializer())
 saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
 # last_10_acc = []
 
-data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step07")
+data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step08")
 filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
 print('data_patch_filename_list:', filename_list)
 
@@ -214,10 +214,11 @@ for i,data_file in enumerate(data_patch_filename_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
         X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape))
 
+    fill_word_id = word2id[punctuation.get_filled_word()]
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Creating the data generator ...')
-    data_train = BatchGenerator.BatchGenerator(X_train, y_train, shuffle=True)
-    data_valid = BatchGenerator.BatchGenerator(X_valid, y_valid, shuffle=False)
-    data_test = BatchGenerator.BatchGenerator(X_test, y_test, shuffle=False)
+    data_train = BatchGenerator.BatchGenerator(X_train, y_train, shuffle=True, fill_word_id=fill_word_id)
+    data_valid = BatchGenerator.BatchGenerator(X_valid, y_valid, shuffle=False, fill_word_id=fill_word_id)
+    data_test = BatchGenerator.BatchGenerator(X_test, y_test, shuffle=False, fill_word_id=fill_word_id)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the data generator.')
 
     tr_batch_size = punctuation.get_batch_size()
