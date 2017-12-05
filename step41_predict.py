@@ -176,7 +176,7 @@ with tf.variable_scope('embedding'):
         print('softmax_b shape:', softmax_b.get_shape())
         print('y_pred shape:', y_pred.get_shape())
 
-def run(max_max_epoch, data_file, begin, end):
+def run(max_max_epoch, data_file, begin, end, x_list, train_word_list):
     import pickle
     with open(data_file, 'rb') as inp:
         X = pickle.load(inp)
@@ -188,16 +188,16 @@ def run(max_max_epoch, data_file, begin, end):
 
     # 划分测试集/训练集/验证集
     from sklearn.model_selection import train_test_split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train,  test_size=0.2, random_state=42)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
-        X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape))
+    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    #X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train,  test_size=0.2, random_state=42)
+    #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  'X_train.shape={}, y_train.shape={}; \nX_valid.shape={}, y_valid.shape={};\nX_test.shape={}, y_test.shape={}'.format(
+    #    X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape))
 
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Creating the data generator ...')
-    data_train = BatchGenerator.BatchGenerator(X_train, y_train, shuffle=True)
-    data_valid = BatchGenerator.BatchGenerator(X_valid, y_valid, shuffle=False)
-    data_test = BatchGenerator.BatchGenerator(X_test, y_test, shuffle=False)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the data generator.')
+    #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Creating the data generator ...')
+    #data_train = BatchGenerator.BatchGenerator(X_train, y_train, shuffle=True)
+    #data_valid = BatchGenerator.BatchGenerator(X_valid, y_valid, shuffle=False)
+    #data_test = BatchGenerator.BatchGenerator(X_test, y_test, shuffle=False)
+    #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the data generator.')
 
     ### 设置显存根据需求增长
     config = tf.ConfigProto()
@@ -230,46 +230,66 @@ def run(max_max_epoch, data_file, begin, end):
 
     sess.run(tf.global_variables_initializer())
 
-    size = data_train.X.shape[0]
-    X_tt, y_tt, offset, _, _, _ = data_train.next_batch(size)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
-    feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:size, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+    #size = data_train.X.shape[0]
+    size = len(x_list)
+    #X_tt, y_tt, offset, _, _, _ = data_train.next_batch(size)
+    #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
+    #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
+    #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
+    feed_dict = {X_inputs:x_list, lr:1e-5, batch_size:size, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
 
     fetches = [y_pred]
     _y_pred = sess.run(fetches, feed_dict)
 
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt=',X_tt)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'y_tt=',y_tt)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred=',_y_pred)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred[0] size, shape:', _y_pred[0].size, _y_pred[0].shape)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt size:', X_tt.size, y_tt.size)
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
-    for i in range(2):
-        x = X_tt[i]
+    res_list = []
+    orig_list= []
+    for i in range(size):
+        x = x_list[i]
+        ###每行去第15个内容和符号即可
+        size = len(x)
+        offset = int(size/2) - 1
+        val = x[offset]
+        word = 'None'
+        if val in id2word:
+            word = id2word[val]
 
-        length = len(x)
-        beg = i*length
-        end = (i+1)*length
-        y = _y_pred[0][beg:end]
+        tag_pos = np.argmax(_y_pred[0][offset])
+        tag = id2tag[tag_pos]
 
-        x_index = [e for e in x if e > 0]
-        y_index = [np.argmax(e) for e in y]
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
-        print ("x_index:", x_index)
-        print ("y_index:", y_index)
+        if tag == 'SP':
+            tag = ''
 
-        word_list = [id2word[e] for e in x_index]
-        label_list =[id2tag[e] for e in y_index]
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
+        res_list.append(word + tag)
+
+        tag = train_word_list[offset + i][1]
+        if tag == 'SP':
+            tag = ''
+        orig_list.append(train_word_list[offset + i][2] + tag)
+
+        # length = len(x)
+        # beg = i*length
+        # end = (i+1)*length
+        # y = _y_pred[0][beg:end]
+        #
+        # x_index = [e for e in x if e > 0]
+        # y_index = [np.argmax(e) for e in y]
+        # print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
+        # print ("x_index:", x_index)
+        # print ("y_index:", y_index)
+        #
+        # word_list = [id2word[e] for e in x_index]
+        # label_list =[id2tag[e] for e in y_index]
+        # print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
+        # print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
+    print (' '.join(res_list))
+    print (' '.join(orig_list))
+
 
 
 
 if __name__ == '__main__':
-    train_word_list = get_fix_big_list("raw_data/9.txt")
+    train_word_list = get_fix_big_list("raw_data/dir_begin/4.txt")
     x_list = get_train_id_list(train_word_list)
     print('x_list:', x_list)
 
@@ -280,4 +300,4 @@ if __name__ == '__main__':
     ###存储为数据
 
 
-    run(2, 'data/data_predict.pkl', 0, 0)
+    run(2, 'data/data_predict.pkl', 0, 0, x_list, train_word_list)
