@@ -228,6 +228,33 @@ for i,data_file in enumerate(data_patch_filename_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'tr_batch_num:', tr_batch_num)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'display_batch:', display_batch)
 
+
+    ###下一轮循环使用上次的模型
+    def get_model_name():
+        ##这里找最新的ckpt模型
+        model_name,_ = pyIO.traversalDir('ckpt/')
+        model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
+        print('model_name:', model_name)
+
+        if len(model_name) > 0:
+            def mysort(f):
+                return time.ctime(os.path.getmtime(f))
+            model_name.sort(key = mysort)
+            value = model_name[-1]
+            value = value.replace('.data-00000-of-00001','')
+            value = value.split('-')[-1]
+
+            best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+            print('best_model_path:', best_model_path)
+            return best_model_path
+        return ''
+
+    # ** 导入模型
+    saver = tf.train.Saver()
+    model_name = get_model_name()
+    if len(model_name) > 0:
+        saver.restore(sess, model_name)
+
     for epoch in range(i, i+max_max_epoch):
         ###1统计准确率
         y_result_list = []
@@ -341,29 +368,6 @@ for i,data_file in enumerate(data_patch_filename_list):
         ###整体准确率
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
 
-    ###下一轮循环使用上次的模型
-    def get_model_name():
-        ##这里找最新的ckpt模型
-        model_name,_ = pyIO.traversalDir('ckpt/')
-        model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
-        print('model_name:', model_name)
-
-        if len(model_name) > 0:
-            def mysort(f):
-                return time.ctime(os.path.getmtime(f))
-            model_name.sort(key = mysort)
-            value = model_name[-1]
-            value = value.replace('.data-00000-of-00001','')
-            value = value.split('-')[-1]
-
-            best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
-            print('best_model_path:', best_model_path)
-            return best_model_path
-        return ''
-
-    # ** 导入模型
-    saver = tf.train.Saver()
-    saver.restore(sess, get_model_name())
 
 # testing
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
