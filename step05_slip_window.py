@@ -64,7 +64,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
     return total_list
 
 ###每隔 32 个单词就处理一下
-def save_fixed_letter(total_list, result_name, punc_list, file_index):
+def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, result_dir):
     line_list = []
     word_list = []
     label_list= []
@@ -90,6 +90,7 @@ def save_fixed_letter(total_list, result_name, punc_list, file_index):
         tmp_word_list = []
         tmp_label_list= []
         for index,item in enumerate(total_list[i:end]):
+            #print(filename, 'item:', item)
             word,punc = item.split('/')
             if index == punctuation.get_timestep_size()/2 - 1:
                 res.append(item)
@@ -118,7 +119,7 @@ def save_fixed_letter(total_list, result_name, punc_list, file_index):
     ###写数据
     X = np.asarray(word_list)
     y = np.asarray(label_list)
-    with open('data/data_patch_%02d.pkl'%file_index, 'wb') as outp:
+    with open('%s/data_patch_%02d.pkl'%(result_dir, file_index), 'wb') as outp:
         pickle.dump(X, outp)
         pickle.dump(y, outp)
         pickle.dump(word2id, outp)
@@ -135,6 +136,8 @@ if __name__ == '__main__':
 
 
     filename_list,_ = pyIO.traversalDir(file_dir)
+    filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
+
     for file_index, filename in enumerate(filename_list):
         result_name = result_dir + '/step05_%d_'%file_index + filename.split('_')[-1]
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
@@ -143,4 +146,4 @@ if __name__ == '__main__':
 
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
-        save_fixed_letter(item_list, result_name, punc_list, file_index)
+        save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)

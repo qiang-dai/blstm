@@ -17,7 +17,7 @@ def args():
     if len(sys.argv) > 1:
         filename = sys.argv[1]
 
-    threshold_line_cnt = 1000
+    threshold_line_cnt = 10000
     if len(sys.argv) > 2:
         threshold_line_cnt = int(sys.argv[2])
 
@@ -32,6 +32,8 @@ if __name__ == '__main__':
     print('file_dir, threshold_line_cnt, result_dir:', file_dir, threshold_line_cnt, result_dir )
 
     filename_list,_ = pyIO.traversalDir(file_dir)
+    filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
+
     for file_index, filename in enumerate(filename_list):
         print('file_index, filename:', file_index, filename)
         sentences = pyIO.get_content(filename)

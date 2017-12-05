@@ -463,7 +463,11 @@ def run(max_max_epoch, data_file, begin, end):
 
 if __name__ == '__main__':
 
-    filename_list,_ = pyIO.traversalDir('data/')
+    file_dir = 'raw_data/dir_step05'
+    if len(sys.argv) > 1:
+        file_dir = sys.argv[1]
+
+    filename_list,_ = pyIO.traversalDir(file_dir)
     filename_list = [e for e in filename_list if e.find('data_patch_') != -1]
     #filename_list = filename_list[1:]
     print('filename_list:', filename_list)
