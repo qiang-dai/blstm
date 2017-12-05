@@ -9,7 +9,7 @@ from collections import Counter
 import punctuation
 
 # threshold_line_cnt = 1000000
-check_batch_size = 3
+check_batch_size = 128
 if len(sys.argv) > 1:
     check_batch_size = int(sys.argv[1])
 mode_num = 6
@@ -20,7 +20,7 @@ if len(sys.argv) > 2:
 import pickle
 import os
 import pickle
-with open('data/data.pkl', 'rb') as inp:
+with open('raw_data/dir_step07/data_patch_00.pkl', 'rb') as inp:
     X = pickle.load(inp)
     y = pickle.load(inp)
     word2id = pickle.load(inp)

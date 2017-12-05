@@ -422,11 +422,11 @@ def run(max_max_epoch, data_file, begin, end):
     # saver.restore(sess, best_model_path)
 
     # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-    X_tt, y_tt, offset, _, _, _ = data_train.next_batch(2)
+    X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
-    feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:2, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+    feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:10, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
 
     ### y_pred 是一个 op
     fetches = [y_pred]
@@ -440,7 +440,7 @@ def run(max_max_epoch, data_file, begin, end):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt size:', X_tt.size, y_tt.size)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
-    for i in range(2):
+    for i in range(10):
         x = X_tt[i]
 
         length = len(x)
@@ -460,6 +460,16 @@ def run(max_max_epoch, data_file, begin, end):
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
 
+        res = ''
+        for i,word in enumerate(word_list):
+            res += word
+            tag = label_list[i]
+            if tag == 'SP':
+                pass
+            else:
+                res += tag
+            res += ' '
+        print ('predict res:', res)
 
 if __name__ == '__main__':
 

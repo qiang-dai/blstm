@@ -33,6 +33,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
             break
 
         sentence = sentences[i]
+        sentence = sentence.strip()
         tmp_list = sentence.split(' ')
         ###删除Header Tail
         if len(tmp_list) == 0:
