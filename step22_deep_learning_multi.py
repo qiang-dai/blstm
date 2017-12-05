@@ -170,11 +170,26 @@ def run(max_max_epoch, data_file, last_mode_index):
     config.gpu_options.per_process_gpu_memory_fraction = 0.80
 
     sess = tf.Session(config=config)
-    if last_mode_index != 0:
+    #if last_mode_index != 0:
+    if True:
         # ** 导入模型
         saver = tf.train.Saver()
-        best_model_path = 'ckpt/bi-lstm.ckpt-%d'%((last_mode_index)*max_max_epoch-1)
-        saver.restore(sess, best_model_path)
+        ##这里找最新的ckpt模型
+        filename_list,_ = pyIO.traversalDir('ckpt/')
+        filename_list = [e for e in filename_list if e.find('.data-00000-of-00001') != -1]
+        print('filename_list:', filename_list)
+
+        if len(filename_list) > 0:
+            def mysort(f):
+                return time.ctime(os.path.getmtime(f))
+            filename_list.sort(key = mysort)
+            value = filename_list[-1]
+            value = value.replace('.data-00000-of-00001','')
+            value = value.split('-')[-1]
+
+            best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+            print('best_model_path:', best_model_path)
+            saver.restore(sess, best_model_path)
 
 
     '''
@@ -330,7 +345,7 @@ def run(max_max_epoch, data_file, last_mode_index):
         mean_cost = _costs / tr_batch_num
         if True:
             save_path = saver.save(sess, model_save_path, global_step=(epoch))
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path)
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path, ', epoch:', epoch)
 
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining %d, acc=%g, cost=%g ' % (data_train.y.shape[0], mean_acc, mean_cost))
