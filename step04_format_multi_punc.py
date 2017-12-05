@@ -13,7 +13,6 @@ import tools
 import datetime
 import pickle
 
-threshold_word_cnt = 10
 
 def getCharType(c):
     if punctuation.is_alphabet(c):
@@ -201,7 +200,12 @@ def get_args():
     if len(sys.argv) > 3:
         res_file = sys.argv[3]
 
-    return filename, threshold_line_cnt, res_file
+
+    threshold_word_cnt = 10
+    if len(sys.argv) > 4:
+        threshold_word_cnt = 2
+
+    return filename, threshold_line_cnt, res_file, threshold_word_cnt
 
 if __name__ == '__main__':
 
@@ -209,7 +213,7 @@ if __name__ == '__main__':
     punctuation.save_punc_list(punctuation.punctuation_list)
 
     ###<programe> raw_data/en_punctuation_recommend_train_100W  1000000 raw_data/res.txt
-    file_dir, threshold_line_cnt, result_dir = get_args()
+    file_dir, threshold_line_cnt, result_dir, threshold_word_cnt = get_args()
 
     ###词频统计
     cnt_dict = {

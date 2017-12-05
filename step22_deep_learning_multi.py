@@ -167,7 +167,7 @@ def run(max_max_epoch, data_file, begin, end):
     ### 设置显存根据需求增长
     config = tf.ConfigProto()
     #config.gpu_options.allow_growth = True
-    config.gpu_options.per_process_gpu_memory_fraction = 0.80
+    config.gpu_options.per_process_gpu_memory_fraction = 0.45
 
     sess = tf.Session(config=config)
     #if last_mode_index != 0:
