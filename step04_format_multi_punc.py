@@ -34,8 +34,9 @@ def transform(word):
     elif punctuation.is_alphabet(word[0]):
         word = word.lower()
     elif punctuation.is_punc(word[0]):
+        pass
         ###debug
-        add_cnt_dict(cleaned_punc_dict, word)
+        #add_cnt_dict(cleaned_punc_dict, word)
         #cleaned_punc_dict[word] = True
     elif punctuation.is_emoji(word[0]):
         word = 'EMOJI'
@@ -51,6 +52,7 @@ def merge_chars(word):
     last = flag_list[0]
     res = ''
     res_list = []
+    tmp_orig = []
     for i in range(len(flag_list)):
         cur = flag_list[i]
         ###合并
@@ -59,13 +61,15 @@ def merge_chars(word):
         ###另外的单词
         else:
             res_list.append(transform(res))
+            tmp_orig.append(res)
             res = word[i]
 
         last = cur
     ###查错
     res_list.append(transform(res))
+    tmp_orig.append(res)
 
-    return res_list
+    return res_list, tmp_orig
 
 def clean_sentence(sentence):
     ###新闻的处理
@@ -74,14 +78,16 @@ def clean_sentence(sentence):
     sentence = re.sub('\s',' ',sentence)
     word_list = sentence.split(" ")
     res_list = []
+    orig_list= []
     for word in word_list:
         word = word.strip()
         if len(word) == 0:
             continue
-        tmp_list = merge_chars(word)
+        tmp_list,tmp_orig = merge_chars(word)
         res_list.extend(tmp_list)
+        orig_list.extend(tmp_orig)
 
-    return res_list
+    return res_list, orig_list
 
 def add_cnt_dict(cnt_dict, word):
     if word in cnt_dict:
@@ -108,21 +114,25 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
         if True:
             sub_sentence = sentence.replace('\\n', ' ')
             ###解析结果
-            res_list = clean_sentence(sub_sentence)
+            res_list,res_orig = clean_sentence(sub_sentence)
             for res in res_list:
                 add_cnt_dict(cnt_dict, res)
 
             ###过滤无标点句子
             flag_punc_find = False
 
+            orig_list = ['']
             content_list = ['Header',]
             labels_list = [punc_list[0],]
-            for w in res_list:
+            for i,w in enumerate(res_list):
                 if punctuation.is_emoji(w[0]) \
                         or punctuation.is_alphabet(w[0]) \
                         or punctuation.is_number(w[0]):
                     content_list.append(w)
+                    ###原始词语
+                    orig_list.append(res_orig[i])
                     labels_list.append(punc_list[0])
+
                 ###如果是符号,就往前加
                 elif punctuation.is_punc(w[0]):
                     flag_punc_find = True
@@ -143,6 +153,7 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
 
             ###添加结束标记
             content_list.append('Tail')
+            orig_list.append('')
             labels_list.append(punc_list[0])
 
             ###如果一个标点都没有，就忽略这句话
@@ -151,7 +162,7 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
 
             out_list = []
             for pos, word in enumerate(content_list):
-                out_list.append([word, labels_list[pos]])
+                out_list.append([word, labels_list[pos], orig_list[pos]])
             total_res_list.append(out_list)
     return total_res_list
 
@@ -267,7 +278,7 @@ if __name__ == '__main__':
 
         for i, tmp_list in enumerate(res_list):
             line_list = []
-            for word,punc in tmp_list:
+            for word,punc,orig in tmp_list:
 
                 if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
                     ###填充字符
