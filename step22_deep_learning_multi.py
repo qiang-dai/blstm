@@ -170,26 +170,6 @@ def run(max_max_epoch, data_file, begin, end):
     config.gpu_options.per_process_gpu_memory_fraction = 0.45
 
     sess = tf.Session(config=config)
-    #if last_mode_index != 0:
-    if True:
-        # ** 导入模型
-        saver = tf.train.Saver()
-        ##这里找最新的ckpt模型
-        filename_list,_ = pyIO.traversalDir('ckpt/')
-        filename_list = [e for e in filename_list if e.find('.data-00000-of-00001') != -1]
-        print('filename_list:', filename_list)
-
-        if len(filename_list) > 0:
-            def mysort(f):
-                return time.ctime(os.path.getmtime(f))
-            filename_list.sort(key = mysort)
-            value = filename_list[-1]
-            value = value.replace('.data-00000-of-00001','')
-            value = value.split('-')[-1]
-
-            best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
-            print('best_model_path:', best_model_path)
-            saver.restore(sess, best_model_path)
 
 
     '''
@@ -272,7 +252,29 @@ def run(max_max_epoch, data_file, begin, end):
         return mean_acc, mean_cost
 
 
-    sess.run(tf.global_variables_initializer())
+
+    #if last_mode_index != 0:
+    #if begin != 0:
+        # ** 导入模型
+    saver = tf.train.Saver()
+    ##这里找最新的ckpt模型
+    filename_list,_ = pyIO.traversalDir('ckpt/')
+    filename_list = [e for e in filename_list if e.find('.data-00000-of-00001') != -1]
+    print('filename_list:', filename_list)
+
+    if len(filename_list) > 0:
+        def mysort(f):
+            return time.ctime(os.path.getmtime(f))
+        filename_list.sort(key = mysort)
+        value = filename_list[-1]
+        value = value.replace('.data-00000-of-00001','')
+        value = value.split('-')[-1]
+
+        best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+        print('best_model_path:', best_model_path)
+        saver.restore(sess, best_model_path)
+    else:
+        sess.run(tf.global_variables_initializer())
     tr_batch_size = punctuation.get_batch_size()
     #max_max_epoch = 1000
     display_num = 5  # 每个 epoch 显示是个结果
@@ -477,12 +479,12 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         file_dir = sys.argv[1]
 
-    filename_list,_ = pyIO.traversalDir(file_dir)
-    filename_list = [e for e in filename_list if e.find('data_patch_') != -1]
-    #filename_list = filename_list[1:]
-    print('filename_list:', filename_list)
+    data_patch_filename_list,_ = pyIO.traversalDir(file_dir)
+    filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
+    #data_patch_filename_list = data_patch_filename_list[1:]
+    print('data_patch_filename_list:', filename_list)
 
-    for i, data_file in enumerate(filename_list):
-        begin = i*2
-        end = begin + 2
-        run(2, data_file, begin, end)
+    for i, data_file in enumerate(data_patch_filename_list):
+        begin = i*1
+        end = begin + 1
+        run(1, data_file, begin, end)

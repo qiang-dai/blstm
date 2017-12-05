@@ -254,7 +254,7 @@ def run(max_max_epoch, data_file, begin, end, x_list, train_word_list):
         if val in id2word:
             word = id2word[val]
 
-        tag_pos = np.argmax(_y_pred[0][offset])
+        tag_pos = np.argmax(_y_pred[0][i*size + offset])
         tag = id2tag[tag_pos]
 
         if tag == 'SP':
