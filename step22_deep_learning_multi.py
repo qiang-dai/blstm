@@ -466,6 +466,7 @@ if __name__ == '__main__':
     filename_list,_ = pyIO.traversalDir('data/')
     filename_list = [e for e in filename_list if e.find('data_patch_') != -1]
     #filename_list = filename_list[1:]
+    print('filename_list:', filename_list)
 
     for i, data_file in enumerate(filename_list):
         begin = i*2
