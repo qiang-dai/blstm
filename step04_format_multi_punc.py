@@ -228,9 +228,13 @@ def main(file_dir, threshold_line_cnt, result_dir, threshold_word_cnt, flag_save
 
     print('filename_list:', filename_list)
 
-    word2id = {}
+    word2id = {
+        punctuation.get_filled_word():0,
+    }
     tag2id = {}
-    id2word = {}
+    id2word = {
+        0:punctuation.get_filled_word(),
+    }
     id2tag = {}
     if not flag_save_word_dict:
         with open('data/word_tag_id.pkl', 'rb') as inp:
@@ -261,7 +265,7 @@ def main(file_dir, threshold_line_cnt, result_dir, threshold_word_cnt, flag_save
 
         ###词频统计
         cnt_dict = {
-            'None' : threshold_word_cnt,
+            punctuation.get_filled_word(): threshold_word_cnt,
             'Header' : threshold_word_cnt,
             'Tail' : threshold_word_cnt,
         }

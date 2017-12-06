@@ -98,6 +98,19 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         label_list.append(tmp_label_list)
 
     pyIO.save_to_file('\n'.join(line_list), result_name)
+
+    res_list = []
+    for w_list in word_list:
+        t_list = ['%d'%e for e in w_list]
+        res_list.append(' '.join(t_list))
+    pyIO.save_to_file('\n'.join(res_list), result_name.replace(".txt", '_word.txt'))
+
+    res_list = []
+    for w_list in label_list:
+        t_list = ['%d'%e for e in w_list]
+        res_list.append(' '.join(t_list))
+    pyIO.save_to_file('\n'.join(res_list), result_name.replace(".txt", '_label.txt'))
+
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),line_list[:30])
 
     ###写数据

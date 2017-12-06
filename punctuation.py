@@ -88,6 +88,12 @@ from emoji import UNICODE_EMOJI
 def is_emoji(s):
     return s in UNICODE_EMOJI
 
+def get_header_word():
+    return 'Header'
+
+def get_tail_word():
+    return 'Tail'
+
 def get_filled_word():
     return 'NONE'
 

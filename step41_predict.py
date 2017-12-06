@@ -250,7 +250,7 @@ def run(max_max_epoch, data_file, begin, end, x_list, train_word_list):
         size = len(x)
         offset = int(size/2) - 1
         val = x[offset]
-        word = 'None'
+        word = punctuation.get_filled_word()
         if val in id2word:
             word = id2word[val]
 

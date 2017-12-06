@@ -273,6 +273,17 @@ with open('data/word_tag_id.pkl', 'rb') as inp:
     tag2id = pickle.load(inp)
     id2tag = pickle.load(inp)
 
+###统计
+cnt_punc_category_dict = {}
+total_batch_cnt_punc_dict = {}
+for i in range(len(punctuation.get_punc_list())):
+    key = '%d'%i
+    cnt_punc_category_dict[key] = {}
+    cnt_punc_category_dict[key]['input'] = 0.1
+    cnt_punc_category_dict[key]['good']  = 0.1
+    cnt_punc_category_dict[key]['bad']   = 0.1
+    cnt_punc_category_dict[key]['error'] = 0.1
+
 for i in range(len(x_list)):
     x = x_list[i]
     length = len(x)
@@ -280,6 +291,7 @@ for i in range(len(x_list)):
     end = (i+1)*length
     y = _y_pred[0][beg:end]
     z = z_list[i]
+    orig_y = y_list[i]
 
     x_index = [e for e in x if e > 0]
     y_index = [np.argmax(e) for e in y]
@@ -312,9 +324,51 @@ for i in range(len(x_list)):
 
         if i<= end_pos:
             orig_list.append(orig)
-    print ('predict res :', res)
+            ###这里做统计
+            if i > 0 and i < end_pos:
+                cnt_punc_category_dict[key]['input'] += 1
+                key = '%d'%(orig_y[i])
+                other_key = '%d'%(y_index[i])
 
-    print ('predict orig:', ' '.join(orig_list))
+                if key == other_key:
+                    cnt_punc_category_dict['%d'%key]['good'] += 1
+                else:
+                    cnt_punc_category_dict['%d'%key]['bad'] += 1
+                    cnt_punc_category_dict['%d'%other_key]['error'] += 1
+
+    print ('predict res :', res)
+    print ('predict_orig:', ' '.join(orig_list))
+    print ('predict_text:', ' '.join(orig_y))
+
+###
+total_input = 0
+total_good = 0
+total_output = 0
+for i in range(len(punctuation.get_punc_list())):
+    key = '%d'%i
+    ###识别对的结果数
+    cnt_good = cnt_punc_category_dict[key]['good']
+    ###识别错的结果数
+    cnt_bad = cnt_punc_category_dict[key]['bad']
+    ###识别出错的结果
+    cnt_error = cnt_punc_category_dict[key]['error']
+
+    cnt_input = cnt_good + cnt_bad
+    cnt_output= cnt_good + cnt_error
+
+    ###整体统计
+    total_output += cnt_output
+    total_input += cnt_input
+    total_good += cnt_good
+
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, end = ' ')
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/cnt_output), '%6d'%cnt_good, '%6d'%cnt_output)
+###整体准确率
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体召回率', total_good/total_input, total_good, total_input)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_output, total_good, total_output)
+
+
 
 
 
