@@ -110,59 +110,58 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict):
             print('sentence total, i:',len(sentences), i)
 
         sentence = sentences[i]
-        if True:
-            sub_sentence = sentence.replace('\\n', ' ')
-            ###解析结果
-            res_list,res_orig = clean_sentence(sub_sentence)
-            for res in res_list:
-                add_cnt_dict(cnt_dict, res)
+        sub_sentence = sentence.replace('\\n', ' ')
+        ###解析结果
+        res_list,res_orig = clean_sentence(sub_sentence)
+        for res in res_list:
+            add_cnt_dict(cnt_dict, res)
 
-            ###过滤无标点句子
-            flag_punc_find = False
+        ###过滤无标点句子
+        flag_punc_find = False
 
-            orig_list = ['']
-            content_list = ['Header',]
-            labels_list = [punc_list[0],]
-            for i,w in enumerate(res_list):
-                if punctuation.is_emoji(w[0]) \
-                        or punctuation.is_alphabet(w[0]) \
-                        or punctuation.is_number(w[0]):
-                    content_list.append(w)
-                    ###原始词语
-                    orig_list.append(res_orig[i])
-                    labels_list.append(punc_list[0])
+        word_list = ['Header',]
+        orig_list = ['']
+        labels_list = [punc_list[0],]
+        for i,w in enumerate(res_list):
+            if punctuation.is_emoji(w[0]) \
+                    or punctuation.is_alphabet(w[0]) \
+                    or punctuation.is_number(w[0]):
+                word_list.append(w)
+                ###原始词语
+                orig_list.append(res_orig[i])
+                labels_list.append(punc_list[0])
 
-                ###如果是符号,就往前加
-                elif punctuation.is_punc(w[0]):
-                    flag_punc_find = True
+            ###如果是符号,就往前加
+            elif punctuation.is_punc(w[0]):
+                flag_punc_find = True
 
-                    if w not in punc_set:
-                        w = punctuation.get_punc_other()
-
-                    ###统计词频
-                    add_cnt_dict(cleaned_punc_dict, w)
-                    ###标点符号进行替换
-                    w = transform_punc(w, punc_list, punc_set)
-                    labels_list[-1] = w
-                else:
-                    ###其他所有的不能识别的都认为是标点
+                if w not in punc_set:
                     w = punctuation.get_punc_other()
-                    labels_list[-1] = w
+
+                ###统计词频
+                add_cnt_dict(cleaned_punc_dict, w)
+                ###标点符号进行替换
+                w = transform_punc(w, punc_list, punc_set)
+                labels_list[-1] = w
+            else:
+                ###其他所有的不能识别的都认为是标点
+                w = punctuation.get_punc_other()
+                labels_list[-1] = w
 
 
-            ###添加结束标记
-            content_list.append('Tail')
-            orig_list.append('')
-            labels_list.append(punc_list[0])
+        ###添加结束标记
+        word_list.append('Tail')
+        orig_list.append('')
+        labels_list.append(punc_list[0])
 
-            ###如果一个标点都没有，就忽略这句话
-            if not flag_punc_find:
-                continue
+        ###如果一个标点都没有，就忽略这句话
+        if not flag_punc_find:
+            continue
 
-            out_list = []
-            for pos, word in enumerate(content_list):
-                out_list.append([word, labels_list[pos], orig_list[pos]])
-            total_res_list.append(out_list)
+        out_list = []
+        for pos, word in enumerate(word_list):
+            out_list.append([word, labels_list[pos], orig_list[pos]])
+        total_res_list.append(out_list)
     return total_res_list
 
 def get_min_punc_cnt(cleaned_punc_dict):
@@ -207,13 +206,9 @@ def get_args():
 
     return filename, threshold_line_cnt, res_file, threshold_word_cnt
 
-if __name__ == '__main__':
-
+def main(file_dir, threshold_line_cnt, result_dir, threshold_word_cnt, flag_save_word_dict):
     ###初始化:标点符号写文件
     punctuation.save_punc_list(punctuation.punctuation_list)
-
-    ###<programe> raw_data/en_punctuation_recommend_train_100W  1000000 raw_data/res.txt
-    file_dir, threshold_line_cnt, result_dir, threshold_word_cnt = get_args()
 
     ###词频统计
     cnt_dict = {
@@ -237,12 +232,17 @@ if __name__ == '__main__':
     tag2id = {}
     id2word = {}
     id2tag = {}
+    if not flag_save_word_dict:
+        with open('data/word_tag_id.pkl', 'rb') as inp:
+            word2id = pickle.load(inp)
+            id2word = pickle.load(inp)
+            tag2id = pickle.load(inp)
+            id2tag = pickle.load(inp)
 
     ###遍历写
     for file_index, filename in enumerate(filename_list):
         ###重置结果文件
         result_filename = result_dir + '/step04_%d_'%file_index + filename.split('/')[-1]
-        pyIO.save_to_file("", result_filename)
         print('file_index, filename:', file_index, filename)
 
         ###所有标点符号
@@ -279,75 +279,83 @@ if __name__ == '__main__':
         content_line_list = []
         ###统计
 
-
         for i, tmp_list in enumerate(res_list):
             line_list = []
-            for word,punc,orig in tmp_list:
 
+            for word,punc,orig in tmp_list:
                 if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
                     ###填充字符
                     word = punctuation.get_filled_word()
+
+                ###对word进行打id, 如果是只读，就不写入
+                if word not in word2id:
+                    if flag_save_word_dict:
+                        cnt = len(word2id) + 1
+                        word2id[word] = cnt
+                        id2word[cnt] = word
+                    else:
+                        word = punctuation.get_filled_word()
+
                 if punc not in punc_set:
                     print('[%d] error punc:'%i, punc, tmp_list)
                     punc = punc_list[0]
 
-                ###对word进行打id
-                if word not in word2id:
-                    cnt = len(word2id) + 1
-                    word2id[word] = cnt
-                    id2word[cnt] = word
-                line_list.append('%s/%s'%(word, punc))
+                line_list.append('%s/%s/%s'%(word, punc, orig))
             content_line_list.append(' '.join(line_list))
 
-        ### Header/SP by/SP robert/SP browning/. Tail/SP
-        #pyIO.save_to_file('\n'.join(content_line_list), result_dir)
-        pyIO.append_to_file('\n'.join(content_line_list) + '\n', result_filename)
+        ###保存文件
+        pyIO.save_to_file('\n'.join(content_line_list) + '\n', result_filename)
 
         c = Counter(cnt_dict)
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'add_cnt_dict:', len(cnt_dict), c.most_common(100))
         for k in cnt_dict.keys():
             print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'word', cnt_dict[k], k)
 
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, 10))
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'total cnt >= 10 word cnt:', get_total_cnt(cnt_dict, threshold_word_cnt))
-        # print ('total cnt >= 20 word cnt:', get_total_cnt(cnt_dict, 20))
 
+    ###存储word2id==========================================
+    if flag_save_word_dict:
+        ###映射表
+        for i, punc in enumerate(punc_list):
+            tag2id[punc] = i
+            id2tag[i] = punc
+        with open('data/word_tag_id.pkl', 'wb') as outp:
+            pickle.dump(word2id, outp)
+            pickle.dump(id2word, outp)
+            pickle.dump(tag2id, outp)
+            pickle.dump(id2tag, outp)
 
-    ###映射表
-    for i, punc in enumerate(punc_list):
-        tag2id[punc] = i
-        id2tag[i] = punc
-    ###存储word2id
-    with open('data/word_tag_id.pkl', 'wb') as outp:
-        pickle.dump(word2id, outp)
-        pickle.dump(id2word, outp)
-        pickle.dump(tag2id, outp)
-        pickle.dump(id2tag, outp)
+        vocab_size = len(word2id)
+        print( 'vocab_size={}'.format(vocab_size))
+        ###保存单词个数
+        punctuation.save_word_cnt(vocab_size)
 
-    vocab_size = len(word2id)
-    print( 'vocab_size={}'.format(vocab_size))
-    ###保存单词个数
-    punctuation.save_word_cnt(vocab_size)
-        # ###图形显示长度
-        # plt_val_cnt_dict = {}
-        # for cnt in cnt_dict.keys():
-        #     num = '%d'%(cnt_dict[cnt])
-        #     add_cnt_dict(plt_val_cnt_dict, num)
-        #
-        #
-        # import numpy as np
-        # import matplotlib.pyplot as plt
-        #
-        # plt.figure(1) # 创建图表1
-        # for i in range(10000):
-        #     key = '%d'%i
-        #     val_cnt = 0
-        #     #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
-        #     if key in plt_val_cnt_dict:
-        #         val_cnt = plt_val_cnt_dict[key]
-        #         if (1 < val_cnt < 20 ):
-        #             plt.plot(i, val_cnt, 'or')
-        # plt.show()
+if __name__ == '__main__':
+
+    file_dir, threshold_line_cnt, result_dir, threshold_word_cnt = get_args()
+    main(file_dir, threshold_line_cnt, result_dir, threshold_word_cnt, True)
+
+    # ###图形显示长度
+    # plt_val_cnt_dict = {}
+    # for cnt in cnt_dict.keys():
+    #     num = '%d'%(cnt_dict[cnt])
+    #     add_cnt_dict(plt_val_cnt_dict, num)
+    #
+    #
+    # import numpy as np
+    # import matplotlib.pyplot as plt
+    #
+    # plt.figure(1) # 创建图表1
+    # for i in range(10000):
+    #     key = '%d'%i
+    #     val_cnt = 0
+    #     #print ('key,val_cnt_dict:', key, plt_val_cnt_dict)
+    #     if key in plt_val_cnt_dict:
+    #         val_cnt = plt_val_cnt_dict[key]
+    #         if (1 < val_cnt < 20 ):
+    #             plt.plot(i, val_cnt, 'or')
+    # plt.show()
 
 
 

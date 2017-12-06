@@ -16,7 +16,7 @@ import pickle
 '''
 按行处理文本
 '''
-###读入所有内容,依次拼起来
+###读入所有内容,按长度32进行拆分
 def combine_line(filename, threshold_line_cnt, punc_list):
     # 以字符串的形式读入所有数据, 按行处理
     total_list = []
@@ -44,7 +44,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
         ###如果满足32个词，如果大于32个词，就滑动窗口拆分为多句
         diff = len(tmp_list) - timestep_size
         if diff <= 0:
-            fix_list = [fix_word + '/' + fix_punc for v in range(-1*diff)]
+            fix_list = [fix_word + '/' + fix_punc + '/' for v in range(-1*diff)]
             tmp_list.extend(fix_list)
             total_list.append(tmp_list)
         else:
@@ -67,6 +67,7 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         tag2id = pickle.load(inp)
         id2tag = pickle.load(inp)
 
+    orig_word_list = []
     for i, tmp_list in enumerate(total_list):
         if i %100000 == 0:
             print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'i:', i, len(total_list))
@@ -74,12 +75,18 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         res = []
         tmp_word_list = []
         tmp_label_list= []
+        tmp_orig_list = []
         for index,item in enumerate(tmp_list):
             ###写文件
             res.append(item)
 
             ###2个对应的表
-            word,punc = item.split('/')
+            # print('item:', item)
+            tt_list = item.split('/')
+            if len(tt_list) == 2:
+                i = 0
+
+            word,punc,orig = item.split('/')
             if word not in word2id:
                 cnt = len(word2id) + 1
                 word2id[word] = cnt
@@ -87,12 +94,15 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
 
             tmp_word_list.append(word2id[word])
             tmp_label_list.append(tag2id[punc])
+            tmp_orig_list.append(orig)
 
-        line_list.append(' '.join(res) + '\n')
+        line_list.append(' '.join(res))
         word_list.append(tmp_word_list)
         label_list.append(tmp_label_list)
+        orig_word_list.append(' '.join(tmp_orig_list))
 
     pyIO.save_to_file('\n'.join(line_list), result_name)
+    pyIO.save_to_file('\n'.join(orig_word_list), 'tmp/orig_word.txt')
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),line_list[:30])
 
     ###写数据
@@ -106,13 +116,10 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         pickle.dump(tag2id, outp)
         pickle.dump(id2tag, outp)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save over')
-
+    return word_list, label_list
 
 if __name__ == '__main__':
-
-    ###<program> WorldEnglish 1000000 raw_data/total_english.txt
     file_dir, threshold_line_cnt, result_dir = tools.args()
-
 
     filename_list,_ = pyIO.traversalDir(file_dir)
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
