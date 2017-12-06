@@ -200,8 +200,32 @@ data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step08")
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
 print('data_patch_filename_list:', data_patch_filename_list)
 
+
+###下一轮循环使用上次的模型
+def get_model_name():
+    ##这里找最新的ckpt模型
+    model_name,_ = pyIO.traversalDir('ckpt/')
+    model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
+    print('model_name:', model_name)
+
+    if len(model_name) > 0:
+        def mysort(f):
+            return time.ctime(os.path.getmtime(f))
+        model_name.sort(key = mysort)
+        value = model_name[-1]
+        value = value.replace('.data-00000-of-00001','')
+        value = value.split('-')[-1]
+
+        best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+        print('best_model_path:', best_model_path)
+        return best_model_path, int(value)
+    return '',0
+
+model_name, pos = get_model_name()
 for i,data_file in enumerate(data_patch_filename_list):
     print('data_file:', data_file)
+    if i <= pos:
+        continue
 
     with open(data_file, 'rb') as inp:
         X = pickle.load(inp)
@@ -231,29 +255,10 @@ for i,data_file in enumerate(data_patch_filename_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'display_batch:', display_batch)
 
 
-    ###下一轮循环使用上次的模型
-    def get_model_name():
-        ##这里找最新的ckpt模型
-        model_name,_ = pyIO.traversalDir('ckpt/')
-        model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
-        print('model_name:', model_name)
-
-        if len(model_name) > 0:
-            def mysort(f):
-                return time.ctime(os.path.getmtime(f))
-            model_name.sort(key = mysort)
-            value = model_name[-1]
-            value = value.replace('.data-00000-of-00001','')
-            value = value.split('-')[-1]
-
-            best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
-            print('best_model_path:', best_model_path)
-            return best_model_path
-        return ''
 
     # ** 导入模型
     #saver = tf.train.Saver()
-    model_name = get_model_name()
+    model_name, _ = get_model_name()
     if len(model_name) > 0:
         saver.restore(sess, model_name)
 
@@ -378,7 +383,7 @@ for i,data_file in enumerate(data_patch_filename_list):
 
     # ** 导入模型
     saver = tf.train.Saver()
-    saver.restore(sess, get_model_name())
+    saver.restore(sess, get_model_name()[0])
 
     # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
     X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)

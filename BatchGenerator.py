@@ -76,9 +76,11 @@ class BatchGenerator(object):
         offset = 0
         index_list = []
         start_pos = 0
+        weight_change_list = []
 
         for i in range(len(self._X[start:end])):
             x = self._X[start:end][i]
+            y = self._y[start:end][i]
             offset += sum([1 for e in x if e == 0])
 
             pos = self.get_valid_pos_x(x)
@@ -86,36 +88,28 @@ class BatchGenerator(object):
             index_list.extend(tmp_list)
             start_pos += len(x)
 
+            tmp_list = [1.0 for e in range(len(x))]
+            for k in range(len(tmp_list)):
+                if y[k] > 0:
+                    tmp_list[k] = 10.0
+                else:
+                    tmp_list[k] = 5.0
+
+                if k > pos:
+                    tmp_list[k] = 1.0
+
+            weight_change_list.append(tmp_list)
+
         ###返回字符的数量，进行核对，避免出现错误统计
         batch_cnt_punc_dict = {}
         for i in range(len(punctuation.get_punc_list())):
             batch_cnt_punc_dict['%d'%i] = 0
 
-        ###修改权重
-        #index_list = []
-        weight_change_list = []
-        #pos = 0
-        #focus_size = int(punctuation.get_timestep_size()/2 - 1)
         for i in range(len(self._y[start:end])):
             y = self._y[start:end][i]
-            tmp_list = [1.0 if e == 0 else 10 for e in y]
-            # if y[focus_size] != 0:
-            #     tmp_list[focus_size] = 3000.0
-            weight_change_list.append(tmp_list)
-            ###个数
             for v in y:
-                #print (y)
                 if v >= 0:
                     v = int(v)
                     batch_cnt_punc_dict['%s'%v] += 1
-            #print('batch_cnt_punc_dict:', batch_cnt_punc_dict)
-            #有效索引
-            #tmp_result_list = [pos + e for e in range(y.size) if y[e] != 0]
-            ###这里需要所有的标点符号，y[e] != 0 导致无法召回空格
-            #tmp_result_list = [pos + e for e in range(y.size)]
-            ###不能仅仅用标点符号预测，否则的话，导致空格无法召回
-            #tmp_result_list = [pos + punctuation.get_timestep_size()/2 - 1]
-            #pos += len(y)
-            #index_list.extend(tmp_result_list)
 
         return self._X[start:end], self._y[start:end], offset, np.array(index_list).reshape(-1,1), np.array(weight_change_list).reshape(-1, timestep_size), batch_cnt_punc_dict
