@@ -189,7 +189,7 @@ def test_epoch(dataset, epoch):
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d _acc, _cost:'%epoch, _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
         _accs += _acc
         _costs += _cost
     mean_acc= _accs / batch_num
@@ -302,7 +302,7 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
             _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
             #print('show_result1:', show_result1)
             #print('show_result2:', show_result2)
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d, train _acc, _cost:'%epoch, _acc, _cost)
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d(%d %d), train _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
             y_result_list.append(predict_res)
             y_input_list.append(input_res)
 
