@@ -22,7 +22,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
     ###头部填充
     cnt_fixed = int(punctuation.get_timestep_size()/2 - 1)
     for i in range(cnt_fixed):
-        total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
+        total_list.append(punctuation.get_filled_word()+'/' + punc_list[0] + '/')
 
     sentences = pyIO.get_content(filename)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'sentences size:', len(sentences))
@@ -43,10 +43,10 @@ def combine_line(filename, threshold_line_cnt, punc_list):
             if len(total_list) > 0:
                 cur_punc = tmp_list[0].split('/')[1]
 
-                last_word, last_punc = total_list[-1].split('/')
+                last_word, last_punc, _ = total_list[-1].split('/')
                 ###添加
                 if cur_punc != punc_list[0] and last_punc == punc_list[0]:
-                    total_list[-1] = last_word + '/' + cur_punc
+                    total_list[-1] = last_word + '/' + cur_punc + '/' + last_word
 
             tmp_list = tmp_list[1:]
         if len(tmp_list) == 0:
@@ -60,7 +60,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
     punc_list = punctuation.get_punc_list()
     cnt_fixed = int(punctuation.get_timestep_size()/2)
     for i in range(cnt_fixed):
-        total_list.append(punctuation.get_filled_word()+'/' + punc_list[0])
+        total_list.append(punctuation.get_filled_word()+'/' + punc_list[0] + '/')
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"total_list size:", len(total_list))
     return total_list
 
@@ -92,11 +92,11 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         tmp_label_list= []
         for index,item in enumerate(total_list[i:end]):
             #print(filename, 'item:', item)
-            word,punc = item.split('/')
+            word,punc, _ = item.split('/')
             if index == punctuation.get_timestep_size()/2 - 1:
                 res.append(item)
             else:
-                res.append(word + '/' + punc_list[0])
+                res.append(word + '/' + punc_list[0] + '/' + word)
 
             ###2个对应的表
             if word not in word2id:
@@ -115,6 +115,19 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         label_list.append(tmp_label_list)
 
     pyIO.save_to_file('\n'.join(line_list), result_name)
+
+    res_list = []
+    for w_list in word_list:
+        t_list = ['%d'%e for e in w_list]
+        res_list.append(' '.join(t_list))
+    pyIO.save_to_file('\n'.join(res_list), result_name.replace(".txt", '_word.txt'))
+
+    res_list = []
+    for w_list in label_list:
+        t_list = ['%d'%e for e in w_list]
+        res_list.append(' '.join(t_list))
+    pyIO.save_to_file('\n'.join(res_list), result_name.replace(".txt", '_label.txt'))
+
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),line_list[:30])
 
     ###写数据
@@ -131,16 +144,17 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
 
 
 if __name__ == '__main__':
-
-    ###<program> WorldEnglish 1000000 raw_data/total_english.txt
     file_dir, threshold_line_cnt, result_dir = tools.args()
-
 
     filename_list,_ = pyIO.traversalDir(file_dir)
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
 
     for file_index, filename in enumerate(filename_list):
-        result_name = result_dir + '/step05_%d_'%file_index + filename.split('_')[-1]
+        short_filename = filename.split('_')[-1]
+        short_filename = short_filename.split('/')[-1]
+        short_filename = short_filename.replace('.txt.txt', '.txt')
+
+        result_name = result_dir + '/step07_%d_'%file_index + short_filename
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
 
         punc_list = punctuation.get_punc_list()
