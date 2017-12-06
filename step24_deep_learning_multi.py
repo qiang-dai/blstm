@@ -17,6 +17,7 @@ max_max_epoch = 1
 if len(sys.argv) > 2:
     max_max_epoch = int(sys.argv[2])
 
+print('max_max_epoch:', max_max_epoch)
 
 ### 设置显存根据需求增长
 import tensorflow as tf
