@@ -33,7 +33,10 @@ target/
 *.zip
 *.war
 *.ear
-
+*.txt
+t
+data3/
+run.sh
 # Logs and databases
 *.log
 *.sqlite
