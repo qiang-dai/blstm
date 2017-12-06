@@ -197,10 +197,12 @@ sess.run(tf.global_variables_initializer())
 saver = tf.train.Saver()  # 最多保存的模型数量
 
 data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step08")
-filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
-print('data_patch_filename_list:', filename_list)
+data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
+print('data_patch_filename_list:', data_patch_filename_list)
 
 for i,data_file in enumerate(data_patch_filename_list):
+    print('data_file:', data_file)
+
     with open(data_file, 'rb') as inp:
         X = pickle.load(inp)
         y = pickle.load(inp)
@@ -369,52 +371,52 @@ for i,data_file in enumerate(data_patch_filename_list):
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
 
 
-# testing
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
-test_acc, test_cost = test_epoch(data_test)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**Test %d, acc=%g, cost=%g' % (data_test.y.shape[0], test_acc, test_cost) )
+    # testing
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
+    test_acc, test_cost = test_epoch(data_test)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**Test %d, acc=%g, cost=%g' % (data_test.y.shape[0], test_acc, test_cost) )
 
-# ** 导入模型
-saver = tf.train.Saver()
-saver.restore(sess, get_model_name())
+    # ** 导入模型
+    saver = tf.train.Saver()
+    saver.restore(sess, get_model_name())
 
-# 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
-feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:10, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+    # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
+    X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
+    feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:10, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
 
-### y_pred 是一个 op
-fetches = [y_pred]
-_y_pred = sess.run(fetches, feed_dict)
+    ### y_pred 是一个 op
+    fetches = [y_pred]
+    _y_pred = sess.run(fetches, feed_dict)
 
-#,print(,'X_tt.shape=',,X_tt.shape,,'y_tt.shape=',,y_tt.shape)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt=',X_tt)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'y_tt=',y_tt)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred=',_y_pred)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred[0] size, shape:', _y_pred[0].size, _y_pred[0].shape)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt size:', X_tt.size, y_tt.size)
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
+    #,print(,'X_tt.shape=',,X_tt.shape,,'y_tt.shape=',,y_tt.shape)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt=',X_tt)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'y_tt=',y_tt)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred=',_y_pred)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'_y_pred[0] size, shape:', _y_pred[0].size, _y_pred[0].shape)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt size:', X_tt.size, y_tt.size)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
-for i in range(10):
-    x = X_tt[i]
+    for i in range(10):
+        x = X_tt[i]
 
-    length = len(x)
-    beg = i*length
-    end = (i+1)*length
-    y = _y_pred[0][beg:end]
+        length = len(x)
+        beg = i*length
+        end = (i+1)*length
+        y = _y_pred[0][beg:end]
 
-    x_index = [e for e in x if e > 0]
-    y_index = [np.argmax(e) for e in y]
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
-    #print ("y:", y)
-    print ("x_index:", x_index)
-    print ("y_index:", y_index)
+        x_index = [e for e in x if e > 0]
+        y_index = [np.argmax(e) for e in y]
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
+        #print ("y:", y)
+        print ("x_index:", x_index)
+        print ("y_index:", y_index)
 
-    word_list = [id2word[e] for e in x_index]
-    label_list =[id2tag[e] for e in y_index]
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
+        word_list = [id2word[e] for e in x_index]
+        label_list =[id2tag[e] for e in y_index]
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
 
 
