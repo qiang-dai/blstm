@@ -270,7 +270,6 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
         for i in range(len(punctuation.get_punc_list())):
             key = '%d'%i
             cnt_punc_category_dict[key] = {}
-            cnt_punc_category_dict[key]['input'] = 0.1
             cnt_punc_category_dict[key]['good']  = 0.1
             cnt_punc_category_dict[key]['bad']   = 0.1
             cnt_punc_category_dict[key]['error'] = 0.1
@@ -333,9 +332,6 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
                 category = tmp_input[j][0]
                 key = '%d'%category
 
-                ###输入的标点符号个数
-                cnt_punc_category_dict[key]['input'] += 1
-
                 ###识别对的标点符号个数（召回）
                 if tmp_input[j][0] == tmp_result[j][0]:
                     cnt_punc_category_dict[key]['good'] += 1
@@ -346,6 +342,7 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
                     cnt_punc_category_dict[other_key]['error'] += 1
 
         ###
+        total_output = 0
         total_input = 0
         total_good = 0
         for i in range(len(punctuation.get_punc_list())):
@@ -354,8 +351,6 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
             total_batch = total_batch_cnt_punc_dict[key]
             if (cnt_punc_category_dict[key]['good'] != 0 \
                         or cnt_punc_category_dict[key]['bad'] != 0):
-                ###待识别的结果总数
-                cnt_input = cnt_punc_category_dict[key]['input']
                 ###识别对的结果数
                 cnt_good = cnt_punc_category_dict[key]['good']
                 ###识别错的结果数
@@ -363,13 +358,17 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
                 ###识别出错的结果
                 cnt_error = cnt_punc_category_dict[key]['error']
 
+                cnt_input = cnt_good + cnt_bad
+                cnt_output= cnt_good + cnt_error
+
                 ###整体统计
+                total_output += cnt_output
                 total_input += cnt_input
                 total_good += cnt_good
 
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
-                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/(cnt_good+cnt_error)), '%6d'%cnt_good, '%6d'%(cnt_good+cnt_error))
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/cnt_output), '%6d'%cnt_good, '%6d'%cnt_output)
         ###整体准确率
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
 

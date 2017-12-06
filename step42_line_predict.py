@@ -48,11 +48,27 @@ with open(step08_list[0], 'rb') as inp:
     id2tag = pickle.load(inp)
 
 c_list = pyIO.get_content(orig_filename)
-z_list = []
+
+###格式化后的原始句子
+nature_list = []
+
 for c in c_list:
     tmp_list = c.split(' ')
-    tmp_list = [e.split('/')[-1] for e in tmp_list]
-    z_list.append(tmp_list)
+    text_list = []
+    for e in tmp_list:
+        word,tag,orig = e.split('/')
+        text = orig
+        if tag != punctuation.get_punc_list()[0]:
+            text += tag
+        text_list.append(text)
+    nature_list.append(' '.join(text_list))
+
+def get_nature_word(i, j):
+    c = c_list[i]
+    tmp_list = c.split(' ')
+    word,tag,orig = tmp_list[j].split('/')
+    return orig
+
 '''
 For Chinese word segmentation.
 '''
@@ -279,19 +295,17 @@ total_batch_cnt_punc_dict = {}
 for i in range(len(punctuation.get_punc_list())):
     key = '%d'%i
     cnt_punc_category_dict[key] = {}
-    cnt_punc_category_dict[key]['input'] = 0.1
     cnt_punc_category_dict[key]['good']  = 0.1
     cnt_punc_category_dict[key]['bad']   = 0.1
     cnt_punc_category_dict[key]['error'] = 0.1
 
-for i in range(len(x_list)):
-    x = x_list[i]
+for index in range(len(x_list)):
+    x = x_list[index]
     length = len(x)
-    beg = i*length
-    end = (i+1)*length
+    beg = index*length
+    end = (index+1)*length
     y = _y_pred[0][beg:end]
-    z = z_list[i]
-    orig_y = y_list[i]
+    orig_y = y_list[index]
 
     x_index = [e for e in x if e > 0]
     y_index = [np.argmax(e) for e in y]
@@ -306,39 +320,31 @@ for i in range(len(x_list)):
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "label_list:", label_list)
 
     res = ''
-    orig_list= []
-    end_pos = 1000
     for i,word in enumerate(word_list):
-        res += word
-        orig = z[i]
-        tag = label_list[i]
+        if i == 0:
+            continue
         if word == 'Tail':
-            end_pos = i
+            break
 
-        if tag == 'SP':
-            pass
-        else:
+        res += get_nature_word(index, i)
+        tag = label_list[i]
+
+        if tag != 'SP':
             res += tag
-            orig+= tag
         res += ' '
 
-        if i<= end_pos:
-            orig_list.append(orig)
-            ###这里做统计
-            if i > 0 and i < end_pos:
-                cnt_punc_category_dict[key]['input'] += 1
-                key = '%d'%(orig_y[i])
-                other_key = '%d'%(y_index[i])
+        ###这里做统计
+        key = '%d'%(orig_y[i])
+        other_key = '%d'%(y_index[i])
 
-                if key == other_key:
-                    cnt_punc_category_dict['%d'%key]['good'] += 1
-                else:
-                    cnt_punc_category_dict['%d'%key]['bad'] += 1
-                    cnt_punc_category_dict['%d'%other_key]['error'] += 1
+        if key == other_key:
+            cnt_punc_category_dict[key]['good'] += 1
+        else:
+            cnt_punc_category_dict[key]['bad'] += 1
+            cnt_punc_category_dict[other_key]['error'] += 1
 
-    print ('predict res :', res)
-    print ('predict_orig:', ' '.join(orig_list))
-    print ('predict_text:', ' '.join(orig_y))
+    print ('predict_res :', res)
+    print ('predict_orig:', nature_list[index])
 
 ###
 total_input = 0
