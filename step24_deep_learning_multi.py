@@ -225,7 +225,7 @@ def get_model_name():
 model_name, pos = get_model_name()
 for pathch_file_index,data_file in enumerate(data_patch_filename_list):
     print('data_file:', data_file)
-    if pathch_file_index <= pos:
+    if pathch_file_index < pos/max_max_epoch:
         continue
 
     with open(data_file, 'rb') as inp:
@@ -261,7 +261,7 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
     if len(model_name) > 0:
         saver.restore(sess, model_name)
 
-    for epoch in range(pathch_file_index, pathch_file_index+max_max_epoch):
+    for epoch in range(pathch_file_index*max_max_epoch, (pathch_file_index+1)*max_max_epoch):
         ###1统计准确率
         y_result_list = []
         y_input_list = []
