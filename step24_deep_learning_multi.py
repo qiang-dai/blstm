@@ -162,7 +162,7 @@ train_op = optimizer.apply_gradients( zip(grads, tvars),
                                       global_step=tf.contrib.framework.get_or_create_global_step())
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the bi-lstm model.')
 
-def test_epoch(dataset):
+def test_epoch(dataset, epoch):
     """Testing or valid."""
     _batch_size = 500
     ### accuracy, cost 都是 op
@@ -184,7 +184,7 @@ def test_epoch(dataset):
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test _acc, _cost:', _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d _acc, _cost:'%epoch, _acc, _cost)
         _accs += _acc
         _costs += _cost
     mean_acc= _accs / batch_num
@@ -309,7 +309,7 @@ for i,data_file in enumerate(data_patch_filename_list):
             show_accs += _acc
             show_costs += _cost
             if (batch + 1) % display_batch == 0:
-                valid_acc, valid_cost = test_epoch(data_valid)  # valid
+                valid_acc, valid_cost = test_epoch(data_valid, epoch)  # valid
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '\ttraining acc=%g, cost=%g;  valid acc= %g, cost=%g ' % (show_accs / display_batch,
                                                                                                                                        show_costs / display_batch, valid_acc, valid_cost))
                 show_accs = 0.0
@@ -378,7 +378,7 @@ for i,data_file in enumerate(data_patch_filename_list):
 
     # testing
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
-    test_acc, test_cost = test_epoch(data_test)
+    test_acc, test_cost = test_epoch(data_test, epoch)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**Test %d, acc=%g, cost=%g' % (data_test.y.shape[0], test_acc, test_cost) )
 
     # ** 导入模型
