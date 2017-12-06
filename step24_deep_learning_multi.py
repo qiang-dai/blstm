@@ -219,7 +219,7 @@ def get_model_name():
         best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
         print('best_model_path:', best_model_path)
         return best_model_path, int(value)
-    return '',0
+    return '',-1
 
 model_name, pos = get_model_name()
 for i,data_file in enumerate(data_patch_filename_list):
