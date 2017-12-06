@@ -110,7 +110,7 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
             else:
                 tmp_label_list.append(tag2id[punc_list[0]])
 
-        line_list.append(' '.join(res) + '\n')
+        line_list.append(' '.join(res))
         word_list.append(tmp_word_list)
         label_list.append(tmp_label_list)
 
