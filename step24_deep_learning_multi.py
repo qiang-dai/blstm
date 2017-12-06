@@ -276,7 +276,7 @@ for i,data_file in enumerate(data_patch_filename_list):
         if epoch > max_epoch:
             _lr = _lr * ((decay) ** (epoch - max_epoch))
 
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d， lr=%g' % (epoch+1, _lr))
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d， lr=%g' % (epoch, _lr))
         start_time = time.time()
         _costs = 0.0
         _accs = 0.0
@@ -293,7 +293,7 @@ for i,data_file in enumerate(data_patch_filename_list):
             _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
             #print('show_result1:', show_result1)
             #print('show_result2:', show_result2)
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch+1, _acc, _cost)
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch, _acc, _cost)
             y_result_list.append(predict_res)
             y_input_list.append(input_res)
 
@@ -314,7 +314,7 @@ for i,data_file in enumerate(data_patch_filename_list):
         mean_acc = _accs / tr_batch_num
         mean_cost = _costs / tr_batch_num
         if True:# (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
-            save_path = saver.save(sess, model_save_path, global_step=(epoch+1))
+            save_path = saver.save(sess, model_save_path, global_step=(epoch))
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path)
 
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
