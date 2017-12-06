@@ -36,10 +36,10 @@ def combine_line(filename, threshold_line_cnt, punc_list):
         sentence = sentences[i]
         sentence = sentence.strip()
         tmp_list = sentence.split(' ')
-        ###保留Header, 不要Tail
+        ###保留Header, 要Tail
         if len(tmp_list) <= 2:
             continue
-        tmp_list = tmp_list[:-1]
+        #tmp_list = tmp_list[:-1]
 
         ###如果满足32个词，如果大于32个词，就滑动窗口拆分为多句
         diff = len(tmp_list) - timestep_size
