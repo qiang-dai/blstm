@@ -21,14 +21,25 @@ sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
 
+filename = 'p.txt'
+orig_filename = 'tmp/line.txt'
+###
+step04_format_multi_punc.main(filename, 1000, 'tmp/', 1, False)
 
-###
-step04_format_multi_punc.main("p.txt", 1000, 'tmp/', 1, False)
-###
+###step04
+file_list,_ = pyIO.traversalDir('tmp/')
+step04_list = [e for e in file_list if e.find('step04_') != -1]
+
+###step08
 punc_list = punctuation.get_punc_list()
-item_list = step08_line_window.combine_line('tmp/step04_0_p.txt', 1000000, punc_list)
-step08_line_window.save_fixed_letter('', item_list, 'tmp/line.txt', punc_list, 0, 'tmp/')
-with open('tmp/data_patch_00.pkl', 'rb') as inp:
+item_list = step08_line_window.combine_line(step04_list[0], 1000000, punc_list)
+step08_line_window.save_fixed_letter('', item_list, orig_filename, punc_list, 0, 'tmp/')
+
+###train/predict
+file_list,_ = pyIO.traversalDir('tmp/')
+step08_list = [e for e in file_list if e.find('data_patch_') != -1]
+
+with open(step08_list[0], 'rb') as inp:
     x_list = pickle.load(inp)
     y_list = pickle.load(inp)
     word2id = pickle.load(inp)
@@ -36,7 +47,12 @@ with open('tmp/data_patch_00.pkl', 'rb') as inp:
     tag2id = pickle.load(inp)
     id2tag = pickle.load(inp)
 
-z_list = pyIO.get_content('tmp/orig.txt')
+c_list = pyIO.get_content(orig_filename)
+z_list = []
+for c in c_list:
+    tmp_list = c.split(' ')
+    tmp_list = [e.split('/')[-1] for e in tmp_list]
+    z_list.append(tmp_list)
 '''
 For Chinese word segmentation.
 '''
@@ -273,26 +289,32 @@ for i in range(len(x_list)):
 
     word_list = [id2word[e] for e in x_index]
     label_list =[id2tag[e] for e in y_index]
-    orig_list = [e for e in range(len(x))]
 
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "word_list:", word_list)
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "label_list:", label_list)
 
     res = ''
-    orig= ''
+    orig_list= []
+    end_pos = 1000
     for i,word in enumerate(word_list):
         res += word
-        orig+= z[i]
+        orig = z[i]
         tag = label_list[i]
+        if word == 'Tail':
+            end_pos = i
+
         if tag == 'SP':
             pass
         else:
             res += tag
             orig+= tag
         res += ' '
-        orig+= ' '
+
+        if i<= end_pos:
+            orig_list.append(orig)
     print ('predict res :', res)
-    print ('predict orig:', orig)
+
+    print ('predict orig:', ' '.join(orig_list))
 
 
 
