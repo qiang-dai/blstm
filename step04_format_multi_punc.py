@@ -202,7 +202,7 @@ def get_args():
 
     threshold_word_cnt = 10
     if len(sys.argv) > 4:
-        threshold_word_cnt = 2
+        threshold_word_cnt = sys.argv[4]
 
     return filename, threshold_line_cnt, res_file, threshold_word_cnt
 
