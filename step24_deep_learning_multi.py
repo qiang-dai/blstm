@@ -194,8 +194,7 @@ def test_epoch(dataset):
 
 sess.run(tf.global_variables_initializer())
 
-saver = tf.train.Saver(max_to_keep=10)  # 最多保存的模型数量
-# last_10_acc = []
+saver = tf.train.Saver()  # 最多保存的模型数量
 
 data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step08")
 filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
@@ -251,7 +250,7 @@ for i,data_file in enumerate(data_patch_filename_list):
         return ''
 
     # ** 导入模型
-    saver = tf.train.Saver()
+    #saver = tf.train.Saver()
     model_name = get_model_name()
     if len(model_name) > 0:
         saver.restore(sess, model_name)
@@ -377,8 +376,7 @@ print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**Test %d, acc=%g,
 
 # ** 导入模型
 saver = tf.train.Saver()
-best_model_path = 'ckpt/bi-lstm.ckpt-6'
-saver.restore(sess, best_model_path)
+saver.restore(sess, get_model_name())
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
 X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)
