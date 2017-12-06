@@ -295,7 +295,7 @@ for i,data_file in enumerate(data_patch_filename_list):
             _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
             #print('show_result1:', show_result1)
             #print('show_result2:', show_result2)
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH, train _acc, _cost:', epoch, _acc, _cost)
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d, train _acc, _cost:'%epoch, _acc, _cost)
             y_result_list.append(predict_res)
             y_input_list.append(input_res)
 
@@ -400,6 +400,7 @@ for i,data_file in enumerate(data_patch_filename_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'X_tt, y_tt shape:', X_tt.shape, y_tt.shape)
 
     for i in range(10):
+
         x = X_tt[i]
 
         length = len(x)
@@ -410,13 +411,23 @@ for i,data_file in enumerate(data_patch_filename_list):
         x_index = [e for e in x if e > 0]
         y_index = [np.argmax(e) for e in y]
         print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
-        #print ("y:", y)
         print ("x_index:", x_index)
         print ("y_index:", y_index)
 
         word_list = [id2word[e] for e in x_index]
         label_list =[id2tag[e] for e in y_index]
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),word_list)
-        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),label_list)
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "word_list:", word_list)
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "label_list:", label_list)
+
+        res = ''
+        for i,word in enumerate(word_list):
+            res += word
+            tag = label_list[i]
+            if tag == 'SP':
+                pass
+            else:
+                res += tag
+            res += ' '
+        print ('predict res:', res)
 
 
