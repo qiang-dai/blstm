@@ -67,7 +67,6 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         tag2id = pickle.load(inp)
         id2tag = pickle.load(inp)
 
-    orig_word_list = []
     for i, tmp_list in enumerate(total_list):
         if i %100000 == 0:
             print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'i:', i, len(total_list))
@@ -75,7 +74,6 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
         res = []
         tmp_word_list = []
         tmp_label_list= []
-        tmp_orig_list = []
         for index,item in enumerate(tmp_list):
             ###写文件
             res.append(item)
@@ -94,15 +92,12 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
 
             tmp_word_list.append(word2id[word])
             tmp_label_list.append(tag2id[punc])
-            tmp_orig_list.append(orig)
 
         line_list.append(' '.join(res))
         word_list.append(tmp_word_list)
         label_list.append(tmp_label_list)
-        orig_word_list.append(' '.join(tmp_orig_list))
 
     pyIO.save_to_file('\n'.join(line_list), result_name)
-    pyIO.save_to_file('\n'.join(orig_word_list), 'tmp/orig_word.txt')
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),line_list[:30])
 
     ###写数据
@@ -125,7 +120,11 @@ if __name__ == '__main__':
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
 
     for file_index, filename in enumerate(filename_list):
-        result_name = result_dir + '/step05_%d_'%file_index + filename.split('_')[-1]
+        short_filename = filename.split('_')[-1]
+        short_filename = short_filename.split('/')[-1]
+        short_filename = short_filename.replace('.txt.txt', '.txt')
+
+        result_name = result_dir + '/step08_%d_'%file_index + short_filename
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
 
         punc_list = punctuation.get_punc_list()
