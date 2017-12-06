@@ -222,9 +222,9 @@ def get_model_name():
     return '',-1
 
 model_name, pos = get_model_name()
-for i,data_file in enumerate(data_patch_filename_list):
+for pathch_file_index,data_file in enumerate(data_patch_filename_list):
     print('data_file:', data_file)
-    if i <= pos:
+    if pathch_file_index <= pos:
         continue
 
     with open(data_file, 'rb') as inp:
@@ -254,15 +254,13 @@ for i,data_file in enumerate(data_patch_filename_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'tr_batch_num:', tr_batch_num)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'display_batch:', display_batch)
 
-
-
     # ** 导入模型
     #saver = tf.train.Saver()
     model_name, _ = get_model_name()
     if len(model_name) > 0:
         saver.restore(sess, model_name)
 
-    for epoch in range(i, i+max_max_epoch):
+    for epoch in range(pathch_file_index, pathch_file_index+max_max_epoch):
         ###1统计准确率
         y_result_list = []
         y_input_list = []
