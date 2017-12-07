@@ -352,6 +352,9 @@ print('total_res', total_res)
 total_input = 0
 total_good = 0
 total_output = 0
+class_0_good = 0
+class_0_bad = 0
+class_0_error = 0
 for i in range(len(punctuation.get_punc_list())):
     key = '%d'%i
     ###识别对的结果数
@@ -360,6 +363,11 @@ for i in range(len(punctuation.get_punc_list())):
     cnt_bad = cnt_punc_category_dict[key]['bad']
     ###识别出错的结果
     cnt_error = cnt_punc_category_dict[key]['error']
+
+    if i == 0:
+        class_0_good = cnt_good
+        class_0_bad = cnt_bad
+        class_0_error = cnt_error
 
     cnt_input = cnt_good + cnt_bad
     cnt_output= cnt_good + cnt_error
@@ -376,7 +384,12 @@ for i in range(len(punctuation.get_punc_list())):
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体召回率', total_good/total_input, total_good, total_input)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_output, total_good, total_output)
 
-
+###非空格整体准确率
+punc_good = total_good - class_0_good
+punc_intput = total_input - class_0_good - class_0_bad
+punc_output = total_output - class_0_good - class_0_error
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'非空格整体召回率', punc_good/punc_intput, punc_good, punc_intput)
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'非空格整体准确率', punc_good/punc_output, punc_good, punc_output)
 
 
 
