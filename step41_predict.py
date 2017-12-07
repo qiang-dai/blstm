@@ -295,7 +295,11 @@ for i in range(len(punctuation.get_punc_list())):
     cnt_punc_category_dict[key]['bad']   = 0.1
     cnt_punc_category_dict[key]['error'] = 0.1
 
+total_res = ''
 for index in range(len(x_list)):
+    focus_index = punctuation.get_timestep_size()/2 - 1
+    focus_index = int(focus_index)
+
     x = x_list[index]
     length = len(x)
     beg = index*length
@@ -303,7 +307,7 @@ for index in range(len(x_list)):
     y = _y_pred[0][beg:end]
     orig_y = y_list[index]
 
-    x_index = [e for e in x if e > 0]
+    x_index = x
     y_index = [np.argmax(e) for e in y]
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
     print ("x_index:", x_index)
@@ -317,7 +321,7 @@ for index in range(len(x_list)):
 
     res = ''
     for i,word in enumerate(word_list):
-        if i == 0:
+        if i != focus_index:
             continue
         if word == 'Tail':
             break
@@ -339,9 +343,11 @@ for index in range(len(x_list)):
             cnt_punc_category_dict[key]['bad'] += 1
             cnt_punc_category_dict[other_key]['error'] += 1
 
-    print ('predict_res :', res)
-    print ('predict_orig:', nature_list[index])
-
+    total_res += res
+    total_res += ' '
+    #print ('predict_res :', res)
+    #print ('predict_orig:', nature_list[index])
+print('total_res', total_res)
 ###
 total_input = 0
 total_good = 0
