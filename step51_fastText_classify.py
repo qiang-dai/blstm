@@ -9,8 +9,6 @@ import punctuation
 import pickle
 from tensorflow.contrib import rnn
 import datetime
-import BatchGenerator
-import step08_line_window
 
 ### 设置显存根据需求增长
 import tensorflow as tf

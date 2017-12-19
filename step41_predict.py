@@ -9,8 +9,8 @@ import punctuation
 import pickle
 from tensorflow.contrib import rnn
 import datetime
-import BatchGenerator
 import step07_slip_window
+import step51_fastText_classify
 
 ### 设置显存根据需求增长
 import tensorflow as tf
@@ -23,11 +23,9 @@ import numpy as np
 
 filename = 'p.txt'
 orig_filename = 'tmp/line.txt'
-if len(sys.argv) > 1:
-    filename = sys.argv[1]
-
 ###
-step04_format_multi_punc.main(filename, 1000, 'tmp/', 1, False)
+use_fasttext = True
+step04_format_multi_punc.main(filename, 1000, 'tmp/', 1, False, use_fasttext)
 
 ###step04
 file_list,_ = pyIO.traversalDir('tmp/')
@@ -235,7 +233,7 @@ def test_epoch(dataset, epoch):
                      avg_weight_change: weight_change_list,
                      embedding2: word_embedding_vector}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d _acc, _cost:'%(epoch), _acc, _cost)
         _accs += _acc
         _costs += _cost
     mean_acc= _accs / batch_num
@@ -247,10 +245,8 @@ sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
-data_patch_filename_list,_ = pyIO.traversalDir(input_dir)
+data_patch_filename_list,_ = pyIO.traversalDir(filename)
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
-#data_patch_filename_list.sort()
-shuffle(data_patch_filename_list)
 print('data_patch_filename_list:', data_patch_filename_list)
 
 
@@ -278,6 +274,13 @@ model_name, pos = get_model_name()
 model_name, _ = get_model_name()
 if len(model_name) > 0:
     saver.restore(sess, model_name)
+
+filename = sys.argv[1]
+content_list = pyIO.get_content(filename)
+punc_list = punctuation.get_punc_list()
+cnt_dict = {}
+cleaned_punc_dict= {}
+total_res = pyIO.get_content(filename)
 
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'x_list = ', x_list)

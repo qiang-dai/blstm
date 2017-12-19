@@ -20,5 +20,5 @@ python3 step07_slip_window.py raw_data/dir_step04          1000000000        raw
 
 python3 step51_fastText_classify.py  train
 python3 step23_saver_learning_multi.py                       raw_data/dir_step07             2
-python3 step41_line_predict.py       p.txt
+python3 step41_predict.py       p.txt
 
