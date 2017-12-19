@@ -308,7 +308,9 @@ for i in range(len(punctuation.get_punc_list())):
 
 total_res = ''
 for index in range(len(x_list)):
-    focus_index = punctuation.get_timestep_size()/2 - 1
+    flag_sentence_end = False
+
+    focus_index = punctuation.get_timestep_size()/2
     focus_index = int(focus_index)
 
     x = x_list[index]
@@ -327,6 +329,10 @@ for index in range(len(x_list)):
     word_list = [id2word[e] for e in x_index]
     label_list =[id2tag[e] for e in y_index]
 
+
+    if x_index[focus_index+1] == word2id['Tail']:
+        flag_sentence_end = True
+
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "word_list:", word_list)
     print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "label_list:", label_list)
 
@@ -344,6 +350,8 @@ for index in range(len(x_list)):
         if tag != 'SP':
             res += tag
         res += ' '
+        if flag_sentence_end:
+            res += '\n'
 
         ###这里做统计
         key = '%d'%(orig_y[i])
