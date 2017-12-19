@@ -85,6 +85,8 @@ if __name__ == '__main__':
 
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
     filename_list.sort()
+    print('filename_list:', filename_list)
+
 
     for filename in filename_list:
         dst_filename = "raw_data/dir_step00/cat2_" + filename.split('/')[-1].replace(".txt", "_res.txt")
