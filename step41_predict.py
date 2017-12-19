@@ -80,8 +80,9 @@ decay = 0.85
 max_epoch = 5
 #max_max_epoch = 10
 timestep_size = max_len = punctuation.get_timestep_size()           # 句子长度
-vocab_size = punctuation.get_word_cnt()+1    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
-input_size = embedding_size = 64       # 字向量长度
+vocab_size = punctuation.get_word_cnt()    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
+input_size = 64
+embedding_size = 100       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = punctuation.get_batch_size()    # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
@@ -95,10 +96,14 @@ avg_weight_change = tf.placeholder(tf.float32, [None, timestep_size])
 total_size = tf.placeholder(tf.float32, [])
 batch_size = tf.placeholder(tf.int32, [])  # 注意类型必须为 tf.int32
 model_save_path = 'ckpt/bi-lstm.ckpt'  # 模型保存位置
+embedding2 = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
 
-
+###加载word embedding
+word_embedding_vector = step51_fastText_classify.get_word_vector()
 with tf.variable_scope('embedding'):
-    embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
+    #embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
+    #embedding = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
+    embedding = tf.get_variable(name="embedding", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(word_embedding_vector), trainable=False)
 
 def weight_variable(shape):
     """Create a weight variable with appropriate initialization."""
@@ -194,8 +199,8 @@ res_pred_index = tf.reshape(tf.gather(y_pred, avg_index_list), [-1, class_num])
 show_tensor1 = y_input_item
 show_tensor2 = res_pred_index
 #cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_inputs, [-1]), logits = y_pred))
-#cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_input_item, [-1]), logits = res_pred_index))
-cost = tf.reduce_mean(tf.contrib.seq2seq.sequence_loss(logits=tf.reshape(y_pred, [-1, timestep_size, class_num]), targets=y_inputs, weights=avg_weight_change))
+cost = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = tf.reshape(y_input_item, [-1]), logits = res_pred_index))
+#cost = tf.reduce_mean(tf.contrib.seq2seq.sequence_loss(logits=tf.reshape(y_pred, [-1, timestep_size, class_num]), targets=y_inputs, weights=avg_weight_change))
 
 # ***** 优化求解 *******
 tvars = tf.trainable_variables()  # 获取模型的所有参数
@@ -227,9 +232,10 @@ def test_epoch(dataset, epoch):
                      avg_offset:offset,
                      total_size:_batch_size*punctuation.get_timestep_size(),
                      avg_index_list: index_list,
-                     avg_weight_change: weight_change_list}
+                     avg_weight_change: weight_change_list,
+                     embedding2: word_embedding_vector}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d _acc, _cost:'%epoch, _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
         _accs += _acc
         _costs += _cost
     mean_acc= _accs / batch_num
@@ -241,8 +247,10 @@ sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
-data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step08")
+data_patch_filename_list,_ = pyIO.traversalDir(input_dir)
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
+#data_patch_filename_list.sort()
+shuffle(data_patch_filename_list)
 print('data_patch_filename_list:', data_patch_filename_list)
 
 
