@@ -106,10 +106,11 @@ if __name__ == '__main__':
             res_list.extend(sub_list)
             if len(res_list) > threshold_line_cnt:
                 break
+
+        pyIO.save_to_file("\n".join(res_list),  dst_filename)
         if len(res_list) > threshold_line_cnt:
             break
 
-    pyIO.save_to_file("\n".join(res_list),  dst_filename)
 
 
 

@@ -335,6 +335,7 @@ for index in range(len(x_list)):
         if i != focus_index:
             continue
         if word == 'Tail':
+            res += '\n'
             break
 
         res += get_nature_word(index, i)
