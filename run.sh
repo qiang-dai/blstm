@@ -1,5 +1,5 @@
 mkdir raw_data/dir_step00/ raw_data/dir_step03/ raw_data/dir_step04/ raw_data/dir_step07/ 
-mkdir tmp/ data/
+mkdir tmp/ data/ ckpt/
 rm -f ckpt/*
 rm -f raw_data/dir_step00/*
 rm -f raw_data/dir_step03/*
