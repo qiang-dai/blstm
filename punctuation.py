@@ -159,6 +159,6 @@ def get_batch_size():
     #return 4
 
 def get_timestep_size():
-    #return 64
+    return 64
     #return 32
-    return 8;
+    #return 8;
