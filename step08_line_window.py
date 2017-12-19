@@ -18,6 +18,7 @@ import pickle
 '''
 ###读入所有内容,按长度32进行拆分
 def combine_line(filename, threshold_line_cnt, punc_list):
+
     # 以字符串的形式读入所有数据, 按行处理
     total_list = []
 
@@ -25,7 +26,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'sentences size:', len(sentences))
 
     #for sentence in sentences:
-    timestep_size = punctuation.get_timestep_size()
+    timestep_size = punctuation.get_timestep_size() - 1
     fix_word = punctuation.get_filled_word()
     fix_punc = punctuation.get_punc_list()[0]
 
@@ -36,9 +37,18 @@ def combine_line(filename, threshold_line_cnt, punc_list):
         sentence = sentences[i]
         sentence = sentence.strip()
         tmp_list = sentence.split(' ')
+        if len(tmp_list) < 2:
+            print('error..., len(tmp_list) < 2')
+            continue
+
+        cat_type = tmp_list[0]
+        tmp_list = tmp_list[1:]
+
         ###保留Header, 要Tail
         if len(tmp_list) <= 2:
             continue
+
+        category_prefix = cat_type + '/' + 'SP' + '/'
         #tmp_list = tmp_list[:-1]
 
         ###如果满足32个词，如果大于32个词，就滑动窗口拆分为多句
@@ -46,10 +56,14 @@ def combine_line(filename, threshold_line_cnt, punc_list):
         if diff <= 0:
             fix_list = [fix_word + '/' + fix_punc + '/' for v in range(-1*diff)]
             tmp_list.extend(fix_list)
+            tmp_list.insert(0, category_prefix)
+
             total_list.append(tmp_list)
         else:
             for i in range(diff):
                 cur_list = tmp_list[i:i+timestep_size]
+                cur_list.insert(0, category_prefix)
+
                 total_list.append(cur_list)
 
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"total_list size:", len(total_list))
@@ -84,6 +98,7 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
             if len(tt_list) == 2:
                 i = 0
 
+            #print(filename, 'item:', item)
             word,punc,orig = item.split('/')
             if word not in word2id:
                 cnt = len(word2id) + 1
@@ -131,17 +146,20 @@ if __name__ == '__main__':
 
     filename_list,_ = pyIO.traversalDir(file_dir)
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
+    filename_list.sort()
 
     for file_index, filename in enumerate(filename_list):
         short_filename = filename.split('_')[-1]
         short_filename = short_filename.split('/')[-1]
         short_filename = short_filename.replace('.txt.txt', '.txt')
 
-        result_name = result_dir + '/step08_%d_'%file_index + short_filename
+        result_name = result_dir + '/step08_%02d_'%file_index + short_filename
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
 
         punc_list = punctuation.get_punc_list()
 
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
-        save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)
+        ###必须大于1批次
+        if len(item_list) > 500:
+            save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)

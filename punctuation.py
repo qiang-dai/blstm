@@ -1,6 +1,6 @@
 import pyIO
 
-punctuation_list = [
+punctuation_all_list = [
     'SP',
     "...",
     "{",
@@ -33,9 +33,55 @@ punctuation_list = [
     ',',
     '/',
     '\\',
-    'LEFT',
+]
+
+punctuation_list = [
+    "SP",
+#    "...",
+#    "{",
+#    "}",
+#    "[",
+#    "]",
+#     ")",
+#     "(",
+#    ">",
+#    "<",
+#    "#",
+#    "@",
+#    "+",
+#    "-",
+#    "*",
+#    "%",
+#    '=',
+#    '$',
+#    '&',
+#    '~',
+#     ";",
+#    "^",
+#    "_",
+#    "\"",
+#    '/',
+#    '\\',
+    "!",
+    "?",
+    ":",
+    "'",
+    ".",
+    ',',
     'OTHER'
 ]
+
+
+def getCharType(c):
+    if is_alphabet(c):
+        return 1
+    if is_number(c):
+        return 2
+    if is_punc(c):
+        return 3
+    if is_emoji(c):
+        return 4
+    return 5
 
 def is_chinese(uchar):
     if u'\u4e00' <= uchar<=u'\u9fff':
@@ -55,7 +101,7 @@ def is_alphabet(uchar):
     else:
         return False
 
-punc_set = set(punctuation_list)
+punc_set = set(punctuation_all_list)
 def is_punc(uchar):
     if uchar in punc_set:
         return True
@@ -76,6 +122,17 @@ def save_punc_list(punc_list):
 ###其他所有标点符号
 def get_punc_other():
     return 'OTHER'
+def get_punc_filled():
+    return punctuation_list[0]
+def get_punc_set():
+    return set(punctuation_all_list)
+
+def is_valid_punc(punc):
+    #if len(punc) != 1:
+    #    return False
+    if punc in punctuation_list:
+        return True
+    return False
 
 def get_punc_list():
     with open('raw_data/punc.txt', 'rb') as inp:
@@ -102,5 +159,6 @@ def get_batch_size():
     #return 4
 
 def get_timestep_size():
-    return 32
-    #return 6;
+    #return 64
+    #return 32
+    return 8;

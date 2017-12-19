@@ -91,12 +91,14 @@ class BatchGenerator(object):
             tmp_list = [1.0 for e in range(len(x))]
             for k in range(len(tmp_list)):
                 if y[k] > 0:
-                    tmp_list[k] = 10.0
+                    #tmp_list[k] = 10.0
+                    tmp_list[k] = 1.0
                 else:
-                    tmp_list[k] = 5.0
+                    #tmp_list[k] = 5.0
+                    tmp_list[k] = 1.0
 
                 if k > pos:
-                    tmp_list[k] = 1.0
+                    tmp_list[k] = 0.0
 
             weight_change_list.append(tmp_list)
 

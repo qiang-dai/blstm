@@ -87,12 +87,12 @@ class SegmentBatchGenerator(object):
         index_list = []
         weight_change_list = []
         pos = 0
-        focus_size = int(punctuation.get_timestep_size()/2 - 1)
+        focus_size = int(punctuation.get_timestep_size()/2)
         for i in range(len(self._y[start:end])):
             y = self._y[start:end][i]
             tmp_list = [1.0 for e in y]
             if y[focus_size] != 0:
-                tmp_list[focus_size] = 3000.0
+                tmp_list[focus_size] = 10.0
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:
@@ -106,7 +106,7 @@ class SegmentBatchGenerator(object):
             ###这里需要所有的标点符号，y[e] != 0 导致无法召回空格
             #tmp_result_list = [pos + e for e in range(y.size)]
             ###不能仅仅用标点符号预测，否则的话，导致空格无法召回
-            tmp_result_list = [pos + punctuation.get_timestep_size()/2 - 1]
+            tmp_result_list = [pos + punctuation.get_timestep_size()/2]
             pos += len(y)
             index_list.extend(tmp_result_list)
 

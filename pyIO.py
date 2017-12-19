@@ -80,7 +80,7 @@ def unlock_file(fp):
 
 def append_to_file_nolock(text= '', filename='log.txt'):
     create_dir_if_needed(filename)
-    f = open(filename, 'a')
+    f = codecs.open(filename, 'a', 'utf8')
     f.write(text)
     f.close()
 
@@ -155,7 +155,7 @@ def clear_file(filename):
         
 def read_file_content_en(filename, encoding = 'utf8', ignore_empty = True):
     result_list = []
-    fr = codecs.open(filename, 'r', encoding)
+    fr = codecs.open(filename, 'r', encoding, 'ignore')
     index = 0;
     #print ('filename= ', filename)
     for text in fr:

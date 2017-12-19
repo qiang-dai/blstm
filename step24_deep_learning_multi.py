@@ -12,6 +12,12 @@ import BatchGenerator
 import pyIO
 from sklearn.model_selection import train_test_split
 import pickle
+from random import shuffle
+import step51_fastText_classify
+
+input_dir = "raw_data/dir_step08"
+if len(sys.argv) > 1:
+    input_dir = sys.argv[1]
 
 max_max_epoch = 1
 if len(sys.argv) > 2:
@@ -23,7 +29,7 @@ print('max_max_epoch:', max_max_epoch)
 import tensorflow as tf
 config = tf.ConfigProto()
 #config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.45
+config.gpu_options.per_process_gpu_memory_fraction = 0.95
 sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
@@ -36,8 +42,9 @@ decay = 0.85
 max_epoch = 5
 #max_max_epoch = 10
 timestep_size = max_len = punctuation.get_timestep_size()           # 句子长度
-vocab_size = punctuation.get_word_cnt()+1    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
-input_size = embedding_size = 64       # 字向量长度
+vocab_size = punctuation.get_word_cnt()    # 样本中不同字的个数+1(padding 0)，根据处理数据的时候得到
+input_size = 64
+embedding_size = 100       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = punctuation.get_batch_size()    # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
@@ -51,10 +58,14 @@ avg_weight_change = tf.placeholder(tf.float32, [None, timestep_size])
 total_size = tf.placeholder(tf.float32, [])
 batch_size = tf.placeholder(tf.int32, [])  # 注意类型必须为 tf.int32
 model_save_path = 'ckpt/bi-lstm.ckpt'  # 模型保存位置
+embedding2 = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
 
-
+###加载word embedding
+word_embedding_vector = step51_fastText_classify.get_word_vector()
 with tf.variable_scope('embedding'):
-    embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
+    #embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
+    #embedding = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
+    embedding = tf.get_variable(name="embedding", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(word_embedding_vector), trainable=False)
 
 def weight_variable(shape):
     """Create a weight variable with appropriate initialization."""
@@ -183,9 +194,10 @@ def test_epoch(dataset, epoch):
                      avg_offset:offset,
                      total_size:_batch_size*punctuation.get_timestep_size(),
                      avg_index_list: index_list,
-                     avg_weight_change: weight_change_list}
+                     avg_weight_change: weight_change_list,
+                     embedding2: word_embedding_vector}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d _acc, _cost:'%epoch, _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
         _accs += _acc
         _costs += _cost
     mean_acc= _accs / batch_num
@@ -197,8 +209,10 @@ sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
-data_patch_filename_list,_ = pyIO.traversalDir("raw_data/dir_step08")
+data_patch_filename_list,_ = pyIO.traversalDir(input_dir)
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
+#data_patch_filename_list.sort()
+shuffle(data_patch_filename_list)
 print('data_patch_filename_list:', data_patch_filename_list)
 
 
@@ -224,7 +238,7 @@ def get_model_name():
 
 model_name, pos = get_model_name()
 for pathch_file_index,data_file in enumerate(data_patch_filename_list):
-    print('data_file:', data_file)
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'data_file:', data_file)
     if pathch_file_index < pos/max_max_epoch:
         continue
 
@@ -294,11 +308,12 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
                          avg_offset:offset,
                          total_size:tr_batch_size*punctuation.get_timestep_size(),
                          avg_index_list: index_list,
-                         avg_weight_change: weight_change_list}
+                         avg_weight_change: weight_change_list,
+                         embedding2: word_embedding_vector}
             _acc, _cost, _, predict_res, input_res, show_result1, show_result2 = sess.run(fetches, feed_dict) # the cost is the mean cost of one batch
             #print('show_result1:', show_result1)
             #print('show_result2:', show_result2)
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d, train _acc, _cost:'%epoch, _acc, _cost)
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'EPOCH %d(%d %d), train _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
             y_result_list.append(predict_res)
             y_input_list.append(input_res)
 
@@ -343,37 +358,50 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
                     cnt_punc_category_dict[other_key]['error'] += 1
 
         ###
-        total_output = 0
+
         total_input = 0
         total_good = 0
+        total_output = 0
+        class_0_good = 0
+        class_0_bad = 0
+        class_0_error = 0
         for i in range(len(punctuation.get_punc_list())):
             key = '%d'%i
 
             total_batch = total_batch_cnt_punc_dict[key]
-            if (cnt_punc_category_dict[key]['good'] != 0 \
-                        or cnt_punc_category_dict[key]['bad'] != 0):
-                ###识别对的结果数
-                cnt_good = cnt_punc_category_dict[key]['good']
-                ###识别错的结果数
-                cnt_bad = cnt_punc_category_dict[key]['bad']
-                ###识别出错的结果
-                cnt_error = cnt_punc_category_dict[key]['error']
+            ###识别对的结果数
+            cnt_good = cnt_punc_category_dict[key]['good']
+            ###识别错的结果数
+            cnt_bad = cnt_punc_category_dict[key]['bad']
+            ###识别出错的结果
+            cnt_error = cnt_punc_category_dict[key]['error']
 
-                cnt_input = cnt_good + cnt_bad
-                cnt_output= cnt_good + cnt_error
+            if i == 0:
+                class_0_good = cnt_good
+                class_0_bad = cnt_bad
+                class_0_error = cnt_error
 
-                ###整体统计
-                total_output += cnt_output
-                total_input += cnt_input
-                total_good += cnt_good
+            cnt_input = cnt_good + cnt_bad
+            cnt_output= cnt_good + cnt_error
 
-                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
-                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
-                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/cnt_output), '%6d'%cnt_good, '%6d'%cnt_output)
+            ###整体统计
+            total_output += cnt_output
+            total_input += cnt_input
+            total_good += cnt_good
+
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),i, id2tag[i], end = ' ')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'召回率：', '%6f'%(cnt_good/cnt_input), '%6d'%cnt_good, '%6d'%cnt_input, total_batch, end = ' ')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'准确率：', '%6f'%(cnt_good/cnt_output), '%6d'%cnt_good, '%6d'%cnt_output)
         ###整体准确率
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_input, total_good, total_input)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体召回率', total_good/total_input, total_good, total_input)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'整体准确率', total_good/total_output, total_good, total_output)
 
-
+        ###非空格整体准确率
+        punc_good = total_good - class_0_good
+        punc_intput = total_input - class_0_good - class_0_bad
+        punc_output = total_output - class_0_good - class_0_error
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'非空格整体召回率', punc_good/punc_intput, punc_good, punc_intput)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'非空格整体准确率', punc_good/punc_output, punc_good, punc_output)
     # testing
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '**TEST RESULT:')
     test_acc, test_cost = test_epoch(data_test, epoch)
@@ -388,7 +416,8 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt.shape=', X_tt.shape, 'y_tt.shape=', y_tt.shape)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'X_tt = ', X_tt)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'y_tt = ', y_tt)
-    feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:10, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+    feed_dict = {X_inputs:X_tt, y_inputs:y_tt, lr:1e-5, batch_size:10, keep_prob:1.0, total_size:2*punctuation.get_timestep_size()
+        ,embedding2: word_embedding_vector}
 
     ### y_pred 是一个 op
     fetches = [y_pred]
