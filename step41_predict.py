@@ -34,7 +34,7 @@ step04_list = [e for e in file_list if e.find('step04_') != -1]
 ###step08
 punc_list = punctuation.get_punc_list()
 item_list = step07_slip_window.combine_line(step04_list[0], 1000000, punc_list)
-step07_slip_window.save_fixed_letter('', item_list, orig_filename, punc_list, 0, 'tmp/')
+step07_slip_window.save_fixed_letter('', item_list, orig_filename, punc_list, 0, 'tmp/', 0)
 
 ###train/predict
 file_list,_ = pyIO.traversalDir('tmp/')
