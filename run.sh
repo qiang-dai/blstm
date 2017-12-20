@@ -31,7 +31,7 @@ python3 step07_slip_window.py raw_data/dir_step04          1000000000        raw
 
 python3 step51_fastText_classify.py  train
 wget http://nlp.stanford.edu/data/glove.twitter.27B.zip
-unzip glove.twitter.27B.zip
+unzip -of glove.twitter.27B.zip
 cp glove.twitter.27B.100d.txt model_word.vec
 
 python3 step23_saver_learning_multi.py                       raw_data/dir_step07             2
