@@ -25,19 +25,19 @@ filename = sys.argv[1]
 orig_filename = 'tmp/line.txt'
 ###
 use_fasttext = True
-step04_format_multi_punc.main(filename, 1000, 'tmp/', 1, False, use_fasttext)
+step04_format_multi_punc.main(filename, 1000, 'tmp/step04/', 1, False, use_fasttext)
 
 ###step04
-file_list,_ = pyIO.traversalDir('tmp/')
+file_list,_ = pyIO.traversalDir('tmp/step04/')
 step04_list = [e for e in file_list if e.find('step04_') != -1]
 
 ###step08
 punc_list = punctuation.get_punc_list()
 item_list = step07_slip_window.combine_line(step04_list[0], 1000000, punc_list)
-step07_slip_window.save_fixed_letter('', item_list, orig_filename, punc_list, 0, 'tmp/', 0)
+step07_slip_window.save_fixed_letter('', item_list, orig_filename, punc_list, 0, 'tmp/step07/', 0)
 
 ###train/predict
-file_list,_ = pyIO.traversalDir('tmp/')
+file_list,_ = pyIO.traversalDir('tmp/step07/')
 step08_list = [e for e in file_list if e.find('data_patch_') != -1]
 
 with open(step08_list[0], 'rb') as inp:
@@ -245,7 +245,7 @@ sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
-data_patch_filename_list,_ = pyIO.traversalDir("tmp/")
+data_patch_filename_list,_ = pyIO.traversalDir("tmp/step07")
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
 print('data_patch_filename_list:', data_patch_filename_list)
 
