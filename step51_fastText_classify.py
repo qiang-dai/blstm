@@ -116,6 +116,7 @@ def get_word_vector():
     print('len(final_matrix)', len(final_matrix))
 
     final_np =np.asarray(final_matrix, dtype=float)
+    print('final_np', final_np.shape)
     return final_np
 
 
