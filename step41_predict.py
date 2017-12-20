@@ -301,8 +301,14 @@ class_0_bad = 0
 class_0_error = 0
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'x_list = ', x_list)
-for i in range(len(x_list)):
-    cur_list = x_list[i:i+500]
+for batch_pos in range(len(x_list)):
+    batch_pos_beg = batch_pos*500
+    batch_pos_end = batch_pos_beg+500
+    if batch_pos_beg >= len(x_list):
+        break
+
+    cur_list = x_list[batch_pos_beg:batch_pos_end]
+
     feed_dict = {X_inputs:cur_list, lr:1e-5, batch_size:len(cur_list), keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
 
     ### y_pred 是一个 op
@@ -353,7 +359,7 @@ for i in range(len(x_list)):
                 res += '\n'
                 break
 
-            res += get_nature_word(index, i)
+            res += get_nature_word(batch_pos_beg+index, i)
             tag = label_list[i]
 
             if tag != 'SP':
