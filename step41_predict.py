@@ -21,7 +21,7 @@ sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
 
-filename = 'p.txt'
+filename = sys.argv[1]
 orig_filename = 'tmp/line.txt'
 ###
 use_fasttext = True
@@ -275,12 +275,12 @@ model_name, _ = get_model_name()
 if len(model_name) > 0:
     saver.restore(sess, model_name)
 
-filename = sys.argv[1]
-content_list = pyIO.get_content(filename)
-punc_list = punctuation.get_punc_list()
-cnt_dict = {}
-cleaned_punc_dict= {}
-total_res = pyIO.get_content(filename)
+# filename = sys.argv[1]
+# content_list = pyIO.get_content(filename)
+# punc_list = punctuation.get_punc_list()
+# cnt_dict = {}
+# cleaned_punc_dict= {}
+# total_res = pyIO.get_content(filename)
 
 ###统计
 cnt_punc_category_dict = {}
