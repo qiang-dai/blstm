@@ -322,7 +322,8 @@ def main(file_dir, threshold_line_cnt, result_dir, threshold_word_cnt, flag_save
                     continue
 
                 word,punc,orig = complex_item
-                if word in cnt_dict and cnt_dict[word] < threshold_word_cnt:
+                ###保存单词的时候，才需要替换为NONE
+                if word in cnt_dict and cnt_dict[word] < threshold_word_cnt and flag_save_word_dict:
                     ###填充字符
                     word = punctuation.get_filled_word()
 
