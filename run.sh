@@ -37,4 +37,7 @@ unzip -of glove.twitter.27B.zip
 cp glove.twitter.27B.100d.txt model_word.vec
 
 python3 step23_saver_learning_multi.py                       raw_data/dir_step07             1
+
+rm tmp/step04/*
+rm tmp/step07/*
 python3 step41_predict.py       p.txt
