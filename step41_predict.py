@@ -16,7 +16,7 @@ import step51_fastText_classify
 import tensorflow as tf
 config = tf.ConfigProto()
 #config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.45
+config.gpu_options.per_process_gpu_memory_fraction = 0.95
 sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
@@ -309,7 +309,12 @@ for batch_pos in range(len(x_list)):
 
     cur_list = x_list[batch_pos_beg:batch_pos_end]
 
-    feed_dict = {X_inputs:cur_list, lr:1e-5, batch_size:len(cur_list), keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+    feed_dict = {X_inputs:cur_list,
+                 lr:1e-5,
+                 batch_size:len(cur_list),
+                 keep_prob:1.0,
+                 total_size:2*punctuation.get_timestep_size(),
+                 embedding: word_embedding_vector}
 
     ### y_pred 是一个 op
     fetches = [y_pred]
