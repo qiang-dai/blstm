@@ -282,20 +282,6 @@ cnt_dict = {}
 cleaned_punc_dict= {}
 total_res = pyIO.get_content(filename)
 
-# 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
-print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'x_list = ', x_list)
-feed_dict = {X_inputs:x_list, lr:1e-5, batch_size:len(x_list), keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
-
-### y_pred 是一个 op
-fetches = [y_pred]
-_y_pred = sess.run(fetches, feed_dict)
-
-with open('data/word_tag_id.pkl', 'rb') as inp:
-    word2id = pickle.load(inp)
-    id2word = pickle.load(inp)
-    tag2id = pickle.load(inp)
-    id2tag = pickle.load(inp)
-
 ###统计
 cnt_punc_category_dict = {}
 total_batch_cnt_punc_dict = {}
@@ -306,68 +292,6 @@ for i in range(len(punctuation.get_punc_list())):
     cnt_punc_category_dict[key]['bad']   = 0.1
     cnt_punc_category_dict[key]['error'] = 0.1
 
-total_res = ''
-for index in range(len(x_list)):
-    flag_sentence_end = False
-
-    focus_index = punctuation.get_timestep_size()/2
-    focus_index = int(focus_index)
-
-    x = x_list[index]
-    length = len(x)
-    beg = index*length
-    end = (index+1)*length
-    y = _y_pred[0][beg:end]
-    orig_y = y_list[index]
-
-    x_index = x
-    y_index = [np.argmax(e) for e in y]
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
-    print ("x_index:", x_index)
-    print ("y_index:", y_index)
-
-    word_list = [id2word[e] for e in x_index]
-    label_list =[id2tag[e] for e in y_index]
-
-
-    if x_index[focus_index+1] == word2id['Tail']:
-        flag_sentence_end = True
-
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "word_list:", word_list)
-    print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "label_list:", label_list)
-
-    res = ''
-    for i,word in enumerate(word_list):
-        if i != focus_index:
-            continue
-        if word == 'Tail':
-            res += '\n'
-            break
-
-        res += get_nature_word(index, i)
-        tag = label_list[i]
-
-        if tag != 'SP':
-            res += tag
-        res += ' '
-        if flag_sentence_end:
-            res += '\n'
-
-        ###这里做统计
-        key = '%d'%(orig_y[i])
-        other_key = '%d'%(y_index[i])
-
-        if key == other_key:
-            cnt_punc_category_dict[key]['good'] += 1
-        else:
-            cnt_punc_category_dict[key]['bad'] += 1
-            cnt_punc_category_dict[other_key]['error'] += 1
-
-    total_res += res
-    total_res += ' '
-    #print ('predict_res :', res)
-    #print ('predict_orig:', nature_list[index])
-print('total_res', total_res)
 ###
 total_input = 0
 total_good = 0
@@ -375,6 +299,84 @@ total_output = 0
 class_0_good = 0
 class_0_bad = 0
 class_0_error = 0
+# 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'x_list = ', x_list)
+for i in range(len(x_list)):
+    cur_list = x_list[i:i+500]
+    feed_dict = {X_inputs:cur_list, lr:1e-5, batch_size:len(cur_list), keep_prob:1.0, total_size:2*punctuation.get_timestep_size()}
+
+    ### y_pred 是一个 op
+    fetches = [y_pred]
+    _y_pred = sess.run(fetches, feed_dict)
+
+    with open('data/word_tag_id.pkl', 'rb') as inp:
+        word2id = pickle.load(inp)
+        id2word = pickle.load(inp)
+        tag2id = pickle.load(inp)
+        id2tag = pickle.load(inp)
+
+    total_res = ''
+    for index in range(len(cur_list)):
+        flag_sentence_end = False
+
+        focus_index = punctuation.get_timestep_size()/2
+        focus_index = int(focus_index)
+
+        x = cur_list[index]
+        length = len(x)
+        beg = index*length
+        end = (index+1)*length
+        y = _y_pred[0][beg:end]
+        orig_y = y_list[index]
+
+        x_index = x
+        y_index = [np.argmax(e) for e in y]
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"x:", x)
+        print ("x_index:", x_index)
+        print ("y_index:", y_index)
+
+        word_list = [id2word[e] for e in x_index]
+        label_list =[id2tag[e] for e in y_index]
+
+
+        if x_index[focus_index+1] == word2id['Tail']:
+            flag_sentence_end = True
+
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "word_list:", word_list)
+        print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "label_list:", label_list)
+
+        res = ''
+        for i,word in enumerate(word_list):
+            if i != focus_index:
+                continue
+            if word == 'Tail':
+                res += '\n'
+                break
+
+            res += get_nature_word(index, i)
+            tag = label_list[i]
+
+            if tag != 'SP':
+                res += tag
+            res += ' '
+            if flag_sentence_end:
+                res += '\n'
+
+            ###这里做统计
+            key = '%d'%(orig_y[i])
+            other_key = '%d'%(y_index[i])
+
+            if key == other_key:
+                cnt_punc_category_dict[key]['good'] += 1
+            else:
+                cnt_punc_category_dict[key]['bad'] += 1
+                cnt_punc_category_dict[other_key]['error'] += 1
+
+        total_res += res
+        total_res += ' '
+        #print ('predict_res :', res)
+        #print ('predict_orig:', nature_list[index])
+print('total_res', total_res)
 for i in range(len(punctuation.get_punc_list())):
     key = '%d'%i
     ###识别对的结果数
