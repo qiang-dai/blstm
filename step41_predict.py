@@ -100,8 +100,8 @@ embedding2 = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embe
 word_embedding_vector = step51_fastText_classify.get_word_vector()
 with tf.variable_scope('embedding'):
     #embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
-    #embedding = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
-    embedding = tf.get_variable(name="embedding", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(word_embedding_vector), trainable=False)
+    embedding = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
+    #embedding = tf.get_variable(name="embedding", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(word_embedding_vector), trainable=False)
 
 def weight_variable(shape):
     """Create a weight variable with appropriate initialization."""
@@ -231,9 +231,9 @@ def test_epoch(dataset, epoch):
                      total_size:_batch_size*punctuation.get_timestep_size(),
                      avg_index_list: index_list,
                      avg_weight_change: weight_change_list,
-                     embedding2: word_embedding_vector}
+                     embedding: word_embedding_vector}
         _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d _acc, _cost:'%(epoch), _acc, _cost)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
         _accs += _acc
         _costs += _cost
     mean_acc= _accs / batch_num
