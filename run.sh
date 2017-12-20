@@ -1,6 +1,12 @@
 limit_cnt=$1
 echo 'limit_cnt:'${limit_cnt}
 
+sudo pip3 install tqdm
+sudo pip3 install fasttext
+sudo pip3 install cython
+sudo pip3 install fasttext
+sudo pip3 install emoji
+
 mkdir raw_data/dir_kika/  raw_data/dir_subtitle/  raw_data/dir_twitter/  raw_data/dir_wiki/
 cp raw_data/en_punctuation_recommend_train_100W raw_data/dir_kika/
 mkdir raw_data/dir_step00/ raw_data/dir_step03/ raw_data/dir_step04/ raw_data/dir_step07/
