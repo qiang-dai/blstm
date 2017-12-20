@@ -66,14 +66,17 @@ def combine_line(filename, threshold_line_cnt, punc_list):
 
     #for sentence in sentences:
     for i in range(len(sentences)):
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "i, filename:", i, filename)
+        if i%100 == 0:
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "i, filename:", i, filename)
         if i > threshold_line_cnt:
+            print("threshold_line_cnt:", threshold_line_cnt)
             break
 
         sentence = sentences[i]
         res_list = line_to_train_text(sentence)
         final_list.extend(res_list)
 
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "len(final_list):", len(final_list))
     return final_list
 
 ###每隔 32 个单词就处理一下
@@ -156,4 +159,5 @@ if __name__ == '__main__':
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
         if len(item_list) > 500:
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save_fixed_letter')
             save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)
