@@ -60,11 +60,14 @@ def combine_line(filename, threshold_line_cnt, punc_list):
     # 以字符串的形式读入所有数据, 按行处理
     final_list = []
 
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "filename:", filename)
     sentences = pyIO.get_content(filename)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'sentences size:', len(sentences))
 
     #for sentence in sentences:
     for i in range(len(sentences)):
+        if i%1000 == 0:
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "i, filename:", i, filename)
         if i > threshold_line_cnt:
             break
 
@@ -141,6 +144,7 @@ if __name__ == '__main__':
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
 
     for file_index, filename in enumerate(filename_list):
+
         short_filename = filename.split('_')[-1]
         short_filename = short_filename.split('/')[-1]
         short_filename = short_filename.replace('.txt.txt', '.txt')
