@@ -388,6 +388,7 @@ for batch_pos in range(len(x_list)):
         #print ('predict_res :', res)
         #print ('predict_orig:', nature_list[index])
 print('total_res', total_res)
+pyIO.save_to_file(total_res, "predict_result_%s.txt"%filename)
 for i in range(len(punctuation.get_punc_list())):
     key = '%d'%i
     ###识别对的结果数
