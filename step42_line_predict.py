@@ -299,6 +299,7 @@ for i in range(len(punctuation.get_punc_list())):
     cnt_punc_category_dict[key]['bad']   = 0.1
     cnt_punc_category_dict[key]['error'] = 0.1
 
+final_res_list = []
 for index in range(len(x_list)):
     x = x_list[index]
     length = len(x)
@@ -345,6 +346,9 @@ for index in range(len(x_list)):
 
     print ('predict_res :', res)
     print ('predict_orig:', nature_list[index])
+    final_res_list.append(res)
+
+pyIO.save_to_file("\n".join(final_res_list), "predict_result.txt")
 
 ###
 total_input = 0
