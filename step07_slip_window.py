@@ -66,8 +66,7 @@ def combine_line(filename, threshold_line_cnt, punc_list):
 
     #for sentence in sentences:
     for i in range(len(sentences)):
-        if i%1000 == 0:
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "i, filename:", i, filename)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "i, filename:", i, filename)
         if i > threshold_line_cnt:
             break
 
