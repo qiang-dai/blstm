@@ -159,5 +159,13 @@ if __name__ == '__main__':
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
         if len(item_list) > 500:
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save_fixed_letter')
-            save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)
+            ###每100w条写一个文件
+            for batch_pos in range(len(item_list)):
+                beg_pos = batch_pos*100*10000
+                end_pos = beg_pos + 100*10000
+                if beg_pos >= len(item_list):
+                    break
+
+                current_name = result_name.replace("step07_", "step07_%02d_"%batch_pos)
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save_fixed_letter')
+                save_fixed_letter(filename, item_list[beg_pos:end_pos], current_name, punc_list, file_index, result_dir)
