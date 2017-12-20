@@ -299,6 +299,8 @@ total_output = 0
 class_0_good = 0
 class_0_bad = 0
 class_0_error = 0
+
+total_res_list = []
 # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'x_list = ', x_list)
 for batch_pos in range(len(x_list)):
@@ -387,8 +389,9 @@ for batch_pos in range(len(x_list)):
         total_res += ' '
         #print ('predict_res :', res)
         #print ('predict_orig:', nature_list[index])
-print('total_res', total_res)
-pyIO.save_to_file(total_res, "predict_result_%s.txt"%filename)
+    print('total_res', total_res)
+    total_res_list.append(total_res)
+pyIO.save_to_file('\n'.join(total_res_list), "predict_result_%s.txt"%filename)
 for i in range(len(punctuation.get_punc_list())):
     key = '%d'%i
     ###识别对的结果数
