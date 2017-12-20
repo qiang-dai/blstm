@@ -245,7 +245,7 @@ sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
-data_patch_filename_list,_ = pyIO.traversalDir(filename)
+data_patch_filename_list,_ = pyIO.traversalDir("tmp/")
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
 print('data_patch_filename_list:', data_patch_filename_list)
 
