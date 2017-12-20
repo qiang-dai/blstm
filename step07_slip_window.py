@@ -155,4 +155,5 @@ if __name__ == '__main__':
 
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
-        save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)
+        if len(item_list) > 500:
+            save_fixed_letter(filename, item_list, result_name, punc_list, file_index, result_dir)
