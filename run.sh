@@ -25,9 +25,9 @@ python3 step01_format_subtitle.py   raw_data/dir_subtitle   ${limit_cnt}
 python3 step01_format_twitter.py    raw_data/dir_twitter    ${limit_cnt}
 python3 step01_format_wiki.py       raw_data/dir_wiki       ${limit_cnt}
 
-python3 step03_split_file.py raw_data/dir_step00            5000              raw_data/dir_step03
-python3 step04_format_multi_punc.py raw_data/dir_step03     10000000000       raw_data/dir_step04     1
-python3 step07_slip_window.py raw_data/dir_step04          1000000000        raw_data/dir_step07
+python3 step03_split_file.py raw_data/dir_step00            500000              raw_data/dir_step03
+python3 step04_format_multi_punc.py raw_data/dir_step03     100000       raw_data/dir_step04     1
+python3 step07_slip_window.py raw_data/dir_step04          1000000        raw_data/dir_step07
 
 python3 step51_fastText_classify.py  train
 wget http://nlp.stanford.edu/data/glove.twitter.27B.zip
