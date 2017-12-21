@@ -46,7 +46,7 @@ vocab_size = punctuation.get_word_cnt()    # 样本中不同字的个数+1(paddi
 input_size = 64
 embedding_size = 100       # 字向量长度
 class_num = len(punctuation.get_punc_list())
-hidden_size = punctuation.get_batch_size()  # 隐含层节点数
+hidden_size = punctuation.get_batch_size()*2  # 隐含层节点数
 layer_num = 2        # bi-lstm 层数
 max_grad_norm = 7  # 最大梯度（超过此值的梯度将被裁剪）
 
