@@ -129,7 +129,7 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
     ###写数据
     X = np.asarray(word_list)
     y = np.asarray(label_list)
-    with open('%s/data_patch_%02d_%02d.pkl'%(result_dir, file_index, batch_pos), 'wb') as outp:
+    with open('%s/data_patch_%02d_%02d_%s.pkl'%(result_dir, file_index, batch_pos, result_name.split("/")[-1]), 'wb') as outp:
         pickle.dump(X, outp)
         pickle.dump(y, outp)
         pickle.dump(word2id, outp)
