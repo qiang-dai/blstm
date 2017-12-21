@@ -129,7 +129,7 @@ def save_fixed_letter(filename, total_list, result_name, punc_list, file_index, 
     ###写数据
     X = np.asarray(word_list)
     y = np.asarray(label_list)
-    with open('%s/data_patch_%02d_%02d_%s.pkl'%(result_dir, file_index, batch_pos, result_name.split("/")[-1]), 'wb') as outp:
+    with open('%s'%(result_name.replace(".txt", "_data_patch_.pkl")), 'wb') as outp:
         pickle.dump(X, outp)
         pickle.dump(y, outp)
         pickle.dump(word2id, outp)
@@ -144,21 +144,24 @@ if __name__ == '__main__':
 
     filename_list,_ = pyIO.traversalDir(file_dir)
     filename_list = [e for e in filename_list if e.find('DS_Store') == -1]
+    filename_list.sort()
 
     for file_index, filename in enumerate(filename_list):
 
-        short_filename = filename.split('_')[-1]
-        short_filename = short_filename.split('/')[-1]
+        short_filename = filename.split('/')[-1]
         short_filename = short_filename.replace('.txt.txt', '.txt')
+        short_filename = short_filename.replace("step04_", "step07_")
 
-        result_name = result_dir + '/step07_%d_'%file_index + short_filename
+        result_name = result_dir + '/' + short_filename
+
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename, threshold_line_cnt, result_name:', filename, threshold_line_cnt, result_name)
 
         punc_list = punctuation.get_punc_list()
 
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
-        if len(item_list) > 500:
+        #if len(item_list) > 500:
+        if True:
             ###每100w条写一个文件
             for batch_pos in range(len(item_list)):
                 beg_pos = batch_pos*100*10000
@@ -166,8 +169,11 @@ if __name__ == '__main__':
                 if beg_pos >= len(item_list):
                     break
                 print("beg_pos,end_pos:", beg_pos, end_pos)
-                print("file_index, filename:", file_index, filename)
 
                 current_name = result_name.replace("step07_", "step07_%02d_"%batch_pos)
+
+                print("file_index, filename:", file_index, filename)
+                print("file_index, current_name:", file_index, current_name)
+
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save_fixed_letter')
                 save_fixed_letter(filename, item_list[beg_pos:end_pos], current_name, punc_list, file_index, result_dir, batch_pos)
