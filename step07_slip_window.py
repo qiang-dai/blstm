@@ -166,6 +166,7 @@ if __name__ == '__main__':
                 if beg_pos >= len(item_list):
                     break
                 print("beg_pos,end_pos:", beg_pos, end_pos)
+                print("file_index, filename:", file_index, filename)
 
                 current_name = result_name.replace("step07_", "step07_%02d_"%batch_pos)
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'save_fixed_letter')
