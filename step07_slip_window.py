@@ -160,8 +160,8 @@ if __name__ == '__main__':
 
         item_list = combine_line(filename, threshold_line_cnt, punc_list)
 
-        #if len(item_list) > 500:
-        if True:
+        if len(item_list) > 500:
+        #if True:
             ###每100w条写一个文件
             for batch_pos in range(len(item_list)):
                 beg_pos = batch_pos*100*10000
