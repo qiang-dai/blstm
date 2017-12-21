@@ -25,7 +25,7 @@ filename = sys.argv[1]
 orig_filename = 'tmp/line.txt'
 ###
 use_fasttext = True
-step04_format_multi_punc.main(filename, 1000, 'tmp/step04/', 1, False, use_fasttext)
+step04_format_multi_punc.main(filename, 100000, 'tmp/step04/', 1, False, use_fasttext)
 
 ###step04
 file_list,_ = pyIO.traversalDir('tmp/step04/')
