@@ -210,35 +210,35 @@ train_op = optimizer.apply_gradients( zip(grads, tvars),
                                       global_step=tf.contrib.framework.get_or_create_global_step())
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating the bi-lstm model.')
 
-def test_epoch(dataset, epoch):
-    """Testing or valid."""
-    _batch_size = 500
-    ### accuracy, cost 都是 op
-    fetches = [accuracy, cost]
-    _y = dataset.y
-    data_size = _y.shape[0]
-    batch_num = int(data_size / _batch_size)
-    if batch_num == 0:
-        return 0,0
-
-    start_time = time.time()
-    _costs = 0.0
-    _accs = 0.0
-    for i in range(batch_num):
-        X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = dataset.next_batch(_batch_size)
-        feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0,
-                     avg_offset:offset,
-                     total_size:_batch_size*punctuation.get_timestep_size(),
-                     avg_index_list: index_list,
-                     avg_weight_change: weight_change_list,
-                     embedding: word_embedding_vector}
-        _acc, _cost = sess.run(fetches, feed_dict)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
-        _accs += _acc
-        _costs += _cost
-    mean_acc= _accs / batch_num
-    mean_cost = _costs / batch_num
-    return mean_acc, mean_cost
+# def test_epoch(dataset, epoch):
+#     """Testing or valid."""
+#     _batch_size = 500
+#     ### accuracy, cost 都是 op
+#     fetches = [accuracy, cost]
+#     _y = dataset.y
+#     data_size = _y.shape[0]
+#     batch_num = int(data_size / _batch_size)
+#     if batch_num == 0:
+#         return 0,0
+#
+#     start_time = time.time()
+#     _costs = 0.0
+#     _accs = 0.0
+#     for i in range(batch_num):
+#         X_batch, y_batch, offset, index_list, weight_change_list, batch_cnt_punc_dict = dataset.next_batch(_batch_size)
+#         feed_dict = {X_inputs:X_batch, y_inputs:y_batch, lr:1e-5, batch_size:_batch_size, keep_prob:1.0,
+#                      avg_offset:offset,
+#                      total_size:_batch_size*punctuation.get_timestep_size(),
+#                      avg_index_list: index_list,
+#                      avg_weight_change: weight_change_list,
+#                      embedding: word_embedding_vector}
+#         _acc, _cost = sess.run(fetches, feed_dict)
+#         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'test %d(%d %d) _acc, _cost:'%(epoch, batch, tr_batch_num), _acc, _cost)
+#         _accs += _acc
+#         _costs += _cost
+#     mean_acc= _accs / batch_num
+#     mean_cost = _costs / batch_num
+#     return mean_acc, mean_cost
 
 
 sess.run(tf.global_variables_initializer())
@@ -340,7 +340,7 @@ for batch_pos in range(len(x_list)):
         beg = index*length
         end = (index+1)*length
         y = _y_pred[0][beg:end]
-        orig_y = y_list[index]
+        orig_y = y_list[batch_pos_beg+index]
 
         x_index = x
         y_index = [np.argmax(e) for e in y]
