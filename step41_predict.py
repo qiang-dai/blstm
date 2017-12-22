@@ -86,7 +86,7 @@ embedding_size = 100       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = punctuation.get_batch_size()*2  # 隐含层节点数
 layer_num = 3        # bi-lstm 层数
-max_grad_norm = 7  # 最大梯度（超过此值的梯度将被裁剪）
+max_grad_norm = 6  # 最大梯度（超过此值的梯度将被裁剪）
 
 lr = tf.placeholder(tf.float32, [])
 keep_prob = tf.placeholder(tf.float32, [])
