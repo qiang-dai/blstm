@@ -212,10 +212,19 @@ saver = tf.train.Saver()  # 最多保存的模型数量
 
 data_patch_filename_list,_ = pyIO.traversalDir(input_dir)
 data_patch_filename_list = [e for e in data_patch_filename_list if e.find('data_patch_') != -1]
-#data_patch_filename_list.sort()
-shuffle(data_patch_filename_list)
-print('data_patch_filename_list:', data_patch_filename_list)
+###这里限制为3000万句（10个文件）
+def limit_file_cnt(total_file_list, cat, limit_cnt):
+    tmp_list = [e for e in total_file_list if e.find(cat) != -1]
+    return tmp_list[:limit_cnt]
+total_limit_file_list = []
+total_limit_file_list.extend(limit_file_cnt(data_patch_filename_list, 'cat0', 10))
+total_limit_file_list.extend(limit_file_cnt(data_patch_filename_list, 'cat1', 10))
+total_limit_file_list.extend(limit_file_cnt(data_patch_filename_list, 'cat2', 10))
+total_limit_file_list.extend(limit_file_cnt(data_patch_filename_list, 'cat3', 10))
+data_patch_filename_list = total_limit_file_list
 
+data_patch_filename_list.sort()
+print('data_patch_filename_list:', data_patch_filename_list)
 
 ###下一轮循环使用上次的模型
 def get_model_name(cat_type_prefix):
