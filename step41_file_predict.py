@@ -11,6 +11,7 @@ from tensorflow.contrib import rnn
 import datetime
 import step07_slip_window
 import step51_fastText_classify
+import step05_append_category
 
 ### 设置显存根据需求增长
 import tensorflow as tf
@@ -102,7 +103,7 @@ embedding_size = 100       # 字向量长度
 class_num = len(punctuation.get_punc_list())
 hidden_size = punctuation.get_batch_size()*2  # 隐含层节点数
 layer_num = 3        # bi-lstm 层数
-max_grad_norm = 7  # 最大梯度（超过此值的梯度将被裁剪）
+max_grad_norm = 5  # 最大梯度（超过此值的梯度将被裁剪）
 
 lr = tf.placeholder(tf.float32, [])
 keep_prob = tf.placeholder(tf.float32, [])
@@ -269,9 +270,10 @@ print('data_patch_filename_list:', data_patch_filename_list)
 
 
 ###下一轮循环使用上次的模型
-def get_model_name():
+def get_model_name(cat_type_prefix):
     ##这里找最新的ckpt模型
     model_name,_ = pyIO.traversalDir('ckpt/')
+    model_name = [e for e in model_name if e.find('%s'%cat_type_prefix) != -1]
     model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
     print('model_name:', model_name)
 
@@ -283,13 +285,13 @@ def get_model_name():
         value = value.replace('.data-00000-of-00001','')
         value = value.split('-')[-1]
 
-        best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+        best_model_path = 'ckpt/%s_bi-lstm.ckpt-%s'%(cat_type_prefix, value)
         print('best_model_path:', best_model_path)
         return best_model_path, int(value)
     return '',-1
 
-model_name, pos = get_model_name()
-model_name, _ = get_model_name()
+#model_name, pos = get_model_name(file_fast_cat)
+model_name, _ = get_model_name(file_fast_cat)
 if len(model_name) > 0:
     saver.restore(sess, model_name)
 

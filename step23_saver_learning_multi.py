@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 import pickle
 from random import shuffle
 import step51_fastText_classify
+import step05_append_category
 
 input_dir = "raw_data/dir_step07"
 if len(sys.argv) > 1:
@@ -217,9 +218,10 @@ print('data_patch_filename_list:', data_patch_filename_list)
 
 
 ###下一轮循环使用上次的模型
-def get_model_name():
+def get_model_name(cat_type_prefix):
     ##这里找最新的ckpt模型
     model_name,_ = pyIO.traversalDir('ckpt/')
+    model_name = [e for e in model_name if e.find('%s'%cat_type_prefix) != -1]
     model_name = [e for e in model_name if e.find('.data-00000-of-00001') != -1]
     print('model_name:', model_name)
 
@@ -231,14 +233,17 @@ def get_model_name():
         value = value.replace('.data-00000-of-00001','')
         value = value.split('-')[-1]
 
-        best_model_path = 'ckpt/bi-lstm.ckpt-%s'%(value)
+        best_model_path = 'ckpt/%s_bi-lstm.ckpt-%s'%(cat_type_prefix, value)
         print('best_model_path:', best_model_path)
         return best_model_path, int(value)
     return '',-1
 
-model_name, pos = get_model_name()
 for pathch_file_index,data_file in enumerate(data_patch_filename_list):
+    ###cat0 cat1 cat2 cat3
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'data_file:', data_file)
+    cat_type = step05_append_category.get_word_by_filename(data_file)
+    model_name, pos = get_model_name(cat_type)
+
     if pathch_file_index < pos/max_max_epoch:
         continue
 
@@ -271,7 +276,7 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
 
     # ** 导入模型
     #saver = tf.train.Saver()
-    model_name, _ = get_model_name()
+    model_name, _ = get_model_name(cat_type)
     if len(model_name) > 0:
         saver.restore(sess, model_name)
 
@@ -334,7 +339,7 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
         mean_acc = _accs / tr_batch_num
         mean_cost = _costs / tr_batch_num
         if True:# (epoch + 1) % 3 == 0:  # 每 3 个 epoch 保存一次模型
-            save_path = saver.save(sess, model_save_path, global_step=(epoch))
+            save_path = saver.save(sess, model_save_path.replace("bi-", "%s_bi-"%cat_type), global_step=(epoch))
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'the save path is ', save_path)
 
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -409,7 +414,8 @@ for pathch_file_index,data_file in enumerate(data_patch_filename_list):
 
     # ** 导入模型
     saver = tf.train.Saver()
-    saver.restore(sess, get_model_name()[0])
+    print("pathch_file_index:", pathch_file_index)
+    saver.restore(sess, get_model_name(cat_type)[0])
 
     # 再看看模型的输入数据形式, 我们要进行分词，首先就要把句子转为这样的形式
     X_tt, y_tt, offset, _, _, _ = data_train.next_batch(10)
