@@ -92,7 +92,7 @@ class SegmentBatchGenerator(object):
             y = self._y[start:end][i]
             tmp_list = [1.0 for e in y]
             if y[focus_size] != 0:
-                tmp_list[focus_size] = 10
+                tmp_list[focus_size] = 1
             weight_change_list.append(tmp_list)
             ###个数
             for v in y:

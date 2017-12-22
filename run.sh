@@ -40,4 +40,4 @@ python3 step23_saver_learning_multi.py                       raw_data/dir_step07
 
 rm tmp/step04/*
 rm tmp/step07/*
-python3 step41_predict.py       p.txt
+python3 step41_file_predict.py       p.txt
