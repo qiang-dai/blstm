@@ -150,8 +150,8 @@ def format_content(sentences, punc_list, cnt_dict, cleaned_punc_dict, fast_cat):
         labels_list.append(punc_list[0])
 
         ###如果一个标点都没有，就忽略这句话
-        if not flag_punc_find and fast_cat is None:
-            continue
+        # if not flag_punc_find and fast_cat is None:
+        #     continue
 
         out_list = []
         flag_valid_punc = False
