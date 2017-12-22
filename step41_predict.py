@@ -22,7 +22,7 @@ from tensorflow.contrib import rnn
 import numpy as np
 
 filename = sys.argv[1]
-orig_filename = 'tmp/line.txt'
+#orig_filename = 'tmp/line.txt'
 ###
 use_fasttext = True
 step04_format_multi_punc.main(filename, 100000, 'tmp/step04/', 1, False, use_fasttext)
@@ -34,7 +34,9 @@ step04_list = [e for e in file_list if e.find('step04_') != -1]
 ###step08
 punc_list = punctuation.get_punc_list()
 item_list = step07_slip_window.combine_line(step04_list[0], 1000000, punc_list)
-step07_slip_window.save_fixed_letter('', item_list, orig_filename, punc_list, 0, 'tmp/step07/', 0)
+
+current_filename = step04_list[0].replace("step04", "step07")
+step07_slip_window.save_fixed_letter(step04_list[0], item_list, current_filename, punc_list, 0, 'tmp/step07/', 0)
 
 ###train/predict
 file_list,_ = pyIO.traversalDir('tmp/step07/')
@@ -48,7 +50,7 @@ with open(step08_list[0], 'rb') as inp:
     tag2id = pickle.load(inp)
     id2tag = pickle.load(inp)
 
-c_list = pyIO.get_content(orig_filename)
+c_list = pyIO.get_content(current_filename)
 
 ###格式化后的原始句子
 nature_list = []
