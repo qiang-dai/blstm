@@ -21,10 +21,9 @@ sess = tf.Session(config=config)
 from tensorflow.contrib import rnn
 import numpy as np
 import step05_append_category
+from shutil import copyfile
 
 filename = sys.argv[1]
-#orig_filename = 'tmp/line.txt'
-###
 use_fasttext = False
 ###使用fastText对文章进行分类
 def get_category_by_file(filename):
@@ -37,7 +36,7 @@ def get_category_by_file(filename):
 ###重新命名文件
 file_fast_cat = get_category_by_file(filename)
 renamed_file = filename.replace('.txt', '_%s_.txt'%file_fast_cat)
-os.rename(filename, renamed_file)
+copyfile(filename, renamed_file)
 
 if len(sys.argv) > 2:
     exit(0)
