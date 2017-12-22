@@ -104,9 +104,9 @@ class SegmentBatchGenerator(object):
             #有效索引
             #tmp_result_list = [pos + e for e in range(y.size) if y[e] != 0]
             ###这里需要所有的标点符号，y[e] != 0 导致无法召回空格
-            #tmp_result_list = [pos + e for e in range(y.size)]
+            tmp_result_list = [pos + e for e in range(y.size)]
             ###不能仅仅用标点符号预测，否则的话，导致空格无法召回
-            tmp_result_list = [pos + punctuation.get_timestep_size()/2]
+            #tmp_result_list = [pos + punctuation.get_timestep_size()/2]
             pos += len(y)
             index_list.extend(tmp_result_list)
 
