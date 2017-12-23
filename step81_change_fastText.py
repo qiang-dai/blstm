@@ -60,7 +60,7 @@ if __name__ == '__main__':
                 pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
             pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
 
-        ###命令行
+        ###命令行(加朋）
         dim = 10
         lr = 0.005
         epoch = 1
@@ -68,6 +68,17 @@ if __name__ == '__main__':
         word_ngrams = 4
         bucket = 10000000
         thread = 8
+        silent = 1
+
+
+        ###命令行(默认）
+        dim = 100
+        lr = 0.05
+        epoch = 5
+        min_count = 5
+        word_ngrams = 1
+        bucket = 2000000
+        thread = 12
         silent = 1
 
         label_prefix = '__label__'
