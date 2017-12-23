@@ -23,6 +23,7 @@ import datetime
 import subprocess
 import fasttext
 import step05_append_category
+import numpy as np
 
 def get_more_text():
     word_list = ['cat0', 'cat1', 'cat2', 'cat3', 'NONE', 'Header', 'Tail', 'SP', 'EMOJI', 'rt']
@@ -83,21 +84,10 @@ if __name__ == '__main__':
         silent = 1
 
         label_prefix = '__label__'
-        output_file = "/mnt/zzz_daiqiang/b2/model_classify"
+        output_file = "model_classify"
 
-        for word_ngrams in range(1, 5):
-            def train_model():
-                classifier = fasttext.supervised(result_filename, output_file, lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix=label_prefix)
-
-                # result = classifier.test(test_file)
-                # print('Precision: {}'.format(result.precision))
-                # print('Recall : {}'.format(result.recall))
-                # print('Number of examples: {}'.format(result.nexamples))
-
-            train_model()
-            #else:
-            #classifier = fasttext.load_model('model_classify.bin')
-            #result = classifier.test(test_file)
+        def run(lr, epoch, min_count, word_ngrams, bucket):
+            fasttext.supervised(result_filename, output_file, lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix=label_prefix)
             classifier = fasttext.load_model('model_classify.bin')
 
             test_file_list = ['valid_kika.txt',
@@ -111,21 +101,9 @@ if __name__ == '__main__':
                 labels = classifier.predict([big_text, ], 1)
                 print('test_file, labels: ', test_file, labels)
 
-    #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
-    #cmd = './fasttext predict model_classify.bin test.txt k'
-    #subprocess.call(cmd, shell=True)
-    # classifier = fasttext.supervised(result_filename, 'model_classify', label_prefix='__label__')
-    # #model = fasttext.load_model('model_classify.bin')
-    # # res = classifier.predict('this is a try')
-    # res = step05_append_category.get_word_by_fastText("this is a try")
-    # print('res:', res)
-    # #
-    # res = step05_append_category.get_word_by_fastText('Frozen again. I hate that song')
-    # print('res:', res)
-    # #
-    # res = step05_append_category.get_word_by_fastText('Colonel George W. Taylor (later a Brigadier General and commander of the brigade until mortally wounded);')
-    # print('res:', res)
-
-
-
-
+        for lr in np.arange(0.005, 0.51, 0.01):
+            for epoch in range(1, 6):
+                for dim in range(10, 110, 25):
+                    for word_ngrams in range(1, 6):
+                        for bucket in range(200*10000, 1100*10000, 100*10000):
+                            print((lr, epoch, min_count, word_ngrams, bucket))
