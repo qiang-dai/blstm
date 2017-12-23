@@ -62,8 +62,8 @@ if __name__ == '__main__':
     pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
 
     json_str = json.dumps(big_dict)
-    c_list = pyIO.get_content("data.json")
-    x = json.loads(c_list[0])
+    #c_list = pyIO.get_content("data.json")
+    #x = json.loads(c_list[0])
     pyIO.save_to_file(json_str, "data.json")
 
     if len(sys.argv) > 2:
