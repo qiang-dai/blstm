@@ -16,6 +16,6 @@ https://github.com/qiang-dai/blstm
 
 # 5，执行 ./run.sh 开始训练
 
-# 6，最终
+# 6，查看结果
 - 准确率，召回率可以看文件 c1,c2,c3,c4
 - 最终的预测结果内容，可以看 predict_result_valid_kika_cat0_.txt.txt (predict_result_1.txt.txt)
