@@ -2,7 +2,7 @@
 
 ## 执行步骤:
 # 1,拉取代码
-https://github.com/qiang-dai/blstm
+git clone https://github.com/qiang-dai/blstm
 
 # 2,进入代码目录，创建文件夹
 - cd blstm
