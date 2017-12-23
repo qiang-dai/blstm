@@ -47,6 +47,7 @@ def get_word_by_vote(c_list):
     for k,v in cnt_dict.items():
         if v > max_val:
             max_key = k
+            max_val = v
     return max_key
 
 def get_label_bye_filename(filename):
