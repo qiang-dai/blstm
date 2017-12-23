@@ -77,10 +77,20 @@ def save_file_by_cat_fasttext(filename, i):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename:', filename)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'dst_filename:', dst_filename)
 
+    res_list = []
     c_list = pyIO.get_content(filename)
-    word = get_word_by_vote(c_list)
+    for c in c_list:
+        word = get_word_by_fastText(c)
+        res = word + ' ' + c
 
-    print("filename, word:", filename, word)
+        # print('res:', res, ',word:', word)
+        # if res.find('cat1 cat1') != -1:
+        #     print('error!')
+        #     sys.exit(0)
+
+        res_list.append(res)
+
+    pyIO.save_to_file("\n".join(res_list),  dst_filename)
 
 if __name__ == '__main__':
 
