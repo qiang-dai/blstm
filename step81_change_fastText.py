@@ -82,6 +82,12 @@ if __name__ == '__main__':
             print('Number of examples: {}'.format(result.nexamples))
 
         train_model()
+    else:
+        classifier = fasttext.load_model('model_classify.bin')
+        result = classifier.test(test_file)
+        print('Precision: {}'.format(result.precision))
+        print('Recall : {}'.format(result.recall))
+        print('Number of examples: {}'.format(result.nexamples))
 
     #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
     #cmd = './fasttext predict model_classify.bin test.txt k'
