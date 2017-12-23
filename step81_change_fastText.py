@@ -83,11 +83,13 @@ if __name__ == '__main__':
 
         train_model()
     else:
+        #classifier = fasttext.load_model('model_classify.bin')
+        #result = classifier.test(test_file)
         classifier = fasttext.load_model('model_classify.bin')
-        result = classifier.test(test_file)
-        print('Precision: {}'.format(result.precision))
-        print('Recall : {}'.format(result.recall))
-        print('Number of examples: {}'.format(result.nexamples))
+        c_list = pyIO.get_content(test_file)
+        big_text = ' '.join(c_list)
+        labels = classifier.predict([big_text, ], 1)
+        print('test_file, labels: ', test_file, labels)
 
     #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
     #cmd = './fasttext predict model_classify.bin test.txt k'
