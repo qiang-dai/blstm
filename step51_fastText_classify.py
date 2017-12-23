@@ -39,12 +39,12 @@ def get_more_text():
 if __name__ == '__main__':
 
     result_filename = 'tmp/fastText_train.txt'
-    pyIO.save_to_file("", result_filename)
 
 
     operation = sys.argv[1]
     test_file = sys.argv[2]
     if operation == 'train':
+        pyIO.save_to_file("", result_filename)
         res_list = []
 
         filename_list = tools.get_filename_list('raw_data/dir_step00')
@@ -93,7 +93,7 @@ if __name__ == '__main__':
         thread = 8
         silent = 1
         #classifier = fasttext.supervised(result_filename, 'model_classify', label_prefix='__label__')
-        classifier = fasttext.supervised(result_filename, 'model_classify', lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, silent=silent, label_prefix='__label__')
+        classifier = fasttext.supervised(result_filename, 'model_classify', lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix='__label__')
 
     classifier = fasttext.load_model('model_classify.bin')
     result = classifier.test(test_file)
