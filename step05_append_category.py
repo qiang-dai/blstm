@@ -72,6 +72,8 @@ if __name__ == '__main__':
     filename_list.sort()
     print('filename_list:', filename_list)
     operation = 'train'
+    if len(sys.argv) > 1:
+        filename_list = tools.get_filename_list(sys.argv[1])
     if len(sys.argv) > 2:
         operation = sys.argv[2]
 
