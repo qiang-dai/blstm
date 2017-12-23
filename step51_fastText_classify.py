@@ -92,7 +92,7 @@ if __name__ == '__main__':
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "index, file_dir, label:",
               index, filename, label)
 
-        total_list = tools.get_total_limit_list(filename, 2000*10000)
+        total_list = tools.get_total_limit_list(filename, 200000*10000)
         res_list.extend([label + e for e in total_list])
         print('result_filename:', result_filename)
         pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
