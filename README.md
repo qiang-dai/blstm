@@ -11,8 +11,8 @@ https://github.com/qiang-dai/blstm
 # 3, 将4个训练文件，分布放入 4 个目录内
 
 # 4, 修改./run.sh 将txt修改为预测文件
-- 比如   python3 step41_file_predict.py valid_kika.txt > c1
-- 修改为 python3 step41_file_predict.py 1.txt > c1
+- 比如 python3 step41_file_predict.py valid_kika.txt > c1
+- 改为 python3 step41_file_predict.py 1.txt > c1
 
 # 5，执行 ./run.sh 开始训练
 
