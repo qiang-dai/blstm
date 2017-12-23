@@ -23,6 +23,13 @@ from tensorflow.contrib import rnn
 import numpy as np
 import step05_append_category
 from shutil import copyfile
+import shutil
+
+###清理文件
+shutil.rmtree("tmp/step04")
+shutil.rmtree("tmp/step07")
+os.mkdir("tmp/step04")
+os.mkdir("tmp/step07")
 
 filename = sys.argv[1]
 use_fasttext = False

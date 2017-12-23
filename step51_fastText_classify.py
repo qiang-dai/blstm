@@ -9,6 +9,7 @@ import punctuation
 import pickle
 from tensorflow.contrib import rnn
 import datetime
+import json
 
 ### 设置显存根据需求增长
 import tensorflow as tf
@@ -44,6 +45,7 @@ if __name__ == '__main__':
 
     filename_list = tools.get_filename_list('raw_data/dir_step00')
     ###每个目录取1000行
+    big_dict = {}
     for index, filename in enumerate(filename_list):
 
         label = step05_append_category.get_label_bye_filename(filename)
@@ -54,12 +56,22 @@ if __name__ == '__main__':
         res_list.extend([label + e for e in total_list])
         print('result_filename:', result_filename)
         pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
+        ###
+        big_dict[label] = total_list
+
     pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
 
+    json_str = json.dumps(big_dict)
+    c_list = pyIO.get_content("data.json")
+    x = json.loads(c_list[0])
+    pyIO.save_to_file(json_str, "data.json")
+
+    if len(sys.argv) > 2:
+        sys.exit(0)
 
     ###生成wordVector
-    model = fasttext.cbow(result_filename, 'model_word')
-    print (model.words) # list of words in dictionary
+    #model = fasttext.cbow(result_filename, 'model_word')
+    #print (model.words) # list of words in dictionary
 
     ###命令行
     #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
