@@ -118,8 +118,8 @@ embedding2 = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embe
 ###加载word embedding
 word_embedding_vector = step51_fastText_classify.get_word_vector()
 with tf.variable_scope('embedding'):
-    embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
-    #embedding = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
+    #embedding = tf.get_variable("embedding", [vocab_size, embedding_size], dtype=tf.float32)
+    embedding = tf.placeholder(tf.float32, [vocab_size, embedding_size], name='embedding')
     #embedding = tf.get_variable(name="embedding", shape=[vocab_size, embedding_size], initializer=tf.constant_initializer(word_embedding_vector), trainable=False)
 
 def weight_variable(shape):
@@ -260,7 +260,7 @@ print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating 
 #     return mean_acc, mean_cost
 
 
-sess.run(tf.global_variables_initializer())
+#sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
