@@ -76,7 +76,7 @@ def save_file_by_cat_fasttext(filename, i):
 
 if __name__ == '__main__':
 
-    filename_list = tools.get_filename_list('raw_data/dir_step04')
+    filename_list = tools.get_filename_list('raw_data/dir_step00')
     filename_list.sort()
     print('filename_list:', filename_list)
     operation = 'train'
