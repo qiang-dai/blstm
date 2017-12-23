@@ -31,6 +31,23 @@ def get_word_by_fastText(text):
     #print('get_word_by_fastText labels:', labels, ', word:', word, ', text:', text)
 
     return word
+def get_word_by_vote(c_list):
+    word_list = [get_word_by_fastText(e) for e in c_list]
+    cnt_dict = {}
+    for w in word_list:
+        if w not in cnt_dict:
+            cnt_dict[w] = 1
+        else:
+            cnt_dict[w] = cnt_dict[w]+1
+
+    print('cnt_dict:', cnt_dict)
+    ###max
+    max_key = ''
+    max_val = 0
+    for k,v in cnt_dict.items():
+        if v > max_val:
+            max_key = k
+    return max_key
 
 def get_label_bye_filename(filename):
     for i in range(10):
@@ -59,10 +76,8 @@ def save_file_by_cat_fasttext(filename, i):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'filename:', filename)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'dst_filename:', dst_filename)
 
-    res_list = []
     c_list = pyIO.get_content(filename)
-    big_text = ' '.join(c_list)
-    word = get_word_by_fastText(big_text)
+    word = get_word_by_vote(c_list)
 
     print("filename, word:", filename, word)
 
