@@ -95,11 +95,11 @@ if __name__ == '__main__':
         #classifier = fasttext.supervised(result_filename, 'model_classify', label_prefix='__label__')
         classifier = fasttext.supervised(result_filename, 'model_classify', lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix='__label__')
 
-    classifier = fasttext.load_model('model_classify.bin')
-    result = classifier.test(test_file)
-    print('Precision: {}'.format(result.precision))
-    print('Recall : {}'.format(result.recall))
-    print('Number of examples: {}'.format(result.nexamples))
+        #classifier = fasttext.load_model('model_classify.bin')
+        result = classifier.test(test_file)
+        print('Precision: {}'.format(result.precision))
+        print('Recall : {}'.format(result.recall))
+        print('Number of examples: {}'.format(result.nexamples))
 
     #model = fasttext.load_model('model_classify.bin')
     # res = classifier.predict('this is a try')
