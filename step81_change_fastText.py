@@ -71,7 +71,7 @@ if __name__ == '__main__':
         silent = 1
 
         label_prefix = '__label__'
-        output_file = "model_classify.bin"
+        output_file = "/mnt/zzz_daiqiang/b2/model_classify.bin"
 
         def train_model():
             classifier = fasttext.supervised(result_filename, output_file, lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix=label_prefix)
