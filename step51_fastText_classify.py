@@ -50,6 +50,7 @@ if __name__ == '__main__':
         filename_list = tools.get_filename_list('raw_data/dir_step00')
         ###每个目录取1000行
         #big_dict = {}
+        print('filename_list:', filename_list)
         for index, filename in enumerate(filename_list):
 
             label = step05_append_category.get_label_bye_filename(filename)
