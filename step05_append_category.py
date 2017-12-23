@@ -61,18 +61,10 @@ def save_file_by_cat_fasttext(filename, i):
 
     res_list = []
     c_list = pyIO.get_content(filename)
-    for c in c_list:
-        word = get_word_by_fastText(c)
-        res = word + ' ' + c
+    big_text = ' '.join(c_list)
+    word = get_word_by_fastText(big_text)
 
-        # print('res:', res, ',word:', word)
-        # if res.find('cat1 cat1') != -1:
-        #     print('error!')
-        #     sys.exit(0)
-
-        res_list.append(res)
-
-    pyIO.save_to_file("\n".join(res_list),  dst_filename)
+    print("filename, word:", filename, word)
 
 if __name__ == '__main__':
 

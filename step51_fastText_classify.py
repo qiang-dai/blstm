@@ -35,48 +35,6 @@ def get_more_text():
         res_list.append(label + ' ' + ' '.join(word_list))
     return '\n'.join(res_list)
 
-if __name__ == '__main__':
-
-    result_filename = 'tmp/fastText_train.txt'
-    pyIO.save_to_file("", result_filename)
-
-    res_list = []
-
-    filename_list = tools.get_filename_list('raw_data/dir_step00')
-    ###每个目录取1000行
-    for index, filename in enumerate(filename_list):
-
-        label = step05_append_category.get_label_bye_filename(filename)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "index, file_dir, label:",
-              index, filename, label)
-
-        total_list = tools.get_total_limit_list(filename, 2000*10000)
-        res_list.extend([label + e for e in total_list])
-        print('result_filename:', result_filename)
-        pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
-    pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
-
-
-    ###生成wordVector
-    model = fasttext.cbow(result_filename, 'model_word')
-    print (model.words) # list of words in dictionary
-
-    ###命令行
-    #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
-    #cmd = './fasttext predict model_classify.bin test.txt k'
-    #subprocess.call(cmd, shell=True)
-    classifier = fasttext.supervised(result_filename, 'model_classify', label_prefix='__label__')
-    #model = fasttext.load_model('model_classify.bin')
-    # res = classifier.predict('this is a try')
-    res = step05_append_category.get_word_by_fastText("this is a try")
-    print('res:', res)
-    #
-    res = step05_append_category.get_word_by_fastText('Frozen again. I hate that song')
-    print('res:', res)
-    #
-    res = step05_append_category.get_word_by_fastText('Colonel George W. Taylor (later a Brigadier General and commander of the brigade until mortally wounded);')
-    print('res:', res)
-
 def get_word_vector():
     ###加载word embedding
     empty_embedding = [float(0.0) for i in range(100)]
@@ -118,5 +76,47 @@ def get_word_vector():
     final_np =np.asarray(final_matrix, dtype=float)
     print('final_np', final_np.shape)
     return final_np
+
+if __name__ == '__main__':
+
+    result_filename = 'tmp/fastText_train.txt'
+    pyIO.save_to_file("", result_filename)
+
+    res_list = []
+
+    filename_list = tools.get_filename_list('raw_data/dir_step00')
+    ###每个目录取1000行
+    for index, filename in enumerate(filename_list):
+
+        label = step05_append_category.get_label_bye_filename(filename)
+        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "index, file_dir, label:",
+              index, filename, label)
+
+        total_list = tools.get_total_limit_list(filename, 2000*10000)
+        res_list.extend([label + e for e in total_list])
+        print('result_filename:', result_filename)
+        pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
+    pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
+
+
+    ###生成wordVector
+    model = fasttext.cbow(result_filename, 'model_word')
+    print (model.words) # list of words in dictionary
+
+    ###命令行
+    #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
+    #cmd = './fasttext predict model_classify.bin test.txt k'
+    #subprocess.call(cmd, shell=True)
+    classifier = fasttext.supervised(result_filename, 'model_classify', label_prefix='__label__')
+    #model = fasttext.load_model('model_classify.bin')
+    # res = classifier.predict('this is a try')
+    res = step05_append_category.get_word_by_fastText("this is a try")
+    print('res:', res)
+    #
+    res = step05_append_category.get_word_by_fastText('Frozen again. I hate that song')
+    print('res:', res)
+    #
+    res = step05_append_category.get_word_by_fastText('Colonel George W. Taylor (later a Brigadier General and commander of the brigade until mortally wounded);')
+    print('res:', res)
 
 
