@@ -60,6 +60,7 @@ if __name__ == '__main__':
                 pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
             pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
 
+
         ###命令行(加朋）
         dim = 10
         lr = 0.005
@@ -84,23 +85,31 @@ if __name__ == '__main__':
         label_prefix = '__label__'
         output_file = "/mnt/zzz_daiqiang/b2/model_classify"
 
-        def train_model():
-            classifier = fasttext.supervised(result_filename, output_file, lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix=label_prefix)
+        for word_ngrams in range(1, 5):
+            def train_model():
+                classifier = fasttext.supervised(result_filename, output_file, lr=lr, epoch=epoch,min_count=min_count, word_ngrams=word_ngrams, bucket=bucket,thread=thread, label_prefix=label_prefix)
 
-            # result = classifier.test(test_file)
-            # print('Precision: {}'.format(result.precision))
-            # print('Recall : {}'.format(result.recall))
-            # print('Number of examples: {}'.format(result.nexamples))
+                # result = classifier.test(test_file)
+                # print('Precision: {}'.format(result.precision))
+                # print('Recall : {}'.format(result.recall))
+                # print('Number of examples: {}'.format(result.nexamples))
 
-        train_model()
-    #else:
-    #classifier = fasttext.load_model('model_classify.bin')
-    #result = classifier.test(test_file)
-    classifier = fasttext.load_model('model_classify.bin')
-    c_list = pyIO.get_content(test_file)
-    big_text = ' '.join(c_list)
-    labels = classifier.predict([big_text, ], 1)
-    print('test_file, labels: ', test_file, labels)
+            train_model()
+            #else:
+            #classifier = fasttext.load_model('model_classify.bin')
+            #result = classifier.test(test_file)
+            classifier = fasttext.load_model('model_classify.bin')
+
+            test_file_list = ['valid_kika.txt',
+                              'valid_subtitle.txt',
+                              'valid_twitter.txt',
+                              'valid_wiki.txt']
+
+            for test_file in test_file_list:
+                c_list = pyIO.get_content(test_file)
+                big_text = ' '.join(c_list)
+                labels = classifier.predict([big_text, ], 1)
+                print('test_file, labels: ', test_file, labels)
 
     #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
     #cmd = './fasttext predict model_classify.bin test.txt k'
