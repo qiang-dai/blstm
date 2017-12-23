@@ -28,27 +28,9 @@ def get_word_by_fastText(text):
         classifier = fasttext.load_model('model_classify.bin')
     labels = classifier.predict([text, ], 1)
     word = 'cat%s'%(labels[0][0].replace('__label__', ''))
-    #print('get_word_by_fastText labels:', labels, ', word:', word, ', text:', text)
+    print('get_word_by_fastText labels:', labels, ', word:', word, ', text:', text)
 
     return word
-def get_word_by_vote(c_list):
-    word_list = [get_word_by_fastText(e) for e in c_list]
-    cnt_dict = {}
-    for w in word_list:
-        if w not in cnt_dict:
-            cnt_dict[w] = 1
-        else:
-            cnt_dict[w] = cnt_dict[w]+1
-
-    print('cnt_dict:', cnt_dict)
-    ###max
-    max_key = ''
-    max_val = 0
-    for k,v in cnt_dict.items():
-        if v > max_val:
-            max_key = k
-            max_val = v
-    return max_key
 
 def get_label_bye_filename(filename):
     for i in range(10):
@@ -94,12 +76,10 @@ def save_file_by_cat_fasttext(filename, i):
 
 if __name__ == '__main__':
 
-    filename_list = tools.get_filename_list('raw_data/dir_step00')
+    filename_list = tools.get_filename_list('raw_data/dir_step04')
     filename_list.sort()
     print('filename_list:', filename_list)
     operation = 'train'
-    if len(sys.argv) > 1:
-        filename_list = tools.get_filename_list(sys.argv[1])
     if len(sys.argv) > 2:
         operation = sys.argv[2]
 

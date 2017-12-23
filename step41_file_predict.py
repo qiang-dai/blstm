@@ -260,7 +260,7 @@ print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Finished creating 
 #     return mean_acc, mean_cost
 
 
-#sess.run(tf.global_variables_initializer())
+sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()  # 最多保存的模型数量
 
