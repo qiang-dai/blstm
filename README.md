@@ -17,7 +17,7 @@
 - 比如 python3 step41_file_predict.py valid_subtitle.txt > c2
 - 改为 python3 step41_file_predict.py 2.txt > c2
 
-# 5，执行 ./run.sh 开始训练
+# 5，执行 ./run.sh 开始训练+预测
 
 # 6，查看结果
 - 准确率，召回率可以看文件 c1,c2,c3,c4
