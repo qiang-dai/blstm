@@ -104,8 +104,8 @@ if __name__ == '__main__':
     print (model.words) # list of words in dictionary
 
     ###命令行
-    #cmd = 'fastText-0.1.0/fasttext  supervised -input %s -output model'%(result_filename)
-    #cmd = './fasttext predict model_classify.bin test.txt k'
+    #cmd = 'fastText/fasttext  supervised -input %s -output model'%(result_filename)
+    #cmd = 'fastText/fasttext predict model_classify.bin test.txt k'
     #subprocess.call(cmd, shell=True)
     classifier = fasttext.supervised(result_filename, 'model_classify', label_prefix='__label__')
     #model = fasttext.load_model('model_classify.bin')

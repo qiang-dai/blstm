@@ -31,7 +31,7 @@ python3 step03_split_file.py raw_data/dir_step00            500000              
 python3 step04_format_multi_punc.py raw_data/dir_step03     100000       raw_data/dir_step04     1
 python3 step07_slip_window.py raw_data/dir_step04           1000000        raw_data/dir_step07
 
-python3 step51_fastText_classify.py raw_data/dir_step00     train
+python3 step51_fastText_classify.py  train
 wget http://nlp.stanford.edu/data/glove.twitter.27B.zip
 unzip -of glove.twitter.27B.zip
 cp glove.twitter.27B.100d.txt model_word.vec
