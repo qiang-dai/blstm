@@ -93,7 +93,9 @@ if __name__ == '__main__':
               index, filename, label)
 
         total_list = tools.get_total_limit_list(filename, 2000*10000)
-        res_list.extend([label + e for e in total_list])
+        big_text = ' '.join(total_list)
+        res_list = [label + big_text,]
+        #res_list.extend([label + e for e in total_list])
         print('result_filename:', result_filename)
         pyIO.append_to_file_nolock("\n".join(res_list) + '\n', result_filename)
     pyIO.append_to_file_nolock(get_more_text() + '\n', result_filename)
