@@ -33,6 +33,10 @@ def get_category_by_file(filename, fastText_result_dict):
     labels = step05_append_category.get_word_probe_by_fastText(big_line)
     print("===fastText labels:", filename, labels)
     fastText_result_dict[filename] = labels
+
+    fast_cat = step05_append_category.get_word_by_fastText(big_line)
+    print("===fastText result:", filename, fast_cat)
+
     return labels
 
 ###遍历 fastText_result_dict， 查找其中的最大值
