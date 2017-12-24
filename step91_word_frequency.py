@@ -84,16 +84,16 @@ if __name__ == '__main__':
         return common_sort(e, "RT")
 
     file_rate_list.sort(key = my_sort_size40)
-    print('file_rate_list:', file_rate_list)
+    print('file_rate_list:', file_rate_list, '\n')
 
     file_rate_list.sort(key = my_sort_emoji)
-    print('file_rate_list:', file_rate_list)
+    print('file_rate_list:', file_rate_list, '\n')
 
     file_rate_list.sort(key = my_sort_number)
-    print('file_rate_list:', file_rate_list)
+    print('file_rate_list:', file_rate_list, '\n')
 
     file_rate_list.sort(key = my_sort_sentence)
-    print('file_rate_list:', file_rate_list)
+    print('file_rate_list:', file_rate_list, '\n')
 
     file_rate_list.sort(key = my_sort_rt)
-    print('file_rate_list:', file_rate_list)
+    print('file_rate_list:', file_rate_list, '\n')
