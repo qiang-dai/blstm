@@ -36,12 +36,12 @@ def get_word_probe_by_fastText(text):
     global classifier
     if classifier is None:
         classifier = fasttext.load_model('model_classify.bin')
-    labels = classifier.predict_proba([text, ], k=2)
+    labels = classifier.predict_proba([text, ], k=1)
     # word = 'cat%s'%(labels[0][0].replace('__label__', ''))
     # print('get_word_by_fastText labels:', labels, ', word:', word, ', text:', text)
     #
     # return (word, probe)
-    return labels[0]
+    return labels[0][0]
 
 def get_label_bye_filename(filename):
     for i in range(10):

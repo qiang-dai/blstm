@@ -37,22 +37,63 @@ os.mkdir("tmp/step07")
 use_fasttext = False
 
 ###使用fastText对文章进行分类
-def get_category_by_file(filename):
+file_dir = sys.argv[1]
+def get_category_by_file(filename, fastText_result_dict):
     c_list = pyIO.get_content(filename)
     big_line = ' '.join(c_list)
     labels = step05_append_category.get_word_probe_by_fastText(big_line)
     print("===fastText labels:", filename, labels)
-
-    word = step05_append_category.get_word_by_fastText(big_line)
-    print("===fastText word:", filename, word)
+    fastText_result_dict[filename] = labels
     return labels
 
+###遍历 fastText_result_dict， 查找其中的最大值
+def find_max_k(fastText_result_dict, label_str):
+    max_k = ''
+    max_v = 0.0
+    for k,v in fastText_result_dict:
+        if v[0] == label_str and max_v < v[1]:
+            max_k = k
+            max_v = v[1]
+    return max_k
+
 filename = sys.argv[1]
+fastText_result_dict = {}
 file_list = tools.get_filename_list(filename)
 ###文件进行分类
 for filename in file_list:
-    file_cat = get_category_by_file(filename)
+    get_category_by_file(filename, fastText_result_dict)
 
+print("fastText_result_dict:", fastText_result_dict)
+
+###去掉重复项目
+final_cat_dict = {}
+for filename in file_list:
+    for i in range(4):
+        label_str = '__label__%d'%i
+        k = find_max_k(fastText_result_dict, label_str)
+        if len(k) > 0:
+            final_cat_dict[filename] = k.replace("__label__", "cat")
+
+print("final_cat_dict:", final_cat_dict)
+###查找丢失的分类
+def get_lost_cat(final_cat_dict):
+    res_list = []
+    for i in range(4):
+        cat_str = 'cat%s'%i
+        if cat_str not in final_cat_dict:
+            res_list.append(cat_str)
+    return res_list
+
+###补充回丢失的类别信息
+lost_cat_list = get_lost_cat(final_cat_dict)
+print("lost_cat_list:", lost_cat_list)
+
+for filename in file_list:
+    if filename not in final_cat_dict:
+        final_cat_dict[filename] = lost_cat_list[0]
+        lost_cat_list = lost_cat_list[1:]
+
+print("final_cat_dict:", final_cat_dict)
 
 sys.exit(0)
 ###判断是否有相同的类型
