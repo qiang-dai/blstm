@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 labels = classifier.predict([big_text, ], 1)
                 print('test_file, labels: ', test_file, labels)
 
-        for lr in np.arange(0.005, 0.50, 0.1):
+        for lr in np.arange(0.205, 0.50, 0.1):
             for epoch in range(1, 6, 3):
                 for min_count in range(1, 5, 2):
                     for word_ngrams in range(1, 6, 3):
