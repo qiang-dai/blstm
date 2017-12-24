@@ -28,7 +28,7 @@ def get_word_by_fastText(text):
         classifier = fasttext.load_model('model_classify.bin')
     labels = classifier.predict([text, ], 1)
     word = 'cat%s'%(labels[0][0].replace('__label__', ''))
-    print('get_word_by_fastText labels:', labels, ', word:', word, ', text:', text)
+    #print('get_word_by_fastText labels:', labels, ', word:', word, ', text:', text)
 
     return word
 
