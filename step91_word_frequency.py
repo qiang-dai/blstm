@@ -35,7 +35,8 @@ def getRate(cnt_dict, size):
 
 if __name__ == '__main__':
 
-    filename_list = tools.get_filename_list('raw_data/dir_step00')
+    file_dir = sys.argv[1]
+    filename_list = tools.get_filename_list(file_dir)
 
     file_rate_list = []
     ###每个目录取1000行
