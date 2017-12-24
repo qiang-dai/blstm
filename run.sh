@@ -11,7 +11,7 @@ mkdir raw_data/dir_kika/  raw_data/dir_subtitle/  raw_data/dir_twitter/  raw_dat
 cp raw_data/en_punctuation_recommend_train_100W raw_data/dir_kika/
 mkdir raw_data/dir_step00/ raw_data/dir_step03/ raw_data/dir_step04/ raw_data/dir_step07/
 mkdir tmp/ data/ ckpt/
-mkdir tmp/step04/ tmp/step07/
+mkdir tmp/step01/ tmp/step04/ tmp/step07/
 
 rm -f ckpt/*
 rm -f raw_data/dir_step00/*

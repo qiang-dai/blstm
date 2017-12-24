@@ -30,7 +30,7 @@ def get_more_text():
         word_list.append('num%d'%i)
 
     res_list = []
-    for i in range(5):
+    for i in range(4):
         label = '__label__%d'%i
         res_list.append(label + ' ' + ' '.join(word_list))
     return '\n'.join(res_list)
