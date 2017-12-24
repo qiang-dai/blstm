@@ -26,12 +26,18 @@ def add_cnt_dict(cnt_dict, k, v):
     cnt_dict[k] = v
 
 def getRate(cnt_dict, size):
+    rate_dict = {}
+
     for k,v in cnt_dict.items():
         print('%-10s'%k, v, v/size)
+        rate_dict[k] = v/size
+    return rate_dict
 
 if __name__ == '__main__':
 
     filename_list = tools.get_filename_list('raw_data/dir_step00')
+
+    file_rate_list = []
     ###每个目录取1000行
     for index, filename in enumerate(filename_list):
         cnt_dict = {}
@@ -54,4 +60,39 @@ if __name__ == '__main__':
         print("get result from filename:", filename)
         print("cnt_dict:", cnt_dict)
         print("rate:")
-        getRate(cnt_dict, len(total_list))
+        rate_dict = getRate(cnt_dict, len(total_list))
+        file_rate_list.append([filename, rate_dict])
+    print('file_rate_list:', file_rate_list)
+    ###取2个size40的进行区分
+    def common_sort(e, text):
+        some_dict = e[1]
+        if text in some_dict:
+            return some_dict[text]
+        else:
+            return 0
+
+    def my_sort_size40(e):
+        return common_sort(e, "SIZE40")
+    def my_sort_emoji(e):
+        return common_sort(e, "EMOJI")
+    def my_sort_number(e):
+        return common_sort(e, "NUMBER")
+    def my_sort_sentence(e):
+        return common_sort(e, "SENTENCE")
+    def my_sort_rt(e):
+        return common_sort(e, "RT")
+
+    file_rate_list.sort(key = my_sort_size40)
+    print('file_rate_list:', file_rate_list)
+
+    file_rate_list.sort(key = my_sort_emoji)
+    print('file_rate_list:', file_rate_list)
+
+    file_rate_list.sort(key = my_sort_number)
+    print('file_rate_list:', file_rate_list)
+
+    file_rate_list.sort(key = my_sort_sentence)
+    print('file_rate_list:', file_rate_list)
+
+    file_rate_list.sort(key = my_sort_rt)
+    print('file_rate_list:', file_rate_list)
