@@ -27,7 +27,7 @@ def add_cnt_dict(cnt_dict, k, v):
 
 def getRate(cnt_dict, size):
     for k,v in cnt_dict.items():
-        print(k, v, v/size)
+        print('%-10s'%k, v, v/size)
 
 if __name__ == '__main__':
 
@@ -51,5 +51,7 @@ if __name__ == '__main__':
             if len(tmp_list) > 40:
                 add_cnt_dict(cnt_dict, "SIZE40", 1)
 
+        print("get result from filename:", filename)
         print("cnt_dict:", cnt_dict)
-        print("rate:", getRate(cnt_dict, len(total_list)))
+        print("rate:")
+        getRate(cnt_dict, len(total_list))
