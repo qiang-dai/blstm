@@ -41,10 +41,10 @@ def get_category_by_file(filename):
     c_list = pyIO.get_content(filename)
     big_line = ' '.join(c_list)
     labels = step05_append_category.get_word_probe_by_fastText(big_line)
-    print("fastText labels:", filename, labels)
+    print("===fastText labels:", filename, labels)
 
     word = step05_append_category.get_word_by_fastText(big_line)
-    print("  fastText word:", filename, word)
+    print("===fastText word:", filename, word)
     return labels
 
 filename = sys.argv[1]
