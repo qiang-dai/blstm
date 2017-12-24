@@ -95,7 +95,6 @@ for filename in file_list:
 
 print("final_cat_dict:", final_cat_dict)
 
-sys.exit(0)
 ###判断是否有相同的类型
 def get_lost_cat(cnt_dict):
     res_list = []
