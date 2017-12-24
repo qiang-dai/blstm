@@ -78,7 +78,7 @@ def lock_file(filename):
 def unlock_file(fp):
     fcntl.flock(fp, fcntl.LOCK_UN) 
 
-def append_to_file_nolock(text= '', filename='log.txt'):
+def append_to_file_nolock(text, filename):
     create_dir_if_needed(filename)
     f = codecs.open(filename, 'a', 'utf8')
     f.write(text)
