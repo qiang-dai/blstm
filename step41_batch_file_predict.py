@@ -33,23 +33,25 @@ shutil.rmtree("tmp/step07")
 os.mkdir("tmp/step04")
 os.mkdir("tmp/step07")
 
+
 use_fasttext = False
+
 ###使用fastText对文章进行分类
 def get_category_by_file(filename):
     c_list = pyIO.get_content(filename)
     big_line = ' '.join(c_list)
-    fast_cat = step05_append_category.get_word_by_fastText(big_line)
-    print("fastText result:", filename, fast_cat)
-    return fast_cat
+    labels = step05_append_category.get_word_probe_by_fastText(big_line)
+    print("fastText result:", filename, labels)
+    return labels
 
 filename = sys.argv[1]
 file_list = tools.get_filename_list(filename)
 ###文件进行分类
-file_cat_dict = {}
 for filename in file_list:
     file_cat = get_category_by_file(filename)
-    step91_word_frequency.append_cnt_dict(file_cat_dict, file_cat, filename)
 
+
+sys.exit(0)
 ###判断是否有相同的类型
 def get_lost_cat(cnt_dict):
     res_list = []
@@ -59,16 +61,6 @@ def get_lost_cat(cnt_dict):
             res_list.append(current_cat)
     return res_list
 
-for k,v in file_cat_dict:
-    if v > 1:
-        if k == 'cat0':
-            pass
-        if k == 'cat1':
-            pass
-        if k == 'cat2':
-            pass
-        if k == 'cat3':
-            pass
 
 ###重新命名文件
 file_fast_cat = get_category_by_file(filename)
