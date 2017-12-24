@@ -55,7 +55,7 @@ if __name__ == '__main__':
                     add_cnt_dict(cnt_dict, "SENTENCE", 1)
                 if tmp == 'rt':
                     add_cnt_dict(cnt_dict, "RT", 1)
-            if len(tmp_list) > 40:
+            if len(tmp_list) > 60:
                 add_cnt_dict(cnt_dict, "SIZE40", 1)
 
         print("get result from filename:", filename)
