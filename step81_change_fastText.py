@@ -101,10 +101,11 @@ if __name__ == '__main__':
                 labels = classifier.predict([big_text, ], 1)
                 print('test_file, labels: ', test_file, labels)
 
-        for lr in np.arange(0.005, 0.50, 0.04):
-            for epoch in range(1, 6, 2):
-                for min_count in range(1, 5, 1):
-                    for word_ngrams in range(1, 6, 2):
-                        for bucket in range(200*10000, 1400*10000, 800*10000):
-                            print((lr, epoch, dim, min_count, word_ngrams, bucket))
-                            run(lr, epoch, min_count, word_ngrams, bucket)
+        for lr in np.arange(0.005, 0.50, 0.1):
+            for epoch in range(1, 6, 3):
+                for min_count in range(1, 5, 2):
+                    for word_ngrams in range(1, 6, 3):
+                        #for bucket in range(200*10000, 1400*10000, 800*10000):
+                        bucket = 1000*10000
+                        print((lr, epoch, dim, min_count, word_ngrams, bucket))
+                        run(lr, epoch, min_count, word_ngrams, bucket)
