@@ -43,7 +43,11 @@ def get_category_by_file(filename):
 
 ###重新命名文件
 file_fast_cat = get_category_by_file(filename)
-renamed_file = filename.replace('.txt', '_%s_.txt'%file_fast_cat)
+#renamed_file = filename.replace('.txt', '_%s_.txt'%file_fast_cat)
+path,name = os.path.split(filename)
+if len(path) == 0:
+    path = '.'
+renamed_file = path + '/' + '_%s_'%file_fast_cat + name + '.txt'
 copyfile(filename, renamed_file)
 
 if len(sys.argv) > 2:
