@@ -9,7 +9,10 @@
 - mkdir raw_data/dir_kika/  raw_data/dir_subtitle/  raw_data/dir_twitter/  raw_data/dir_wiki/
 
 # 3, 将4个训练文件，分别放入 4 个目录内
-- 比如 cp a.txt raw_data/dir_kika/ 
+- 比如 cp 1.txt raw_data/dir_kika/ 
+- 比如 cp 2.txt raw_data/dir_subtitle/ 
+- 比如 cp 3.txt raw_data/dir_twitter/ 
+- 比如 cp 4.txt raw_data/dir_wiki/ 
 
 # 4, 修改./run.sh 将参数 txt 修改为预测文件（这里的预测文件，是具体文件名，不能是目录，不能是链接）
 - 比如 python3 step41_file_predict.py valid_kika.txt > c1
